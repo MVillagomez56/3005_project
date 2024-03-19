@@ -2,6 +2,7 @@
 CREATE TYPE role AS ENUM ('admin', 'member', 'trainer');
 CREATE TYPE classType AS ENUM ('personal', 'group');
 CREATE TYPE status AS ENUM ('available', 'unavailable', 'maintenance');
+CREATE TYPE service AS ENUM ('membership', 'personal fitness class', 'group fitness class');
 
 CREATE TABLE 'Users' (
   'id' INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -72,7 +73,7 @@ CREATE TABLE 'Fitness_Goals' (
     'member_id' INTEGER NOT NULL,
     'goal' TEXT NOT NULL,
     'completion_date' DATE NOT NULL,
-    'completed' BOOLEAN NOT NULL DEFAULT FALSE,
+    'status' BOOLEAN NOT NULL DEFAULT FALSE,
     'FOREIGN KEY'('member_id') REFERENCES 'Members'('id')
 );
 

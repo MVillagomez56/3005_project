@@ -1,10 +1,14 @@
 import React from 'react'
+import { Box } from '@mui/material'
+import Banner from '../components/Banner'
 
 
 export const Dashboard = () => {
     return (
         <div>
-        <h1>Dashboard</h1>
+        <Box>
+          <Banner />
+        </Box>
         </div>
     )
  }

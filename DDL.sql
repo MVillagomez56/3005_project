@@ -174,6 +174,8 @@ CREATE TRIGGER check_availability
 BEFORE INSERT ON Classes
 FOR EACH ROW
 EXECUTE FUNCTION check_availability();
+
+
  
 ----DML.sql
 
@@ -215,6 +217,8 @@ VALUES (3, 2);
 -- create a fitness goal
 INSERT INTO Fitness_Goals (member_id, goal, completion_date, status)
 VALUES (2, 'lose weight', '2021-12-31', FALSE);
+
+
 
 -- create a payment
 INSERT INTO Payments (member_id, amount, date, service)

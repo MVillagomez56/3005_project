@@ -9,11 +9,13 @@ import {CourseDetail} from './pages/CourseDetail';
 import {RoomDetail} from './pages/RoomDetail';
 import {ClassEdit} from './pages/ClassEdit';
 import {PrivateRoute} from './PrivateRoute';
+import {Navbar} from "./components/Navbar.js"
 
 
 export const AppRouter = () => {
   return (
     <Router>
+      <Navbar/>
       <Routes>
         <Route path="/" element={<Dashboard />} /> 
         <Route path="/profile/:id" element={<PrivateRoute><Profile /></PrivateRoute>} />

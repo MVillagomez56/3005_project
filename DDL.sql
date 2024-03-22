@@ -63,8 +63,10 @@ CREATE TABLE Classes (
 CREATE TABLE Classes_Members (
     class_id INTEGER NOT NULL,
     member_id INTEGER NOT NULL,
+    isPaymentProcessed BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY(member_id) REFERENCES Members(id),
-    FOREIGN KEY(class_id) REFERENCES Classes(id)
+    FOREIGN KEY(class_id) REFERENCES Classes(id),
+    PRIMARY KEY(class_id, member_id)
 );
 
 CREATE TABLE Fitness_Goals (
@@ -81,7 +83,7 @@ CREATE TABLE Payments (
     member_id INTEGER NOT NULL,
     amount INTEGER NOT NULL,
     date DATE NOT NULL,
-    service TEXT NOT NULL,
+    service service NOT NULL,
     completion_status BOOLEAN NOT NULL DEFAULT FALSE, -- 0 for pending, 1 for completed
     FOREIGN KEY(member_id) REFERENCES Members(id)
 );

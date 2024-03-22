@@ -16,3 +16,5 @@ router.get("/api/rooms:id");
 
 router.get("/api/popular-class");
 
+router.post("/addClass", classController.addClass);
+

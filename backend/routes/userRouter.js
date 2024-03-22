@@ -9,3 +9,13 @@ const userController = require("../controllers/users-controller");
 router.get("/",)
 
 router.get();
+
+
+// Post routers
+router.post("/registerUser", userController.registerUser);
+
+router.post("/addMember", userController.addMember);
+
+router.post("/addPayment", userController.addPayment);
+
+router.post("/addFitnessGoal", userController.addFitnessGoal);

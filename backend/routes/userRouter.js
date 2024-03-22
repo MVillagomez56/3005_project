@@ -7,3 +7,7 @@ const userController = require("../controllers/users-controller");
 
 // Get router 
 router.get("/",)
+
+router.get("/registerUser", userController.registerUser);
+
+router.post("/addMember", userController.addMember);

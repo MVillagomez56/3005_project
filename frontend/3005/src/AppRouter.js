@@ -9,7 +9,8 @@ import {CourseDetail} from './pages/CourseDetail';
 import {RoomDetail} from './pages/RoomDetail';
 import {ClassEdit} from './pages/ClassEdit';
 import {PrivateRoute} from './PrivateRoute';
-import {Navbar} from "./components/Navbar.js"
+import {Navbar} from "./components/Navbar.js";
+import {Footer} from './components/Footer.js';
 
 
 export const AppRouter = () => {
@@ -26,6 +27,7 @@ export const AppRouter = () => {
         <Route path="/room/:id" element={<RoomDetail />} />
         <Route path="/class/:id" element={<PrivateRoute component={ClassEdit} roleRequired="trainer" />} />
       </Routes>
+      <Footer/>
     </Router>
   );
   }

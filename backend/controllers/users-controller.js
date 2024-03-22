@@ -100,3 +100,90 @@ const addMember = async (req, res, next) => {
     res.status(500).json({ error: "Could not add member to the database" });
   }
 };
+
+// add payment
+const addPayment = async (req, res, next) => {
+  try {
+    // Destructure payment information from request body
+    const { member_id, amount, payment_date, service, completion_status } =
+      req.body;
+
+    // Basic validation
+    if (typeof member_id !== "number" || member_id <= 0) {
+      return res.status(400).json({ error: "Invalid member ID" });
+    }
+    if (typeof amount !== "number" || amount <= 0) {
+      return res.status(400).json({ error: "Invalid amount" });
+    }
+    if (new Date(date).toString() === "Invalid Date") {
+      return res.status(400).json({ error: "Invalid date" });
+    }
+    if (typeof service !== "string" || !service.trim()) {
+      return res.status(400).json({ error: "Invalid service" });
+    }
+
+    const memberCheck = await pool.query(
+      "SELECT id FROM Members WHERE id = $1",
+      [member_id]
+    );
+    if (memberCheck.rows.length === 0) {
+      return res.status(400).json({ error: "Member ID does not exist" });
+    }
+
+    // Insert payment information into the database, using parameterized query for security
+    const { rows } = await pool.query(
+      "INSERT INTO payments (member_id, amount, payment_date, service, completion_status) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
+      [member_id, amount, payment_date, service, completion_status]
+    );
+
+    // Respond with the newly created payment entry
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Could not create payment" });
+  }
+};
+
+const addFitnessGoal = async (req, res) => {
+    try {
+      const { member_id, goal, completion_date, status } = req.body;
+  
+      // Validate 'member_id'
+      if (typeof member_id !== 'number' || member_id <= 0) {
+        return res.status(400).json({ error: 'Invalid or missing member ID.' });
+      }
+  
+      // Validate 'goal'
+      if (typeof goal !== 'string' || !goal.trim()) {
+        return res.status(400).json({ error: 'Invalid or missing goal text.' });
+      }
+  
+      // Validate 'completion_date'
+      if (typeof completion_date !== 'string' || !/^(\d{4})-(\d{2})-(\d{2})$/.test(completion_date)) {
+        return res.status(400).json({ error: 'Invalid or missing completion date. Format should be YYYY-MM-DD.' });
+      }
+  
+      // 'status' is a boolean; ensure it's provided as such since the default is managed by PostgreSQL
+      if (status !== undefined && typeof status !== 'boolean') {
+        return res.status(400).json({ error: 'Invalid status. Must be true or false.' });
+      }
+  
+      // Inserting the new fitness goal into the database
+      const insertQuery = `
+        INSERT INTO Fitness_Goals (member_id, goal, completion_date, status)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id, member_id, goal, completion_date, status;
+      `;
+      // Handle the default value for 'status' by explicitly checking if it's undefined
+      const values = [member_id, goal, completion_date, status !== undefined ? status : false];
+      const { rows } = await pool.query(insertQuery, values);
+  
+      // Respond with the newly created fitness goal
+      res.status(201).json(rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Could not add the fitness goal to the database.' });
+    }
+  };
+  
+

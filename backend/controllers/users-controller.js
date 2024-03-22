@@ -3,12 +3,51 @@
 const jwt = require("jsonwebtoken");
 
 // Function to get all user
-const getAllUser = async (req, res, next) => {};
+const getAllUsers = async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      "SELECT id, email, name, date_of_birth, role FROM Users ORDER BY id;"
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving users." });
+  }
+};
 
-const getUserByID = async (req, res, next) => {};
+const getUserById = async (req, res, next) => {
+  const userId = parseInt(req.params.id); 
+
+  // Validate that the provided ID is a number
+  if (isNaN(userId)) {
+    return res.status(400).json({ error: "Invalid user ID." });
+  }
+
+  try {
+    const { rows } = await pool.query(
+      "SELECT id, email, name, date_of_birth, role FROM Users WHERE id = $1;",
+      [userId] 
+    );
+
+    // Check if a user was found
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    res.json(rows[0]); // Send the found user
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving the user." });
+  }
+};
 
 const registerCourse = async (req, res, next) => {};
 
+// Post
 //Add a new user
 const registerUser = async (req, res, next) => {
   try {
@@ -145,45 +184,58 @@ const addPayment = async (req, res, next) => {
 };
 
 const addFitnessGoal = async (req, res) => {
-    try {
-      const { member_id, goal, completion_date, status } = req.body;
-  
-      // Validate 'member_id'
-      if (typeof member_id !== 'number' || member_id <= 0) {
-        return res.status(400).json({ error: 'Invalid or missing member ID.' });
-      }
-  
-      // Validate 'goal'
-      if (typeof goal !== 'string' || !goal.trim()) {
-        return res.status(400).json({ error: 'Invalid or missing goal text.' });
-      }
-  
-      // Validate 'completion_date'
-      if (typeof completion_date !== 'string' || !/^(\d{4})-(\d{2})-(\d{2})$/.test(completion_date)) {
-        return res.status(400).json({ error: 'Invalid or missing completion date. Format should be YYYY-MM-DD.' });
-      }
-  
-      // 'status' is a boolean; ensure it's provided as such since the default is managed by PostgreSQL
-      if (status !== undefined && typeof status !== 'boolean') {
-        return res.status(400).json({ error: 'Invalid status. Must be true or false.' });
-      }
-  
-      // Inserting the new fitness goal into the database
-      const insertQuery = `
+  try {
+    const { member_id, goal, completion_date, status } = req.body;
+
+    // Validate 'member_id'
+    if (typeof member_id !== "number" || member_id <= 0) {
+      return res.status(400).json({ error: "Invalid or missing member ID." });
+    }
+
+    // Validate 'goal'
+    if (typeof goal !== "string" || !goal.trim()) {
+      return res.status(400).json({ error: "Invalid or missing goal text." });
+    }
+
+    // Validate 'completion_date'
+    if (
+      typeof completion_date !== "string" ||
+      !/^(\d{4})-(\d{2})-(\d{2})$/.test(completion_date)
+    ) {
+      return res.status(400).json({
+        error:
+          "Invalid or missing completion date. Format should be YYYY-MM-DD.",
+      });
+    }
+
+    // 'status' is a boolean; ensure it's provided as such since the default is managed by PostgreSQL
+    if (status !== undefined && typeof status !== "boolean") {
+      return res
+        .status(400)
+        .json({ error: "Invalid status. Must be true or false." });
+    }
+
+    // Inserting the new fitness goal into the database
+    const insertQuery = `
         INSERT INTO Fitness_Goals (member_id, goal, completion_date, status)
         VALUES ($1, $2, $3, $4)
         RETURNING id, member_id, goal, completion_date, status;
       `;
-      // Handle the default value for 'status' by explicitly checking if it's undefined
-      const values = [member_id, goal, completion_date, status !== undefined ? status : false];
-      const { rows } = await pool.query(insertQuery, values);
-  
-      // Respond with the newly created fitness goal
-      res.status(201).json(rows[0]);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Could not add the fitness goal to the database.' });
-    }
-  };
-  
+    // Handle the default value for 'status' by explicitly checking if it's undefined
+    const values = [
+      member_id,
+      goal,
+      completion_date,
+      status !== undefined ? status : false,
+    ];
+    const { rows } = await pool.query(insertQuery, values);
 
+    // Respond with the newly created fitness goal
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "Could not add the fitness goal to the database." });
+  }
+};

@@ -6,17 +6,19 @@ const router = express.Router();
 const userController = require("../controllers/users-controller");
 
 // Get router 
-router.get("/users", userController.getAllUsers);
+router.get("/api/user/:id", userController.getUserById);
 
-router.get("/user/:id", userController.getUserById);
+router.get("/api/members", userController.getAllMembers);
+
+router.get("/api/member/:userid", userController.getMemberById);
 
 
 
 // Post routers
-router.post("/registerUser", userController.registerUser);
+router.post("/api/registerUser", userController.registerUser);
 
-router.post("/addMember", userController.addMember);
+router.post("/api/addMember", userController.addMember);
 
-router.post("/addPayment", userController.addPayment);
+router.post("/api/addPayment", userController.addPayment);
 
-router.post("/addFitnessGoal", userController.addFitnessGoal);
+router.post("/api/addFitnessGoal", userController.addFitnessGoal);

@@ -2,21 +2,7 @@
 
 const jwt = require("jsonwebtoken");
 
-// Function to get all user
-const getAllUsers = async (req, res, next) => {
-  try {
-    const { rows } = await pool.query(
-      "SELECT id, email, name, date_of_birth, role FROM Users ORDER BY id;"
-    );
-    res.json(rows);
-  } catch (err) {
-    console.error(err.message);
-    res
-      .status(500)
-      .json({ error: "An error occurred while retrieving users." });
-  }
-};
-
+// Get
 const getUserById = async (req, res, next) => {
   const userId = parseInt(req.params.id); 
 
@@ -44,6 +30,46 @@ const getUserById = async (req, res, next) => {
       .json({ error: "An error occurred while retrieving the user." });
   }
 };
+
+const getAllMembers = async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      "SELECT m.id, u.name, m.weight, m.height, m.muscle_mass, m.body_fat FROM Members m JOIN Users u ON m.id = u.id ORDER BY m.id;"
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: 'An error occurred while retrieving members.' });
+  }
+};
+
+const getMemberById = async (req, res, next) => {
+  const userId = parseInt(req.params.userid); // Convert the userid from string to integer
+
+  // Validate that the provided ID is a number
+  if (isNaN(userId)) {
+    return res.status(400).json({ error: 'Invalid user ID provided.' });
+  }
+
+  try {
+    const { rows } = await pool.query(
+      "SELECT m.id, u.name, m.weight, m.height, m.muscle_mass, m.body_fat FROM Members m JOIN Users u ON m.id = u.id WHERE m.id = $1;",
+      [userId]
+    );
+
+    // Check if a member was found
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Member not found.' });
+    }
+
+    res.json(rows[0]); // Send the found member
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: 'An error occurred while retrieving the member.' });
+  }
+};
+
+
 
 const registerCourse = async (req, res, next) => {};
 

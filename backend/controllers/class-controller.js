@@ -8,25 +8,26 @@ const getAllRooms = async(req,res,next)=>{
     }
 }
 
-const getAllClass = async(req,res,next)=>{
-    try {
-        const { rows } = await pool.query("SELECT * FROM Classes");
-        res.json(rows);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server error while retrieving classes.");
-    }
-}
+const getAllClasses = async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT 
+        Classes.id, Classes.name, Classes.description, Classes.duration, Classes.cost, Classes.capacity, Classes.type, Classes.room_id, Classes.trainer_id, 
+        Trainers.specialization, Trainers.cost AS trainer_cost, Users.name AS trainer_name, 
+        Rooms.name AS room_name, Rooms.description AS room_description, Rooms.capacity AS room_capacity
+      FROM Classes
+      JOIN Trainers ON Classes.trainer_id = Trainers.id
+      JOIN Users ON Trainers.id = Users.id
+      JOIN Rooms ON Classes.room_id = Rooms.id
+      ORDER BY Classes.id;`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: 'An error occurred while retrieving classes.' });
+  }
+};
 
-const getAllMembers = async(req,res,next)=>{
-    try {
-        const { rows } = await pool.query("SELECT * FROM Members");
-        res.json(rows);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server error while retrieving members.");
-    }
-}
 
 const getAllEquipment = async(req,res,next)=>{
     try {

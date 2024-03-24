@@ -1,6 +1,9 @@
 // USE FOR USER AUTHENTICATION
-
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+
+const pool = require("../db");
+
 
 // Get
 const getUserById = async (req, res, next) => {
@@ -75,15 +78,11 @@ const registerCourse = async (req, res, next) => {};
 
 // Post
 //Add a new user
-const registerUser = async (req, res, next) => {
+const register = async (req, res, next) => {
   try {
     // Extract user details from request body
-    const { username, password, email, name, date_of_birth, role } = req.body;
+    const { email, password, name, date_of_birth, role } = req.body;
 
-    // Validate user input
-    if (typeof username !== "string" || !username.trim()) {
-      return res.status(400).json({ error: "Invalid username" });
-    }
     if (typeof password !== "string" || !password.trim()) {
       return res.status(400).json({ error: "Invalid password" });
     }
@@ -96,24 +95,23 @@ const registerUser = async (req, res, next) => {
     if (new Date(date_of_birth).toString() === "Invalid Date") {
       return res.status(400).json({ error: "Invalid date of birth" });
     }
-    if (typeof role !== "string" || !role.trim()) {
-      return res.status(400).json({ error: "Invalid role" });
-    }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10); // 10 rounds of salting
+    // STRECTH GOAL: Hash the password before storing it in the database
+    // const hashedPassword = await bcrypt.hash(password, 10); // 10 rounds of salting
 
     // Insert new user into database
     const insertQuery = `
-        INSERT INTO Users (username, password, email, name, date_of_birth, role)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING id, username, email, name, date_of_birth, role;
+        INSERT INTO Users (email, password, name, date_of_birth, role)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id, email, name, date_of_birth, role;
       `;
-    const values = [username, hashedPassword, email, name, date_of_birth, role];
+    const values = [email, password, name, date_of_birth, role];
     const { rows } = await pool.query(insertQuery, values);
 
     // Send success response
-    res.status(201).json(rows[0]);
+    res.status(201).json(
+      {user: rows[0]}
+     );
   } catch (err) {
     console.error(err);
     res
@@ -122,49 +120,104 @@ const registerUser = async (req, res, next) => {
   }
 };
 
-const addMember = async (req, res, next) => {
+const login = async (req, res, next) => {
   try {
-    // Destructure member information from request body
-    const { user_id, weight, height, muscle_mass, body_fat } = req.body;
+    // Extract login details from request body
+    console.log('req.body', req.body)
 
-    // Basic validation
-    if (typeof user_id !== "number" || user_id <= 0) {
-      return res.status(400).json({ error: "Invalid user ID" });
+    const { email, password } = req.body;
+    //check if email and password are strings
+    if (typeof email !== "string" || !email.trim()) {
+      return res.status(400).json({ error: "Invalid email" });
     }
-    if (typeof weight !== "number" || weight <= 0) {
-      return res.status(400).json({ error: "Invalid weight" });
-    }
-    if (typeof height !== "number" || height <= 0) {
-      return res.status(400).json({ error: "Invalid height" });
-    }
-    if (typeof muscle_mass !== "number" || muscle_mass <= 0) {
-      return res.status(400).json({ error: "Invalid muscle mass" });
-    }
-    if (typeof body_fat !== "number" || body_fat <= 0) {
-      return res.status(400).json({ error: "Invalid body fat percentage" });
+    if (typeof password !== "string" || !password.trim()) {
+      return res.status(400).json({ error: "Invalid password" });
     }
 
-    // Further validation: check if user_id exists in Users table
-    const userCheck = await pool.query("SELECT id FROM Users WHERE id = $1", [
-      user_id,
-    ]);
-    if (userCheck.rows.length === 0) {
-      return res.status(400).json({ error: "User ID does not exist" });
-    }
-
-    // Insert member information into the database, using parameterized query for security
+    // Check if the user exists in the database
     const { rows } = await pool.query(
-      "INSERT INTO Members (user_id, weight, height, muscle_mass, body_fat) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
-      [user_id, weight, height, muscle_mass, body_fat]
-    );
+      "SELECT * FROM Users WHERE email = $1;",
+      [email]
+    );  
 
-    // Respond with the newly created member entry
-    res.status(201).json(rows[0]);
+
+    if (rows[0] == undefined) { 
+      console.log("User not found");
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    // Check if the password is correct
+    const user = rows[0];
+    // const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log('user', user)
+    if (password !== user.password) {
+      return res.status(401).json({ error: "Incorrect password" });
+    } 
+
+    // STRECTH GOAL: Generate a JWT token 
+    // const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+    //   expiresIn: "1h",
+    // });
+
+    res.status(200).json({ 
+      user:{
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        date_of_birth: user.date_of_birth,
+        role: user.role
+      }
+     }); // send user object to be stored in local storage and state
+    
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Could not add member to the database" });
+    console.error(err);
+    res.status(500).json({ error: "Could not log in user" });
   }
 };
+
+// const addMember = async (req, res, next) => {
+//   try {
+//     // Destructure member information from request body
+//     const { user_id, weight, height, muscle_mass, body_fat } = req.body;
+
+//     // Basic validation
+//     if (typeof user_id !== "number" || user_id <= 0) {
+//       return res.status(400).json({ error: "Invalid user ID" });
+//     }
+//     if (typeof weight !== "number" || weight <= 0) {
+//       return res.status(400).json({ error: "Invalid weight" });
+//     }
+//     if (typeof height !== "number" || height <= 0) {
+//       return res.status(400).json({ error: "Invalid height" });
+//     }
+//     if (typeof muscle_mass !== "number" || muscle_mass <= 0) {
+//       return res.status(400).json({ error: "Invalid muscle mass" });
+//     }
+//     if (typeof body_fat !== "number" || body_fat <= 0) {
+//       return res.status(400).json({ error: "Invalid body fat percentage" });
+//     }
+
+//     // Further validation: check if user_id exists in Users table
+//     const userCheck = await pool.query("SELECT id FROM Users WHERE id = $1", [
+//       user_id,
+//     ]);
+//     if (userCheck.rows.length === 0) {
+//       return res.status(400).json({ error: "User ID does not exist" });
+//     }
+
+//     // Insert member information into the database, using parameterized query for security
+//     const { rows } = await pool.query(
+//       "INSERT INTO Members (user_id, weight, height, muscle_mass, body_fat) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
+//       [user_id, weight, height, muscle_mass, body_fat]
+//     );
+
+//     // Respond with the newly created member entry
+//     res.status(201).json(rows[0]);
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).json({ error: "Could not add member to the database" });
+//   }
+// };
 
 // add payment
 const addPayment = async (req, res, next) => {
@@ -180,9 +233,7 @@ const addPayment = async (req, res, next) => {
     if (typeof amount !== "number" || amount <= 0) {
       return res.status(400).json({ error: "Invalid amount" });
     }
-    if (new Date(date).toString() === "Invalid Date") {
-      return res.status(400).json({ error: "Invalid date" });
-    }
+
     if (typeof service !== "string" || !service.trim()) {
       return res.status(400).json({ error: "Invalid service" });
     }
@@ -265,3 +316,9 @@ const addFitnessGoal = async (req, res) => {
       .json({ error: "Could not add the fitness goal to the database." });
   }
 };
+
+
+module.exports = {
+  login,
+  register,
+}

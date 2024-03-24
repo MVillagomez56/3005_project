@@ -9,7 +9,7 @@ const Banner = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#ffc99d',
+        backgroundColor: 'pink',
         color: 'white',
         padding: '20px',
         gap: '20px',

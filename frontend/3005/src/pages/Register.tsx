@@ -3,9 +3,10 @@ import { Container, TextField, Stack, Button } from "@mui/material";
 import { useAuth } from "../store/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-export const Login = () => {
+export const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
   const navigate = useNavigate(); 
 
   const { login, currentUser } = useAuth();

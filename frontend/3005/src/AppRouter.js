@@ -2,14 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import {Dashboard} from './pages/Dashboard.tsx';
 import {Profile} from './pages/Profile.js';
-import {Register} from './pages/Register';
+import {Register} from './pages/Register.tsx';
 import {Login} from './pages/Login.tsx';
 import {Checkout} from './pages/Checkout';
 import {CourseDetail} from './pages/CourseDetail';
 import {RoomDetail} from './pages/RoomDetail';
 import {ClassEdit} from './pages/ClassEdit';
 import {PrivateRoute} from './PrivateRoute';
-import {Navbar} from "./components/Navbar.js";
+import {Navbar} from "./components/Navbar.tsx";
 import {Footer} from './components/Footer.js';
 
 

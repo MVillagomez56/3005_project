@@ -25,7 +25,7 @@ CREATE TABLE Trainers (
     saturday_availability TSRANGE,
     sunday_availability TSRANGE,
     cost INTEGER,
-    FOREIGN KEY(id) REFERENCES Users(id)
+    FOREIGN KEY(id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Members (
@@ -34,8 +34,9 @@ CREATE TABLE Members (
     height INTEGER,
     muscle_mass INTEGER,
     body_fat INTEGER,
-    FOREIGN KEY(id) REFERENCES Users(id)
+    FOREIGN KEY(id) REFERENCES Users(id) ON DELETE CASCADE
 );
+
 
 
 
@@ -56,16 +57,16 @@ CREATE TABLE Classes (
     capacity INTEGER NOT NULL,
     type classType NOT NULL,
     room_id INTEGER NOT NULL,
-    FOREIGN KEY(room_id) REFERENCES Rooms(id), 
-    FOREIGN KEY(trainer_id) REFERENCES Trainers(id)
+    FOREIGN KEY(room_id) REFERENCES Rooms(id) ON DELETE CASCADE,
+    FOREIGN KEY(trainer_id) REFERENCES Trainers(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Classes_Members (
     class_id INTEGER NOT NULL,
     member_id INTEGER NOT NULL,
     isPaymentProcessed BOOLEAN NOT NULL DEFAULT FALSE,
-    FOREIGN KEY(member_id) REFERENCES Members(id),
-    FOREIGN KEY(class_id) REFERENCES Classes(id),
+    FOREIGN KEY(member_id) REFERENCES Members(id) ON DELETE CASCADE,
+    FOREIGN KEY(class_id) REFERENCES Classes(id) ON DELETE CASCADE,
     PRIMARY KEY(class_id, member_id)
 );
 
@@ -75,7 +76,7 @@ CREATE TABLE Fitness_Goals (
     goal TEXT NOT NULL,
     completion_date DATE NOT NULL,
     status BOOLEAN NOT NULL DEFAULT FALSE,
-    FOREIGN KEY(member_id) REFERENCES Members(id)
+    FOREIGN KEY(member_id) REFERENCES Members(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Payments (
@@ -85,7 +86,7 @@ CREATE TABLE Payments (
     date DATE NOT NULL,
     service service NOT NULL,
     completion_status BOOLEAN NOT NULL DEFAULT FALSE, -- 0 for pending, 1 for completed
-    FOREIGN KEY(member_id) REFERENCES Members(id)
+    FOREIGN KEY(member_id) REFERENCES Members(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Equipment(
@@ -177,54 +178,3 @@ EXECUTE FUNCTION check_availability();
 
 
  
-----DML.sql
-
--- Initialise an admin, a member and a trainer
-
-INSERT INTO Users (password, email, name, date_of_birth, role)
-VALUES ('admin', 'admin@mail.com', 'admin', '1990-01-01', 'admin');
-
-INSERT INTO Users (password, email, name, date_of_birth, role)
-VALUES ('member', 'member@mail.com', 'member', '2003-12-18', 'member');
-
-INSERT INTO Users (password, email, name, date_of_birth, role)
-VALUES ('trainer', 'trainer@mail.com', 'trainer', '1995-01-01', 'trainer');
-
--- create 2 rooms
-INSERT INTO Rooms (name, description, capacity)
-VALUES ('Room 1', 'Room 1', 10);
-
-INSERT INTO Rooms (name, description, capacity)
-VALUES ('Room 2', 'Room 2', 20);
-
--- create 2 classes
-INSERT INTO Classes (name, description, trainer_id, duration, cost, capacity, type, room_id)
-VALUES ('Class 1', 'Class 1', 3, '[2021-01-01 9:00, 2021-01-01 10:00]', 10, 10, 'group', 1);
-
--- this class should not be created because the trainer is not available
-INSERT INTO Classes (name, description, trainer_id, duration, cost, capacity, type, room_id)
-VALUES ('Class 2', 'Class 2', 3, '[2021-01-01 9:00, 2021-01-01 10:00]', 10, 10, 'group', 2);
-
--- create a personal fitness class
-INSERT INTO Classes (name, description, trainer_id, duration, cost, capacity, type, room_id)
-VALUES ('Class 3', 'Class 3', 3, '[2021-01-01 11:00, 2021-01-01 12:00]', 10, 10, 'personal', 1);
-
--- update classes_members for the personal fitness class
-INSERT INTO Classes_Members (class_id, member_id)
-VALUES (3, 2);
-
-
--- create a fitness goal
-INSERT INTO Fitness_Goals (member_id, goal, completion_date, status)
-VALUES (2, 'lose weight', '2021-12-31', FALSE);
-
-
-
--- create a payment
-INSERT INTO Payments (member_id, amount, date, service)
-VALUES (2, 10, '2021-01-01', 'membership');
-
--- create an equipment
-INSERT INTO Equipment (name, description)
-VALUES ('Treadmill', 'Treadmill');
-

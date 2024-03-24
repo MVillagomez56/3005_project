@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import {Dashboard} from './pages/Dashboard.tsx';
 import {Profile} from './pages/Profile.js';
-import {Register} from './pages/Register.tsx';
+import {Register} from './pages/Register.js';
 import {Login} from './pages/Login.tsx';
 import {Checkout} from './pages/Checkout';
 import {CourseDetail} from './pages/CourseDetail';

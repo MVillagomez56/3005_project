@@ -24,15 +24,18 @@ export const AuthProvider = ({ children }) => {
     //post data to server
     const response = await fetch("http://localhost:5000/users/api/register  ", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
       body: JSON.stringify({ email, password, name, date_of_birth, role }),
     });
 
-   
-
     if (!response.status === 200) {
       return new Error("Signup failed");
-
     }
 
     const data = await response.json();
@@ -42,9 +45,9 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(user);
       setIsLoggedIn(true);
       localStorage.setItem("user", JSON.stringify(user)); // Store user info in localStorage
-      return user;
+      return true;
     } else {
-      return new Error("Signup failed");
+      return false;
     }
   };
 
@@ -55,10 +58,9 @@ export const AuthProvider = ({ children }) => {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        Headers : {
-          'Authorization': `Bearer ${token}`
-        }
-
+        Headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
       body: JSON.stringify({ email, password }),
     });

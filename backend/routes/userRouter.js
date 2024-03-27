@@ -23,6 +23,9 @@ router.post("/api/login", userController.login);
 
 // router.post("/api/addPayment", userController.addPayment);
 
-// router.post("/api/addFitnessGoal", userController.addFitnessGoal);
+router.post("/api/addFitnessGoals/:member_id", userController.addFitnessGoals);
 
+router.put('/api/updateMember/:member_id', userController.updateMember);
+
+router.put('api/updateMember/paymentInfo/:member_id', userController.updatePaymentInfo);
 module.exports = router;

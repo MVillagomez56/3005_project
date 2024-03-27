@@ -4,10 +4,9 @@ const bcrypt = require("bcrypt");
 
 const pool = require("../db");
 
-
 // Get
 const getUserById = async (req, res, next) => {
-  const userId = parseInt(req.params.id); 
+  const userId = parseInt(req.params.id);
 
   // Validate that the provided ID is a number
   if (isNaN(userId)) {
@@ -17,7 +16,7 @@ const getUserById = async (req, res, next) => {
   try {
     const { rows } = await pool.query(
       "SELECT id, email, name, date_of_birth, role FROM Users WHERE id = $1;",
-      [userId] 
+      [userId]
     );
 
     // Check if a user was found
@@ -42,7 +41,9 @@ const getAllMembers = async (req, res, next) => {
     res.json(rows);
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ error: 'An error occurred while retrieving members.' });
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving members." });
   }
 };
 
@@ -51,7 +52,7 @@ const getMemberById = async (req, res, next) => {
 
   // Validate that the provided ID is a number
   if (isNaN(userId)) {
-    return res.status(400).json({ error: 'Invalid user ID provided.' });
+    return res.status(400).json({ error: "Invalid user ID provided." });
   }
 
   try {
@@ -62,17 +63,17 @@ const getMemberById = async (req, res, next) => {
 
     // Check if a member was found
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'Member not found.' });
+      return res.status(404).json({ error: "Member not found." });
     }
 
     res.json(rows[0]); // Send the found member
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ error: 'An error occurred while retrieving the member.' });
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving the member." });
   }
 };
-
-
 
 const registerCourse = async (req, res, next) => {};
 
@@ -109,9 +110,7 @@ const register = async (req, res, next) => {
     const { rows } = await pool.query(insertQuery, values);
 
     // Send success response
-    res.status(201).json(
-      {user: rows[0]}
-     );
+    res.status(201).json({ user: rows[0] });
   } catch (err) {
     console.error(err);
     res
@@ -123,7 +122,7 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     // Extract login details from request body
-    console.log('req.body', req.body)
+    console.log("req.body", req.body);
 
     const { email, password } = req.body;
     //check if email and password are strings
@@ -135,13 +134,11 @@ const login = async (req, res, next) => {
     }
 
     // Check if the user exists in the database
-    const { rows } = await pool.query(
-      "SELECT * FROM Users WHERE email = $1;",
-      [email]
-    );  
+    const { rows } = await pool.query("SELECT * FROM Users WHERE email = $1;", [
+      email,
+    ]);
 
-
-    if (rows[0] == undefined) { 
+    if (rows[0] == undefined) {
       console.log("User not found");
       return res.status(401).json({ error: "User not found" });
     }
@@ -149,75 +146,31 @@ const login = async (req, res, next) => {
     // Check if the password is correct
     const user = rows[0];
     // const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log('user', user)
+    console.log("user", user);
     if (password !== user.password) {
       return res.status(401).json({ error: "Incorrect password" });
-    } 
+    }
 
-    // STRECTH GOAL: Generate a JWT token 
+    // STRECTH GOAL: Generate a JWT token
     // const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
     //   expiresIn: "1h",
     // });
 
-    res.status(200).json({ 
-      user:{
+    res.status(200).json({
+      user: {
         id: user.id,
         email: user.email,
         name: user.name,
         date_of_birth: user.date_of_birth,
-        role: user.role
-      }
-     }); // send user object to be stored in local storage and state
-    
+        role: user.role,
+        has_payment_method: !!user.cc_number
+      },
+    }); // send user object to be stored in local storage and state
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Could not log in user" });
   }
 };
-
-// const addMember = async (req, res, next) => {
-//   try {
-//     // Destructure member information from request body
-//     const { user_id, weight, height, muscle_mass, body_fat } = req.body;
-
-//     // Basic validation
-//     if (typeof user_id !== "number" || user_id <= 0) {
-//       return res.status(400).json({ error: "Invalid user ID" });
-//     }
-//     if (typeof weight !== "number" || weight <= 0) {
-//       return res.status(400).json({ error: "Invalid weight" });
-//     }
-//     if (typeof height !== "number" || height <= 0) {
-//       return res.status(400).json({ error: "Invalid height" });
-//     }
-//     if (typeof muscle_mass !== "number" || muscle_mass <= 0) {
-//       return res.status(400).json({ error: "Invalid muscle mass" });
-//     }
-//     if (typeof body_fat !== "number" || body_fat <= 0) {
-//       return res.status(400).json({ error: "Invalid body fat percentage" });
-//     }
-
-//     // Further validation: check if user_id exists in Users table
-//     const userCheck = await pool.query("SELECT id FROM Users WHERE id = $1", [
-//       user_id,
-//     ]);
-//     if (userCheck.rows.length === 0) {
-//       return res.status(400).json({ error: "User ID does not exist" });
-//     }
-
-//     // Insert member information into the database, using parameterized query for security
-//     const { rows } = await pool.query(
-//       "INSERT INTO Members (user_id, weight, height, muscle_mass, body_fat) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
-//       [user_id, weight, height, muscle_mass, body_fat]
-//     );
-
-//     // Respond with the newly created member entry
-//     res.status(201).json(rows[0]);
-//   } catch (err) {
-//     console.error(err.message);
-//     res.status(500).json({ error: "Could not add member to the database" });
-//   }
-// };
 
 // add payment
 const addPayment = async (req, res, next) => {
@@ -260,55 +213,42 @@ const addPayment = async (req, res, next) => {
   }
 };
 
-const addFitnessGoal = async (req, res) => {
+const addFitnessGoals = async (req, res) => {
   try {
-    const { member_id, goal, completion_date, status } = req.body;
-
-    // Validate 'member_id'
+    const { goals } = req.body;
+    console.log("req", req);
+    const member_id = req.params.member_id;
+    //add back in memberid
     if (typeof member_id !== "number" || member_id <= 0) {
       return res.status(400).json({ error: "Invalid or missing member ID." });
     }
 
-    // Validate 'goal'
-    if (typeof goal !== "string" || !goal.trim()) {
-      return res.status(400).json({ error: "Invalid or missing goal text." });
+    // Validate 'goals' array
+    if (!Array.isArray(goals) || goals.length === 0) {
+      return res.status(400).json({ error: "Invalid or missing goals." });
     }
 
-    // Validate 'completion_date'
-    if (
-      typeof completion_date !== "string" ||
-      !/^(\d{4})-(\d{2})-(\d{2})$/.test(completion_date)
-    ) {
-      return res.status(400).json({
-        error:
-          "Invalid or missing completion date. Format should be YYYY-MM-DD.",
-      });
-    }
-
-    // 'status' is a boolean; ensure it's provided as such since the default is managed by PostgreSQL
-    if (status !== undefined && typeof status !== "boolean") {
-      return res
-        .status(400)
-        .json({ error: "Invalid status. Must be true or false." });
+    // Validate each goal in the array
+    for (const goal of goals) {
+      if (typeof goal !== "string" || !goal.trim()) {
+        return res.status(400).json({ error: "Invalid goal." });
+      }
     }
 
     // Inserting the new fitness goal into the database
-    const insertQuery = `
-        INSERT INTO Fitness_Goals (member_id, goal, completion_date, status)
-        VALUES ($1, $2, $3, $4)
-        RETURNING id, member_id, goal, completion_date, status;
-      `;
-    // Handle the default value for 'status' by explicitly checking if it's undefined
-    const values = [
-      member_id,
-      goal,
-      completion_date,
-      status !== undefined ? status : false,
-    ];
-    const { rows } = await pool.query(insertQuery, values);
+    const valuesPlaceholder = goals
+      .map((_, index) => `(${member_id}, $${index + 1})`)
+      .join(",");
 
-    // Respond with the newly created fitness goal
-    res.status(201).json(rows[0]);
+    const queryText = `INSERT INTO fitness_goals (member_id, goal) VALUES ${valuesPlaceholder} RETURNING *;`;
+
+    const { rows } = await pool.query(queryText, goals);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Could not add the fitness goal." });
+    }
+
+    res.status(201).json(rows); // Send the newly created fitness goal
   } catch (err) {
     console.error(err);
     res
@@ -317,8 +257,86 @@ const addFitnessGoal = async (req, res) => {
   }
 };
 
+//put
+
+//update members
+const updateMember = async (req, res, next) => {
+  try {
+    const member_id = parseInt(req.params.member_id); // Convert the member ID from string to integer
+
+    // Validate that the provided ID is a number
+    if (isNaN(member_id)) {
+      return res.status(400).json({ error: 'Invalid member ID provided.' });
+    }
+
+    // Extract member details from request body
+    const { weight, height } = req.body;
+
+    // Update the member in the database
+    const updateQuery = `
+        UPDATE Members
+        SET weight = $1, height = $2
+        WHERE id = $3
+        RETURNING *;
+      `;
+    const values = [weight, height, member_id];
+    const { rows } = await pool.query(updateQuery, values);
+
+    // Check if a member was found and updated
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Member not found." });
+    }
+
+    res.json(rows[0]); // Send the updated member
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the member." });
+  }
+};
+
+const updateMemberPaymentInfo = async (req, res, next) => {
+  try {
+    const member_id = parseInt(req.params.member_id); // Convert the member ID from string to integer
+
+    // Validate that the provided ID is a number
+    if (isNaN(member_id)) {
+      return res.status(400).json({ error: 'Invalid member ID provided.' });
+    }
+
+    // Extract member details from request body
+    const { cardNumber, ccv, expiryDate } = req.body;
+
+    // Update the member in the database
+    const updateQuery = `
+        UPDATE Members
+        SET cc_number = $1, cc_expiry_date = $2, ccv = $3
+        WHERE id = $4
+        RETURNING *;
+      `;
+    const values = [cardNumber, ccv, expiryDate, member_id];
+    const { rows } = await pool.query(updateQuery, values);
+
+    // Check if a member was found and updated
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Member not found." });
+    }
+
+    res.json(rows[0]); // Send the updated member
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the member." });
+  }
+}
+
 
 module.exports = {
   login,
   register,
-}
+  updateMember,
+  addFitnessGoals,
+  updateMemberPaymentInfo
+};

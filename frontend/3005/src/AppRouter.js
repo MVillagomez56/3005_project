@@ -11,15 +11,21 @@ import {ClassEdit} from './pages/ClassEdit';
 import {PrivateRoute} from './PrivateRoute';
 import {Navbar} from "./components/Navbar.tsx";
 import {Footer} from './components/Footer.js';
-
+import { MemberRegistration } from './pages/MemberRegistration.js';
+import Payment from './pages/Payment.js';
+import { useAuth } from './store/AuthContext';
 
 export const AppRouter = () => {
+  const { currentUser } = useAuth();
+  console.log("current user", currentUser);
   return (
     <Router>
       <Navbar/>
       <Routes>
         <Route path="/" element={<Dashboard />} /> 
+        <Route path="/register/member" element={<MemberRegistration />} /> 
         <Route path="/profile/:id" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route path="/payment/:service/:amount" element={<PrivateRoute><Payment /></PrivateRoute>} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />

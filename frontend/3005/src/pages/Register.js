@@ -8,6 +8,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Typography,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useAuth } from "../store/AuthContext";
@@ -18,18 +19,24 @@ export const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [date_of_birth, setDateOfBirth] = useState(new Date());
+  const [date_of_birth, setDateOfBirth] = useState("");
   const [role, setRole] = useState("");
 
   const navigate = useNavigate();
 
-  const isPasswordValid = ()=>{
-    return password && password.length > 6 && password.length < 20 && password.match(/[0-9]/) && password.match(/[a-zA-Z]/);
-  }
+  const isPasswordValid = () => {
+    return (
+      password &&
+      password.length > 6 &&
+      password.length < 20 &&
+      password.match(/[0-9]/) &&
+      password.match(/[a-zA-Z]/)
+    );
+  };
 
-  const isEmailValid = ()=>{
-    return email && email.length > 0 && email.includes('@');
-  }
+  const isEmailValid = () => {
+    return email && email.length > 0 && email.includes("@");
+  };
 
   const { signup, isLoggedIn } = useAuth();
 
@@ -40,9 +47,13 @@ export const Register = () => {
 
   const handleSubmit = async () => {
     const loggedIn = await signup(email, password, name, date_of_birth, role);
-
     if (loggedIn) {
-      navigate("/");
+      if (role !== "admin") {
+        navigate(`/register/${role}`);
+      } else {
+        navigate("/");
+      }
+
     } else {
       alert("There was an error signing up");
     }
@@ -70,7 +81,7 @@ export const Register = () => {
         />
         <TextField
           required
-          error={password && !isPasswordValid()} 
+          error={password && !isPasswordValid()}
           id="outlined"
           type="password"
           label="Password"
@@ -88,7 +99,7 @@ export const Register = () => {
           label="Date of Birth"
           value={date_of_birth ? dayjs(date_of_birth) : null}
           onChange={(newValue) => setDateOfBirth(newValue)}
-          renderInput={(params) => <TextField  {...params} />}
+          renderInput={(params) => <TextField {...params} />}
         />
 
         <FormControl fullWidth>
@@ -106,11 +117,20 @@ export const Register = () => {
 
         <Button
           variant="contained"
-          disabled={!isEmailValid() || !isPasswordValid() || !name || !date_of_birth || !role}
+          disabled={
+            !isEmailValid() ||
+            !isPasswordValid() ||
+            !name ||
+            !date_of_birth ||
+            !role
+          }
           onClick={handleSubmit}
         >
           Register
         </Button>
+        <Typography variant="body1">
+          Already have an account? <a href="/login">Login</a>
+        </Typography>
       </Stack>
     </Container>
   );

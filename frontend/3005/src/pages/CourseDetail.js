@@ -1,4 +1,5 @@
 import React from 'react'
+<<<<<<< HEAD
 import { useParams } from 'react-router-dom';
 
 export const CourseDetail = () => {
@@ -21,3 +22,13 @@ export const CourseDetail = () => {
 
 
 
+=======
+
+export const CourseDetail = () => {
+    return (
+        <div>
+        <h1>CourseDetail</h1>
+        </div>
+    )
+    }
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b

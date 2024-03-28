@@ -1,5 +1,9 @@
 import React, { useState } from "react";
+<<<<<<< HEAD
 import { Container, TextField, Stack, Button } from "@mui/material";
+=======
+import { Container, TextField, Stack, Button, Typography } from "@mui/material";
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
 import { useAuth } from "../store/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -56,6 +60,10 @@ export const Login = () => {
         />
 
         <Button variant="contained" onClick={handleSubmit}>Login</Button>
+<<<<<<< HEAD
+=======
+        <Typography variant="body1">Don't have an account? <a href="/register">Register</a></Typography>
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
       </Stack>
     </Container>
   );

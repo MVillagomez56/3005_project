@@ -21,8 +21,19 @@ router.post("/api/login", userController.login);
 
 // router.post("/api/addMember", userController.addMember);
 
+<<<<<<< HEAD
 // router.post("/api/addPayment", userController.addPayment);
 
 // router.post("/api/addFitnessGoal", userController.addFitnessGoal);
+=======
+router.post("/api/addPayment", userController.addPayment);
+
+router.post("/api/addFitnessGoals/:member_id", userController.addFitnessGoals);
+
+router.put('/api/updateMember/:member_id', userController.updateMember);
+
+router.put('/api/updateMember/paymentInfo/:member_id', userController.updateMemberPaymentInfo);
+
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
 
 module.exports = router;

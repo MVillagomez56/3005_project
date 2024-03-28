@@ -4,10 +4,16 @@ const bcrypt = require("bcrypt");
 
 const pool = require("../db");
 
+<<<<<<< HEAD
 
 // Get
 const getUserById = async (req, res, next) => {
   const userId = parseInt(req.params.id); 
+=======
+// Get
+const getUserById = async (req, res, next) => {
+  const userId = parseInt(req.params.id);
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
 
   // Validate that the provided ID is a number
   if (isNaN(userId)) {
@@ -17,7 +23,11 @@ const getUserById = async (req, res, next) => {
   try {
     const { rows } = await pool.query(
       "SELECT id, email, name, date_of_birth, role FROM Users WHERE id = $1;",
+<<<<<<< HEAD
       [userId] 
+=======
+      [userId]
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
     );
 
     // Check if a user was found
@@ -42,7 +52,13 @@ const getAllMembers = async (req, res, next) => {
     res.json(rows);
   } catch (err) {
     console.error(err.message);
+<<<<<<< HEAD
     res.status(500).json({ error: 'An error occurred while retrieving members.' });
+=======
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving members." });
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
   }
 };
 
@@ -51,7 +67,11 @@ const getMemberById = async (req, res, next) => {
 
   // Validate that the provided ID is a number
   if (isNaN(userId)) {
+<<<<<<< HEAD
     return res.status(400).json({ error: 'Invalid user ID provided.' });
+=======
+    return res.status(400).json({ error: "Invalid user ID provided." });
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
   }
 
   try {
@@ -62,18 +82,31 @@ const getMemberById = async (req, res, next) => {
 
     // Check if a member was found
     if (rows.length === 0) {
+<<<<<<< HEAD
       return res.status(404).json({ error: 'Member not found.' });
+=======
+      return res.status(404).json({ error: "Member not found." });
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
     }
 
     res.json(rows[0]); // Send the found member
   } catch (err) {
     console.error(err.message);
+<<<<<<< HEAD
     res.status(500).json({ error: 'An error occurred while retrieving the member.' });
   }
 };
 
 
 
+=======
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving the member." });
+  }
+};
+
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
 const registerCourse = async (req, res, next) => {};
 
 // Post
@@ -109,9 +142,13 @@ const register = async (req, res, next) => {
     const { rows } = await pool.query(insertQuery, values);
 
     // Send success response
+<<<<<<< HEAD
     res.status(201).json(
       {user: rows[0]}
      );
+=======
+    res.status(201).json({ user: rows[0] });
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
   } catch (err) {
     console.error(err);
     res
@@ -123,7 +160,11 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     // Extract login details from request body
+<<<<<<< HEAD
     console.log('req.body', req.body)
+=======
+    console.log("req.body", req.body);
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
 
     const { email, password } = req.body;
     //check if email and password are strings
@@ -135,6 +176,7 @@ const login = async (req, res, next) => {
     }
 
     // Check if the user exists in the database
+<<<<<<< HEAD
     const { rows } = await pool.query(
       "SELECT * FROM Users WHERE email = $1;",
       [email]
@@ -142,6 +184,13 @@ const login = async (req, res, next) => {
 
 
     if (rows[0] == undefined) { 
+=======
+    const { rows } = await pool.query("SELECT * FROM Users WHERE email = $1;", [
+      email,
+    ]);
+
+    if (rows[0] == undefined) {
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
       console.log("User not found");
       return res.status(401).json({ error: "User not found" });
     }
@@ -149,32 +198,54 @@ const login = async (req, res, next) => {
     // Check if the password is correct
     const user = rows[0];
     // const isPasswordValid = await bcrypt.compare(password, user.password);
+<<<<<<< HEAD
     console.log('user', user)
     if (password !== user.password) {
       return res.status(401).json({ error: "Incorrect password" });
     } 
 
     // STRECTH GOAL: Generate a JWT token 
+=======
+    console.log("user", user);
+    if (password !== user.password) {
+      return res.status(401).json({ error: "Incorrect password" });
+    }
+
+    // STRECTH GOAL: Generate a JWT token
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
     // const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
     //   expiresIn: "1h",
     // });
 
+<<<<<<< HEAD
     res.status(200).json({ 
       user:{
+=======
+    res.status(200).json({
+      user: {
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
         id: user.id,
         email: user.email,
         name: user.name,
         date_of_birth: user.date_of_birth,
+<<<<<<< HEAD
         role: user.role
       }
      }); // send user object to be stored in local storage and state
     
+=======
+        role: user.role,
+        has_payment_method: !!user.cc_number,
+      },
+    }); // send user object to be stored in local storage and state
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Could not log in user" });
   }
 };
 
+<<<<<<< HEAD
 // const addMember = async (req, res, next) => {
 //   try {
 //     // Destructure member information from request body
@@ -219,18 +290,30 @@ const login = async (req, res, next) => {
 //   }
 // };
 
+=======
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
 // add payment
 const addPayment = async (req, res, next) => {
   try {
     // Destructure payment information from request body
+<<<<<<< HEAD
     const { member_id, amount, payment_date, service, completion_status } =
       req.body;
+=======
+    const { member_id, amount, payment_date, service } = req.body;
+
+    const amountNum = parseFloat(amount);
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
 
     // Basic validation
     if (typeof member_id !== "number" || member_id <= 0) {
       return res.status(400).json({ error: "Invalid member ID" });
     }
+<<<<<<< HEAD
     if (typeof amount !== "number" || amount <= 0) {
+=======
+    if (typeof amountNum !== "number" || amount <= 0) {
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
       return res.status(400).json({ error: "Invalid amount" });
     }
 
@@ -248,8 +331,13 @@ const addPayment = async (req, res, next) => {
 
     // Insert payment information into the database, using parameterized query for security
     const { rows } = await pool.query(
+<<<<<<< HEAD
       "INSERT INTO payments (member_id, amount, payment_date, service, completion_status) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
       [member_id, amount, payment_date, service, completion_status]
+=======
+      "INSERT INTO payments (member_id, amount, date, service) VALUES ($1, $2, $3, $4) RETURNING *;",
+      [member_id, amountNum, payment_date, service]
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
     );
 
     // Respond with the newly created payment entry
@@ -260,15 +348,25 @@ const addPayment = async (req, res, next) => {
   }
 };
 
+<<<<<<< HEAD
 const addFitnessGoal = async (req, res) => {
   try {
     const { member_id, goal, completion_date, status } = req.body;
 
     // Validate 'member_id'
+=======
+const addFitnessGoals = async (req, res) => {
+  try {
+    const { goals } = req.body;
+    console.log("req", req);
+    const member_id = req.params.member_id;
+    //add back in memberid
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
     if (typeof member_id !== "number" || member_id <= 0) {
       return res.status(400).json({ error: "Invalid or missing member ID." });
     }
 
+<<<<<<< HEAD
     // Validate 'goal'
     if (typeof goal !== "string" || !goal.trim()) {
       return res.status(400).json({ error: "Invalid or missing goal text." });
@@ -309,6 +407,34 @@ const addFitnessGoal = async (req, res) => {
 
     // Respond with the newly created fitness goal
     res.status(201).json(rows[0]);
+=======
+    // Validate 'goals' array
+    if (!Array.isArray(goals) || goals.length === 0) {
+      return res.status(400).json({ error: "Invalid or missing goals." });
+    }
+
+    // Validate each goal in the array
+    for (const goal of goals) {
+      if (typeof goal !== "string" || !goal.trim()) {
+        return res.status(400).json({ error: "Invalid goal." });
+      }
+    }
+
+    // Inserting the new fitness goal into the database
+    const valuesPlaceholder = goals
+      .map((_, index) => `(${member_id}, $${index + 1})`)
+      .join(",");
+
+    const queryText = `INSERT INTO fitness_goals (member_id, goal) VALUES ${valuesPlaceholder} RETURNING *;`;
+
+    const { rows } = await pool.query(queryText, goals);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Could not add the fitness goal." });
+    }
+
+    res.status(201).json(rows); // Send the newly created fitness goal
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
   } catch (err) {
     console.error(err);
     res
@@ -317,8 +443,94 @@ const addFitnessGoal = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
+=======
+//put
+
+//update members
+const updateMember = async (req, res, next) => {
+  try {
+    const member_id = parseInt(req.params.member_id); // Convert the member ID from string to integer
+
+    // Validate that the provided ID is a number
+    if (isNaN(member_id)) {
+      return res.status(400).json({ error: "Invalid member ID provided." });
+    }
+
+    // Extract member details from request body
+    const { weight, height } = req.body;
+
+    // Update the member in the database
+    const updateQuery = `
+        UPDATE Members
+        SET weight = $1, height = $2
+        WHERE id = $3
+        RETURNING *;
+      `;
+    const values = [weight, height, member_id];
+    const { rows } = await pool.query(updateQuery, values);
+
+    // Check if a member was found and updated
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Member not found." });
+    }
+
+    res.json(rows[0]); // Send the updated member
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the member." });
+  }
+};
+
+const updateMemberPaymentInfo = async (req, res, next) => {
+  try {
+    console.log("req.body", req.body);
+    const member_id = parseInt(req.params.member_id); // Convert the member ID from string to integer
+
+    // Validate that the provided ID is a number
+    if (isNaN(member_id)) {
+      return res.status(400).json({ error: "Invalid member ID provided." });
+    }
+
+    // Extract member details from request body
+    const { cardNumber, ccv, expiryDate } = req.body;
+
+    // Update the member in the database
+    const updateQuery = `
+        UPDATE Members
+        SET cc_number = $1, cc_expiry_date = $2, ccv = $3
+        WHERE id = $4
+        RETURNING *;
+      `;
+    const values = [cardNumber, expiryDate, ccv, member_id];
+    const { rows } = await pool.query(updateQuery, values);
+
+    // Check if a member was found and updated
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Member not found." });
+    }
+
+    res.json(rows[0]); // Send the updated member
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the member." });
+  }
+};
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
 
 module.exports = {
   login,
   register,
+<<<<<<< HEAD
 }
+=======
+  updateMember,
+  addFitnessGoals,
+  updateMemberPaymentInfo,
+  addPayment,
+};
+>>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b

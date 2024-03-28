@@ -13,6 +13,7 @@ import {Navbar} from "./components/Navbar.tsx";
 import {Footer} from './components/Footer.js';
 import {Course} from "./pages/Course.js";
 import {Room} from "./pages/Room.js";
+import {Billing} from './pages/Billing.js';
 
 
 export const AppRouter = () => {
@@ -30,6 +31,7 @@ export const AppRouter = () => {
         <Route path="/room" element ={<Room/>} />
         <Route path="/room/:id" element={<RoomDetail />} />
         <Route path="/class/:id" element={<PrivateRoute component={ClassEdit} roleRequired="trainer" />} />
+        <Route path="/billing" element={<Billing/>} />
       </Routes>
       <Footer/>
     </Router>

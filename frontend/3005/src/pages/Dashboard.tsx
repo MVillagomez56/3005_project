@@ -2,6 +2,7 @@ import React from 'react'
 import { Box, Grid} from '@mui/material'
 import Banner from '../components/Banner'
 import FeaturedClass from '../components/FeaturedClass';
+import { Hero } from '../components/Hero';
 
 
 // temporary data for testing, should be deleted once database data is being implemented 
@@ -19,6 +20,7 @@ export const Dashboard = () => {
         <Box>
           <Banner />
         </Box>
+        <Hero/>
         <div style={{margin:60}}>
         <Grid container spacing={3}>
           {courseworks.map((coursework, index) => (

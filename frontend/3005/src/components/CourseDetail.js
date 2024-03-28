@@ -9,7 +9,8 @@ export const CourseDetail = ({course}) => {
       <Card sx={{ maxWidth: 345, m: 2 }}>
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
-            {course.className}
+            1211212{course.className}
+
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {course.description}

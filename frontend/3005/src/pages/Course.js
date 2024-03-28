@@ -8,7 +8,7 @@ export const Course = () => {
     return (
         <Container maxWidth="lg">
           <Typography variant="h2" gutterBottom>
-            Courses
+            Courses testing testing 123
           </Typography>
           <Grid container spacing={4}>
             {testingCourse.map(course => (

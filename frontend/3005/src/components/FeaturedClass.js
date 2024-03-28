@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardActions, CardContent, Button, Typography, Grid, CardMedia } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 
-const FeaturedClassCard = ({ title, description,imageUrl,courseID}) => {
+const FeaturedClass = ({ title, description,imageUrl,courseID}) => {
     const navigate = useNavigate();
 
     const handleClick = () =>{
@@ -36,4 +36,4 @@ const FeaturedClassCard = ({ title, description,imageUrl,courseID}) => {
       );
 };
 
-export default FeaturedClassCard;
+export default FeaturedClass;

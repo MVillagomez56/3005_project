@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box, Grid} from '@mui/material'
 import Banner from '../components/Banner'
-import FeaturedClassCard from '../components/FeaturedClassCard';
+import FeaturedClass from '../components/FeaturedClass';
 
 
 // temporary data for testing, should be deleted once database data is being implemented 
@@ -22,7 +22,7 @@ export const Dashboard = () => {
         <div style={{margin:60}}>
         <Grid container spacing={3}>
           {courseworks.map((coursework, index) => (
-            <FeaturedClassCard key={index} title={coursework.title} description={coursework.description} imageUrl={coursework.imageURL} courseID={coursework.Id}/>
+            <FeaturedClass key={index} title={coursework.title} description={coursework.description} imageUrl={coursework.imageURL} courseID={coursework.Id}/>
           ))}
         </Grid>
         </div>

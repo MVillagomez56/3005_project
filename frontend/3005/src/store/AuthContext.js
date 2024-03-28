@@ -14,14 +14,19 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Attempt to fetch the user from localStorage or validate the current session
-    const user = localStorage.getItem("user");
+    const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
-      setCurrentUser(JSON.parse(user));
+      setCurrentUser(user);
       setIsLoggedIn(true);
     }
-  }, [setCurrentUser, setIsLoggedIn]);
-  
-
+    if (user.setup_complete) {
+      setSetupComplete(true);
+    }
+  }, [
+    setCurrentUser,
+    setIsLoggedIn,
+    setSetupComplete,
+  ]);
 
   const signup = async (email, password, name, date_of_birth, role) => {
     //post data to server
@@ -99,7 +104,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     signup,
     setupComplete,
-    setSetupComplete
+    setSetupComplete,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

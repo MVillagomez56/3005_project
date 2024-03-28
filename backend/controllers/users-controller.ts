@@ -163,7 +163,7 @@ const login = async (req, res, next) => {
         name: user.name,
         date_of_birth: user.date_of_birth,
         role: user.role,
-        has_payment_method: !!user.cc_number
+        has_payment_method: !!user.cc_number,
       },
     }); // send user object to be stored in local storage and state
   } catch (err) {
@@ -176,14 +176,15 @@ const login = async (req, res, next) => {
 const addPayment = async (req, res, next) => {
   try {
     // Destructure payment information from request body
-    const { member_id, amount, payment_date, service, completion_status } =
-      req.body;
+    const { member_id, amount, payment_date, service } = req.body;
+
+    const amountNum = parseFloat(amount);
 
     // Basic validation
     if (typeof member_id !== "number" || member_id <= 0) {
       return res.status(400).json({ error: "Invalid member ID" });
     }
-    if (typeof amount !== "number" || amount <= 0) {
+    if (typeof amountNum !== "number" || amount <= 0) {
       return res.status(400).json({ error: "Invalid amount" });
     }
 
@@ -201,8 +202,8 @@ const addPayment = async (req, res, next) => {
 
     // Insert payment information into the database, using parameterized query for security
     const { rows } = await pool.query(
-      "INSERT INTO payments (member_id, amount, payment_date, service, completion_status) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
-      [member_id, amount, payment_date, service, completion_status]
+      "INSERT INTO payments (member_id, amount, date, service) VALUES ($1, $2, $3, $4) RETURNING *;",
+      [member_id, amountNum, payment_date, service]
     );
 
     // Respond with the newly created payment entry
@@ -266,7 +267,7 @@ const updateMember = async (req, res, next) => {
 
     // Validate that the provided ID is a number
     if (isNaN(member_id)) {
-      return res.status(400).json({ error: 'Invalid member ID provided.' });
+      return res.status(400).json({ error: "Invalid member ID provided." });
     }
 
     // Extract member details from request body
@@ -298,11 +299,12 @@ const updateMember = async (req, res, next) => {
 
 const updateMemberPaymentInfo = async (req, res, next) => {
   try {
+    console.log("req.body", req.body);
     const member_id = parseInt(req.params.member_id); // Convert the member ID from string to integer
 
     // Validate that the provided ID is a number
     if (isNaN(member_id)) {
-      return res.status(400).json({ error: 'Invalid member ID provided.' });
+      return res.status(400).json({ error: "Invalid member ID provided." });
     }
 
     // Extract member details from request body
@@ -315,7 +317,7 @@ const updateMemberPaymentInfo = async (req, res, next) => {
         WHERE id = $4
         RETURNING *;
       `;
-    const values = [cardNumber, ccv, expiryDate, member_id];
+    const values = [cardNumber, expiryDate, ccv, member_id];
     const { rows } = await pool.query(updateQuery, values);
 
     // Check if a member was found and updated
@@ -330,13 +332,13 @@ const updateMemberPaymentInfo = async (req, res, next) => {
       .status(500)
       .json({ error: "An error occurred while updating the member." });
   }
-}
-
+};
 
 module.exports = {
   login,
   register,
   updateMember,
   addFitnessGoals,
-  updateMemberPaymentInfo
+  updateMemberPaymentInfo,
+  addPayment,
 };

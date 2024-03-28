@@ -21,11 +21,13 @@ router.post("/api/login", userController.login);
 
 // router.post("/api/addMember", userController.addMember);
 
-// router.post("/api/addPayment", userController.addPayment);
+router.post("/api/addPayment", userController.addPayment);
 
 router.post("/api/addFitnessGoals/:member_id", userController.addFitnessGoals);
 
 router.put('/api/updateMember/:member_id', userController.updateMember);
 
-router.put('api/updateMember/paymentInfo/:member_id', userController.updatePaymentInfo);
+router.put('/api/updateMember/paymentInfo/:member_id', userController.updateMemberPaymentInfo);
+
+
 module.exports = router;

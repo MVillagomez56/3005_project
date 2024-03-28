@@ -56,7 +56,7 @@ export const MemberRegistration = () => {
       return new Error("Update failed");
     }
 
-    navigate("/payment/registration/100");
+    navigate("/payment/membership/100");
   };
 
   return (

@@ -12,16 +12,12 @@ export const AddPaymentMethod = () => {
 
   const id = JSON.parse(localStorage.getItem("user")).id;
 
-  console.log(currentUser);
-  console.log('id', id)
-
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     //send payment to backend
-    const response = fetch(
+    const response = await fetch(
       `http://localhost:5000/users/api/updateMember/paymentInfo/${id}`,
       {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
@@ -30,11 +26,18 @@ export const AddPaymentMethod = () => {
       }
     );
 
-    if (!response.status === 200) {
+    console.log(response);
+
+    if (response.status !== 200) {
+      console.log("Update failed");
       return new Error("Update failed");
     } else {
+      console.log("Payment method added successfully");
       alert("Payment method added successfully");
-      localStorage.setItem("user", JSON.stringify({ ...currentUser, has_payment_method: true }));
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...currentUser, has_payment_method: true })
+      );
     }
 
     //update user payment method

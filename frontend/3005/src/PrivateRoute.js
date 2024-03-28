@@ -14,7 +14,7 @@ export const PrivateRoute = ({ children, roleRequired }) => {
      navigate('/login');
   }
 
-  if (roleRequired && user.role !== roleRequired) {
+  if (roleRequired && JSON.parse(user).role !== roleRequired) {
     // User is not authorized; redirect them to the home page
     navigate('/');
   }

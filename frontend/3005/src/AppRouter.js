@@ -14,6 +14,8 @@ import {Footer} from './components/Footer.js';
 import {Course} from "./pages/Course.js";
 import {Room} from "./pages/Room.js";
 import {Billing} from './pages/Billing.js';
+import { MemberSearch } from './pages/MemberSearch.js';
+
 
 
 export const AppRouter = () => {
@@ -32,6 +34,7 @@ export const AppRouter = () => {
         <Route path="/room/:id" element={<RoomDetail />} />
         <Route path="/class/:id" element={<PrivateRoute component={ClassEdit} roleRequired="trainer" />} />
         <Route path="/billing" element={<Billing/>} />
+        <Route path="/searchMember" element={<PrivateRoute><MemberSearch /></PrivateRoute>} />
       </Routes>
       <Footer/>
     </Router>

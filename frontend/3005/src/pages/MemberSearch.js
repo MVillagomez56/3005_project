@@ -30,7 +30,6 @@ export const MemberSearch = () => {
         {
           method: "GET",
           headers: {
-            "Content-Type": "application/json",
             Accept: "application/json",
           },
         }
@@ -39,8 +38,9 @@ export const MemberSearch = () => {
       if (response.ok) {
         const data = await response.json();
         // Navigate to the member's profile page
-        // Adjust according to the actual data structure returned by your API
-        navigate(`/profile/${data.id}`);
+        //navigate(`/profile/${data.id}`);
+
+        console.log("Found member!!");
       } else if (response.status === 404) {
         setErrorMessage("Member not found. Please try again.");
       } else {

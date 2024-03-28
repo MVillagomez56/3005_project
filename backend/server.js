@@ -14,7 +14,7 @@ const userRouter = require("./routes/userRouter");
 // Use the routes
 app.use(cors());
 app.use(express.json());
-app.use("/users", userRouter);
+app.use("/api", userRouter);
 // app.use("/classes", classRouter);
 
 // Check database connection 

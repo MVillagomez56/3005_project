@@ -75,6 +75,93 @@ const getMemberById = async (req, res, next) => {
   }
 };
 
+const searchMember = async (req, res) => {
+  console.log("Trigger!");
+  const { id, name } = req.query;
+
+  if (!id || !name) {
+    return res.status(400).json({ error: "Both ID and name must be provided." });
+  }
+
+  try {
+    const userId = parseInt(id);
+    const userName = name.trim();
+
+    if (isNaN(userId) || userName === "") {
+      return res.status(400).json({ error: "Invalid ID or name." });
+    }
+
+    // Use the parameter placeholders in the query
+    const query = `
+      SELECT u.id, u.name
+      FROM Users u
+      JOIN Members m ON u.id = m.id
+      WHERE u.id = $1 AND u.name = $2;
+    `;
+    
+    // Execute the query with the actual parameters
+    const { rows } = await pool.query(query, [userId, userName]);
+
+    if (rows.length > 0) {
+      console.log(rows[0]);
+      res.json(rows[0]);
+    } else {
+      res.status(404).json({ message: "Member not found" });
+    }
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "An error occurred while searching for the member." });
+  }
+};
+
+
+// Function to get all trainers and their PF sessions
+const getAllTrainersWithPF = async (req, res) => {
+  try {
+    // SQL query to fetch trainers and their personal fitness (PF) session names
+    const trainersQuery = `
+      SELECT 
+        t.id, 
+        t.specialization, 
+        c.name AS session_name, 
+        c.trainer_id
+      FROM 
+        Trainers t
+      LEFT JOIN 
+        Classes c ON t.id = c.trainer_id AND c.type = 'pf';
+    `;
+
+    const { rows } = await pool.query(trainersQuery);
+
+    // Assuming you want to group classes by trainer
+    const trainers = rows.reduce((acc, current) => {
+      const trainer = acc.find((tr) => tr.id === current.trainer_id);
+      if (trainer) {
+        trainer.sessions.push({
+          name: current.session_name,
+        });
+      } else {
+        acc.push({
+          id: current.id,
+          name: current.name,
+          specialization: current.specialization,
+          sessions: current.session_name
+            ? [{ name: current.session_name }]
+            : [],
+        });
+      }
+      return acc;
+    }, []);
+
+    res.json(trainers);
+  } catch (error) {
+    console.error("Error fetching trainers and classes:", error);
+    res.status(500).json({
+      error: "An error occurred while retrieving trainers and classes.",
+    });
+  }
+};
+
 const registerCourse = async (req, res, next) => {};
 
 // Post
@@ -341,4 +428,6 @@ module.exports = {
   addFitnessGoals,
   updateMemberPaymentInfo,
   addPayment,
+  searchMember,
+  getAllTrainersWithPF,
 };

@@ -23,15 +23,9 @@ VALUES ('Room 2', 'Room 2', 20);
 INSERT INTO Classes (name, description, trainer_id, duration, cost, capacity, type, room_id)
 VALUES ('Class 1', 'Class 1', 3, '[2021-01-01 9:00, 2021-01-01 10:00]', 10, 10, 'group', 1);
 
-<<<<<<< HEAD
--- this class should not be created because the trainer is not available
-INSERT INTO Classes (name, description, trainer_id, duration, cost, capacity, type, room_id)
-VALUES ('Class 2', 'Class 2', 3, '[2021-01-01 9:00, 2021-01-01 10:00]', 10, 10, 'group', 2);
-=======
 -- -- this class should not be created because the trainer is not available
 -- INSERT INTO Classes (name, description, trainer_id, duration, cost, capacity, type, room_id)
 -- VALUES ('Class 2', 'Class 2', 3, '[2021-01-01 9:00, 2021-01-01 10:00]', 10, 10, 'group', 2);
->>>>>>> 7d8605674b909fc582c7265d06ac77dc1647624b
 
 -- create a personal fitness class
 INSERT INTO Classes (name, description, trainer_id, duration, cost, capacity, type, room_id)

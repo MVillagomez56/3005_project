@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Grid, Paper, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import trainerProfilePic from 'D:/3005_project/frontend/3005/src/assets/trainer_profile.png';
+import trainerProfilePic from '../assets/trainer_profile.png';
 
 
 export const TrainersPage = () => {

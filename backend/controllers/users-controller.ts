@@ -75,12 +75,38 @@ const getMemberById = async (req, res, next) => {
   }
 };
 
+const getFitnessGoals = async (req, res, next) => {
+  try {
+    const member_id = parseInt(req.params.member_id);
+    console.log("member_id", member_id);
+
+    if (typeof member_id !== "number" || member_id <= 0) {
+      console.log("Invalid member ID.");
+      return res.status(400).json({ error: "Invalid member ID." });
+    }
+
+    const { rows } = await pool.query(
+      "SELECT * FROM fitness_goals WHERE member_id = $1;",
+      [member_id]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving fitness goals." });
+  }
+};
+
 const searchMember = async (req, res) => {
   console.log("Trigger!");
   const { id, name } = req.query;
 
   if (!id || !name) {
-    return res.status(400).json({ error: "Both ID and name must be provided." });
+    return res
+      .status(400)
+      .json({ error: "Both ID and name must be provided." });
   }
 
   try {
@@ -98,7 +124,7 @@ const searchMember = async (req, res) => {
       JOIN Members m ON u.id = m.id
       WHERE u.id = $1 AND u.name = $2;
     `;
-    
+
     // Execute the query with the actual parameters
     const { rows } = await pool.query(query, [userId, userName]);
 
@@ -110,10 +136,11 @@ const searchMember = async (req, res) => {
     }
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ error: "An error occurred while searching for the member." });
+    res
+      .status(500)
+      .json({ error: "An error occurred while searching for the member." });
   }
 };
-
 
 // Function to get all trainers and their PF sessions
 const getAllTrainersWithPF = async (req, res) => {
@@ -245,11 +272,7 @@ const login = async (req, res, next) => {
 
     res.status(200).json({
       user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        date_of_birth: user.date_of_birth,
-        role: user.role,
+        ...user,
         has_payment_method: !!user.cc_number,
       },
     }); // send user object to be stored in local storage and state
@@ -421,6 +444,42 @@ const updateMemberPaymentInfo = async (req, res, next) => {
   }
 };
 
+const updateUser = async (req, res, next) => {
+  try {
+    const userId = parseInt(req.params.id); // Convert the user ID from string to integer
+
+    // Validate that the provided ID is a number
+    if (isNaN(userId)) {
+      return res.status(400).json({ error: "Invalid user ID provided." });
+    }
+
+    // Extract user details from request body
+    const { name, email, password, date_of_birth } = req.body;
+
+    // Update the user in the database
+    const updateQuery = `
+        UPDATE Users
+        SET email = $1, name = $2, date_of_birth = $3, password = $4
+        WHERE id = $5
+        RETURNING *;
+      `;
+    const values = [email, name, date_of_birth, password, userId];
+    const { rows } = await pool.query(updateQuery, values);
+
+    // Check if a user was found and updated
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    res.json(rows[0]); // Send the updated user
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the user." });
+  }
+};
+
 module.exports = {
   login,
   register,
@@ -430,4 +489,6 @@ module.exports = {
   addPayment,
   searchMember,
   getAllTrainersWithPF,
+  updateUser,
+  getFitnessGoals
 };

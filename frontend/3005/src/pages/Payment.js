@@ -5,7 +5,7 @@ import { useAuth } from "../store/AuthContext";
 import { AddPaymentMethod } from "../components/AddPaymentMethod";
 import { useNavigate } from "react-router-dom";
 
-const Payment = () => {
+export const  Payment = () => {
   //get route params
   const [error, setError] = React.useState(null);
   const { service, amount } = useParams();
@@ -31,7 +31,7 @@ const Payment = () => {
   const handleSubmit = async () => {
     const member_id = JSON.parse(localStorage.getItem("user")).id;
 
-    const response = await fetch(`http://localhost:5000/users/api/addPayment`, {
+    const response = await fetch(`http://localhost:5000/api/addPayment`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -101,4 +101,3 @@ const Payment = () => {
   );
 };
 
-export default Payment;

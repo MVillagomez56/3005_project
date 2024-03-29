@@ -7,33 +7,36 @@ console.log("user router started");
 
 const userController = require("../controllers/users-controller.ts");
 
-// Get router 
+// Get router
 // router.get("/api/user/:id", userController.getUserById);
 
 // router.get("/api/members", userController.getAllMembers);
 
 // router.get("/api/member/:userid", userController.getMemberById);
 
+router.get("/searchMember", userController.searchMember);
 
+router.get("/trainers", userController.getAllTrainersWithPF);
+
+router.get("/fitnessGoals/:member_id", userController.getFitnessGoals);
 
 // Post routers
 router.post("/register", userController.register);
 
 router.post("/login", userController.login);
 
-// router.post("/api/addMember", userController.addMember);
-
 router.post("/addPayment", userController.addPayment);
 
 router.post("/addFitnessGoals/:member_id", userController.addFitnessGoals);
 
-router.put('/updateMember/:member_id', userController.updateMember);
+router.put("/updateMember/:member_id", userController.updateMember);
 
-router.put('/updateMember/paymentInfo/:member_id', userController.updateMemberPaymentInfo);
+// Put routers
+router.put(
+  "/updateMember/paymentInfo/:member_id",
+  userController.updateMemberPaymentInfo
+);
 
-router.get('/searchMember', userController.searchMember);
-
-router.get('/trainers', userController.getAllTrainersWithPF);
-
+router.put("/updateUser/:id", userController.updateUser);
 
 module.exports = router;

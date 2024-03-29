@@ -16,7 +16,8 @@ import {Room} from "./pages/Room.js";
 import {Billing} from './pages/Billing.js';
 import { MemberSearch } from './pages/MemberSearch.js';
 import { TrainersPage } from './pages/TrainersPage.js';
-
+import { MemberRegistration } from './pages/MemberRegistration.js';
+import { Payment } from './pages/Payment.js';
 
 
 export const AppRouter = () => {
@@ -26,6 +27,8 @@ export const AppRouter = () => {
       <Routes>
         <Route path="/" element={<Dashboard />} /> 
         <Route path="/profile/:id" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route path="/register/member" element={<MemberRegistration />} /> 
+        <Route path="/payment/:service/:amount" element={<PrivateRoute><Payment /></PrivateRoute>} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />

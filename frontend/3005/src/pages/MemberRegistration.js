@@ -22,7 +22,7 @@ export const MemberRegistration = () => {
     const numWeight = parseInt(weight);
     const numHeight = parseInt(height);
     const response = await fetch(
-      `http://localhost:5000/users/api/updateMember/${currentUser.id}`,
+      `http://localhost:5000/api/updateMember/${currentUser.id}`,
       {
         method: "PUT",
         headers: {
@@ -41,7 +41,7 @@ export const MemberRegistration = () => {
 
     //post goals to users/api/members-goals
     const response2 = await fetch(
-      `http://localhost:5000/users/api/addFitnessGoals/${currentUser.id}`,
+      `http://localhost:5000/api/addFitnessGoals/${currentUser.id}`,
       {
         method: "POST",
         headers: {

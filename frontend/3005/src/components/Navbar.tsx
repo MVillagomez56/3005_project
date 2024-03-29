@@ -36,22 +36,27 @@ export const Navbar = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{ backgroundColor: 'pink' }}>
+      <AppBar position="static" sx={{ backgroundColor: "pink" }}>
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <Button color="inherit" onClick={() => navigate("/")}>MuhaMuhaGym</Button>
-          </Typography> 
-          <Button color="inherit" onClick={() => navigate("/courses")}>Courses</Button>
-          <Button color="inherit" onClick={() => navigate("/room")}>Room Booking</Button>
+            <Button
+              color="inherit"
+              sx={{
+                fontSize: "2.5rem",
+                textTransform: "none",
+                fontWeight: "bold",
+              }}
+              onClick={() => navigate("/")}
+            >
+              MuhaMuhaGym
+            </Button>
+          </Typography>
+          <Button color="inherit" onClick={() => navigate("/courses")}>
+            Courses
+          </Button>
+          <Button color="inherit" onClick={() => navigate("/room")}>
+            Room Booking
+          </Button>
           {isLoggedIn && (
             <div>
               <IconButton
@@ -79,15 +84,28 @@ export const Navbar = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={
-                  () => {
+                <MenuItem
+                  onClick={() => {
                     handleClose();
                     navigate(`/profile/${currentUser?.id}`);
-                  }
-                }>Profile</MenuItem>
+                  }}
+                >
+                  Profile
+                </MenuItem>
                 <MenuItem onClick={handleLogOut}>Logout</MenuItem>
               </Menu>
             </div>
+          )}
+
+          {!isLoggedIn && (
+            <>
+              <Button color="inherit" onClick={() => navigate("/login")}>
+                Login
+              </Button>
+              <Button color="inherit" onClick={() => navigate("/register")}>
+                Register
+              </Button>
+            </>
           )}
         </Toolbar>
       </AppBar>

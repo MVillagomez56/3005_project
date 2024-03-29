@@ -7,10 +7,12 @@ import { useNavigate } from "react-router-dom";
 
 export const  Payment = () => {
   //get route params
+  const currentUser  = JSON.parse(localStorage.getItem("user"));
+
   const [error, setError] = React.useState(null);
+  const [hasPaymentMethod, setHasPaymentMethod] = React.useState(currentUser?.has_payment_method);
   const { service, amount } = useParams();
 
-  const { currentUser } = useAuth();
   const naviagate = useNavigate();
   console.log(currentUser);
 
@@ -82,12 +84,12 @@ export const  Payment = () => {
         Note: We do not offer refunds at the moment for our services!
       </Typography>
 
-      {!currentUser?.has_payment_method && <AddPaymentMethod />}
+      {!hasPaymentMethod && <AddPaymentMethod setHasPaymentMethod={setHasPaymentMethod} />}
 
       {error && <Typography variant="body">{error}</Typography>}
       <Button
         onClick={handleSubmit}
-        disabled={!currentUser?.has_payment_method}
+        disabled={!hasPaymentMethod}
         sx={{
           width: "fit-content",
           padding: "1rem 2rem",

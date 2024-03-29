@@ -4,7 +4,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { useAuth } from "../store/AuthContext";
 
-export const AddPaymentMethod = () => {
+export const AddPaymentMethod = ({setHasPaymentMethod}) => {
   const [cardNumber, setCardNumber] = React.useState("");
   const [ccv, setCcv] = React.useState("");
   const [expiryDate, setExpiryDate] = React.useState("");
@@ -38,6 +38,7 @@ export const AddPaymentMethod = () => {
         "user",
         JSON.stringify({ ...currentUser, has_payment_method: true })
       );
+      setHasPaymentMethod(true);
     }
 
     //update user payment method

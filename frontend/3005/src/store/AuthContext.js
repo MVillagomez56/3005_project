@@ -1,6 +1,5 @@
 // src/context/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from "react";
-
 const AuthContext = createContext();
 
 const token = sessionStorage.getItem("token"); //Add this line
@@ -86,6 +85,7 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(false);
     setCurrentUser(null);
     localStorage.removeItem("user"); // Clear user info from localStorage
+    window.location.href="/login";
   };
 
   const value = {

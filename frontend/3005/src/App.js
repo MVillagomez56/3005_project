@@ -1,16 +1,15 @@
-import './App.css';
-import { AuthProvider } from './store/AuthContext';
-import { AppRouter } from './AppRouter';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import "./App.css";
+import { AuthProvider } from "./store/AuthContext";
+import { AppRouter } from "./AppRouter";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 function App() {
-
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-    <AuthProvider>
-      <AppRouter />
-    </AuthProvider>
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
     </LocalizationProvider>
   );
 }

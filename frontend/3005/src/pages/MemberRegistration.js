@@ -33,7 +33,7 @@ export const MemberRegistration = () => {
       }
     );
 
-    if (!response.status === 200) {
+    if (response.status !== 200) {
       return new Error("Update failed");
     }
 
@@ -52,7 +52,7 @@ export const MemberRegistration = () => {
       }
     );
 
-    if (!response2.status === 200) {
+    if (response2.status !== 201) {
       return new Error("Update failed");
     }
 

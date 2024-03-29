@@ -3,7 +3,7 @@ import success from "../assets/success_image.png";
 import { Button } from "@mui/material";
 import { Box } from "@mui/system";
 
-const RegisterComplete = () => {
+export const RegisterComplete = () => {
   return (
     <Box
       sx={{
@@ -23,4 +23,3 @@ const RegisterComplete = () => {
   );
 };
 
-export default RegisterComplete;

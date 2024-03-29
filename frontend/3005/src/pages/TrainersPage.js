@@ -46,7 +46,8 @@ export const TrainersPage = () => {
           <Grid item xs={12} sm={6} md={4} key={trainer.id}>
             <Paper elevation={3} sx={{ padding: '1rem', textAlign: 'center' }}>
               <img src={trainerProfilePic} alt="Trainer" style={{ width: '100px', height: '100px' }} />
-              <Typography variant="h6">{trainer.name}</Typography>
+              <Typography variant="h6" component="div">{trainer.name}</Typography>
+              {/* The rest of the information */}
               <Typography>{trainer.specialization}</Typography>
               <Button
                 variant="contained"
@@ -55,8 +56,6 @@ export const TrainersPage = () => {
               >
                 Check Detail
               </Button>
-              {/* Additional information such as the trainer's session name and available slots */}
-              {/* would be rendered here if included in the trainer data. */}
             </Paper>
           </Grid>
         ))}

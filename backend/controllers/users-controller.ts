@@ -86,7 +86,7 @@ const getFitnessGoals = async (req, res, next) => {
     }
 
     const { rows } = await pool.query(
-      "SELECT * FROM fitness_goals WHERE member_id = $1;",
+      "SELECT * FROM fitness_goals WHERE member_id = $1 ORDER BY id ASC;",
       [member_id]
     );
 
@@ -96,6 +96,122 @@ const getFitnessGoals = async (req, res, next) => {
     res
       .status(500)
       .json({ error: "An error occurred while retrieving fitness goals." });
+  }
+};
+
+const addFitnessGoal = async (req, res, next) => {
+  try {
+    const { goal } = req.body;
+    const member_id = parseInt(req.params.member_id);
+
+    if (typeof member_id !== "number" || member_id <= 0) {
+      return res.status(400).json({ error: "Invalid member ID." });
+    }
+
+    if (typeof goal !== "string" || !goal.trim()) {
+      return res.status(400).json({ error: "Invalid goal." });
+    }
+
+    const { rows } = await pool.query(
+      "INSERT INTO fitness_goals (member_id, goal) VALUES ($1, $2) RETURNING *;",
+      [member_id, goal]
+    );
+
+    console.log("rows", rows);
+
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "An error occurred while adding the goal." });
+  }
+};
+
+const updateFitnessGoal = async (req, res, next) => {
+  try {
+    const { goal } = req.body;
+    const goal_id = parseInt(req.params.goal_id);
+
+    if (typeof goal_id !== "number" || goal_id <= 0) {
+      return res.status(400).json({ error: "Invalid goal ID." });
+    }
+
+    if (typeof goal !== "string" || !goal.trim()) {
+      return res.status(400).json({ error: "Invalid goal." });
+    }
+
+    const { rows } = await pool.query(
+      "UPDATE fitness_goals SET goal = $1 WHERE id = $2 RETURNING *;",
+      [goal, goal_id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Goal not found." });
+    }
+
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the goal." });
+  }
+};
+
+const completeFitnessGoal = async (req, res, next) => {
+  try {
+    const goal_id = parseInt(req.params.goal_id);
+
+    const { status } = req.body;
+
+    if (typeof goal_id !== "number" || goal_id <= 0) {
+      return res.status(400).json({ error: "Invalid goal ID." });
+    }
+
+    if (typeof status !== "boolean") {
+      return res.status(400).json({ error: "Invalid status." });
+    }
+
+    const { rows } = await pool.query(
+      "UPDATE fitness_goals SET status = $1 WHERE id = $2 RETURNING *;",
+      [status, goal_id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Goal not found." });
+    }
+
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while completing the goal." });
+  }
+};
+
+const deleteFitnessGoal = async (req, res, next) => {
+  try {
+    const goal_id = parseInt(req.params.goal_id);
+
+    if (typeof goal_id !== "number" || goal_id <= 0) {
+      return res.status(400).json({ error: "Invalid goal ID." });
+    }
+
+    const { rows } = await pool.query(
+      "DELETE FROM fitness_goals WHERE id = $1 RETURNING *;",
+      [goal_id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Goal not found." });
+    }
+
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while deleting the goal." });
   }
 };
 
@@ -218,13 +334,13 @@ const register = async (req, res, next) => {
     const insertQuery = `
         INSERT INTO Users (email, password, name, date_of_birth, role)
         VALUES ($1, $2, $3, $4, $5)
-        RETURNING id, email, name, date_of_birth, role;
+        RETURNING id, email, name, date_of_birth, role, password;
       `;
     const values = [email, password, name, date_of_birth, role];
     const { rows } = await pool.query(insertQuery, values);
 
     // Send success response
-    res.status(201).json({ user: rows[0] });
+    res.status(201).json({ user: { ...rows[0], has_payment_method: false } });
   } catch (err) {
     console.error(err);
     res
@@ -328,7 +444,7 @@ const addFitnessGoals = async (req, res) => {
   try {
     const { goals } = req.body;
     console.log("req", req);
-    const member_id = req.params.member_id;
+    const member_id = parseInt(req.params.member_id);
     //add back in memberid
     if (typeof member_id !== "number" || member_id <= 0) {
       return res.status(400).json({ error: "Invalid or missing member ID." });
@@ -490,5 +606,9 @@ module.exports = {
   searchMember,
   getAllTrainersWithPF,
   updateUser,
-  getFitnessGoals
+  getFitnessGoals,
+  addFitnessGoal,
+  updateFitnessGoal,
+  completeFitnessGoal,
+  deleteFitnessGoal,
 };

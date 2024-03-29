@@ -29,14 +29,24 @@ router.post("/addPayment", userController.addPayment);
 
 router.post("/addFitnessGoals/:member_id", userController.addFitnessGoals);
 
-router.put("/updateMember/:member_id", userController.updateMember);
+router.post("/addFitnessGoal/:member_id", userController.addFitnessGoal);
 
 // Put routers
+
+router.put("/updateMember/:member_id", userController.updateMember);
+
 router.put(
   "/updateMember/paymentInfo/:member_id",
   userController.updateMemberPaymentInfo
 );
 
 router.put("/updateUser/:id", userController.updateUser);
+
+router.put("/updateFitnessGoal/:goal_id", userController.updateFitnessGoal);
+
+router.put("/completeFitnessGoal/:goal_id", userController.completeFitnessGoal);
+
+// Delete routers
+router.delete("/deleteFitnessGoal/:goal_id", userController.deleteFitnessGoal);
 
 module.exports = router;

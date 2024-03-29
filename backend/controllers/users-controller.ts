@@ -155,7 +155,7 @@ const getAllTrainersWithPF = async (req, res) => {
       FROM 
         Trainers t
       LEFT JOIN 
-        Classes c ON t.id = c.trainer_id AND c.type = 'pf';
+        Classes c ON t.id = c.trainer_id AND c.type = 'personal';
     `;
 
     const { rows } = await pool.query(trainersQuery);

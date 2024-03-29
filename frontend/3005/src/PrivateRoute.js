@@ -1,22 +1,19 @@
-import { useNavigate } from 'react-router';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
 // Assuming you have some auth context or service that lets you check user status
+import { useAuth } from './store/AuthContext';
   
 export const PrivateRoute = ({ children, roleRequired }) => {
-  const user = localStorage.getItem('user');
-  const navigate = useNavigate();
+  const { isLoggedIn, currentUser } = useAuth();
 
-  console.log("user", user);
-
-
-  if (!user) {
+  if (!isLoggedIn) {
     // User not authenticated; redirect them to the login page
-     navigate('/login');
+      return <Navigate to="/login" />;
   }
 
-  if (roleRequired && JSON.parse(user).role !== roleRequired) {
-    // User is not authorized; redirect them to the home page
-    navigate('/');
+  if (roleRequired && currentUser.role !== roleRequired) {
+    return <Navigate to="/" />;
   }
 
   return children;

@@ -1,4 +1,4 @@
-export const testingPaymentData = [
+const testingPaymentData = [
     {
       "payment_id": 1,
       "member_id": 101,
@@ -40,4 +40,6 @@ export const testingPaymentData = [
       "completion_status": "Pending"
     }
   ];
+
+export default testingPaymentData;
   

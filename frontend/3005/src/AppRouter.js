@@ -20,6 +20,8 @@ import { MemberRegistration } from "./pages/MemberRegistration.js";
 import { Payment } from "./pages/Payment.js";
 import { RegisterComplete } from "./pages/RegisterComplete.js";
 import { useAuth } from './store/AuthContext';
+import { PersonalSessionDetail } from "./pages/PersonalSessionDetail.js";
+
 
 export const AppRouter = () => {
   const { logout } = useAuth();
@@ -80,6 +82,7 @@ export const AppRouter = () => {
         <Route path="/billing" element={<Billing />} />
         <Route path="/searchMember" element={<MemberSearch />} />
         <Route path="/trainers" element={<TrainersPage />} />
+        <Route path="/trainer/:id" element={<PersonalSessionDetail />} />
       </Routes>
       <Footer />
     </Router>

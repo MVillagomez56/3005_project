@@ -261,49 +261,101 @@ const searchMember = async (req, res) => {
 // Function to get all trainers and their PF sessions
 const getAllTrainersWithPF = async (req, res) => {
   try {
-    // SQL query to fetch trainers and their personal fitness (PF) session names
+    // SQL query to fetch trainers with their names from the Users table
     const trainersQuery = `
       SELECT 
         t.id, 
-        t.specialization, 
-        c.name AS session_name, 
-        c.trainer_id
+        u.name, 
+        t.specialization
       FROM 
         Trainers t
-      LEFT JOIN 
-        Classes c ON t.id = c.trainer_id AND c.type = 'personal';
+      JOIN 
+        Users u ON t.id = u.id
+      WHERE 
+        u.role = 'trainer';
     `;
 
     const { rows } = await pool.query(trainersQuery);
 
-    // Assuming you want to group classes by trainer
-    const trainers = rows.reduce((acc, current) => {
-      const trainer = acc.find((tr) => tr.id === current.trainer_id);
-      if (trainer) {
-        trainer.sessions.push({
-          name: current.session_name,
-        });
-      } else {
-        acc.push({
-          id: current.id,
-          name: current.name,
-          specialization: current.specialization,
-          sessions: current.session_name
-            ? [{ name: current.session_name }]
-            : [],
-        });
-      }
-      return acc;
-    }, []);
+    // Formatting the trainers' data for the response
+    const trainers = rows.map((trainer) => ({
+      id: trainer.id,
+      name: trainer.name,
+      specialization: trainer.specialization,
+    }));
 
     res.json(trainers);
   } catch (error) {
-    console.error("Error fetching trainers and classes:", error);
+    console.error("Error fetching trainers:", error);
     res.status(500).json({
-      error: "An error occurred while retrieving trainers and classes.",
+      error: "An error occurred while retrieving trainers.",
     });
   }
 };
+
+const getTrainerDetailById = async (req, res) => {
+  try {
+    const trainerId = parseInt(req.params.id); // Get the trainer ID from the request parameters
+
+    // SQL query to fetch the trainer's details from the Trainers and Users tables
+    const trainerDetailQuery = `
+      SELECT 
+        t.id, 
+        u.name, 
+        t.specialization, 
+        t.monday_availability,
+        t.tuesday_availability,
+        t.wednesday_availability,
+        t.thursday_availability,
+        t.friday_availability,
+        t.saturday_availability,
+        t.sunday_availability,
+        t.cost
+      FROM 
+        Trainers t
+      JOIN 
+        Users u ON t.id = u.id
+      WHERE 
+        t.id = $1 AND u.role = 'trainer';
+    `;
+
+    // Execute the query
+    const { rows } = await pool.query(trainerDetailQuery, [trainerId]);
+
+    // Check if the trainer was found
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Trainer not found." });
+    }
+
+    // Assuming there's only one match due to ID uniqueness
+    const trainer = rows[0];
+
+    // Formatting the trainer's data for the response, including availability
+    const formattedTrainer = {
+      id: trainer.id,
+      name: trainer.name,
+      specialization: trainer.specialization,
+      availability: {
+        monday: trainer.monday_availability,
+        tuesday: trainer.tuesday_availability,
+        wednesday: trainer.wednesday_availability,
+        thursday: trainer.thursday_availability,
+        friday: trainer.friday_availability,
+        saturday: trainer.saturday_availability,
+        sunday: trainer.sunday_availability,
+      },
+      cost: trainer.cost
+    };
+
+    res.json(formattedTrainer);
+  } catch (error) {
+    console.error("Error fetching trainer details:", error);
+    res.status(500).json({
+      error: "An error occurred while retrieving the trainer's details.",
+    });
+  }
+};
+
 
 const registerCourse = async (req, res, next) => {};
 
@@ -611,4 +663,5 @@ module.exports = {
   updateFitnessGoal,
   completeFitnessGoal,
   deleteFitnessGoal,
+  getTrainerDetailById,
 };

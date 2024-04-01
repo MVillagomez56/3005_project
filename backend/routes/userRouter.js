@@ -20,6 +20,8 @@ router.get("/trainers", userController.getAllTrainersWithPF);
 
 router.get("/fitnessGoals/:member_id", userController.getFitnessGoals);
 
+router.get('/trainer/:id', userController.getTrainerDetailById);
+
 // Post routers
 router.post("/register", userController.register);
 

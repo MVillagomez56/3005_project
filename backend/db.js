@@ -5,9 +5,9 @@ const DB_NAME = 'GroupProject'
 const pool = new Pool({
   user: 'postgres',
   host: "localhost",
-  database: "test4",
-  password: 'postgres',
-  port: 5433,
+  database: "GroupProject",
+  password: 'zh2131',
+  port: 5432,
 });
 
 module.exports = pool;

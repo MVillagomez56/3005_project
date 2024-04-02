@@ -1,27 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Typography, Button, Paper, TextField, FormControlLabel, Checkbox } from '@mui/material';
+import { Container, Typography, Button, Paper, TextField, FormControlLabel, Checkbox, Box } from '@mui/material';
 
 export const PersonalSessionDetail = () => {
   const { id } = useParams();
   const [trainer, setTrainer] = useState(null);
   const [error, setError] = useState(null);
   const [selectedSlots, setSelectedSlots] = useState({});
+  const [startTimes, setStartTimes] = useState({});
   const [duration, setDuration] = useState('');
 
-  // Helper function to format the availability times
   const formatAvailability = (timeRange) => {
-    if (!timeRange) return 'Unavailable';
+    if (!timeRange) return null; // Don't return 'Unavailable', return null to indicate no display
     const times = timeRange.replace(/\[|\)|"/g, '').split(',');
-    const startTime = times[0].trim();
-    const endTime = times[1].trim();
-    return `${startTime.slice(0, -3)} - ${endTime.slice(0, -3)}`;
+    return `${times[0].trim().slice(0, -3)} - ${times[1].trim().slice(0, -3)}`;
   };
 
-  // Function to handle slot checkbox changes
   const handleSlotChange = (event) => {
     const { name, checked } = event.target;
     setSelectedSlots(prev => ({ ...prev, [name]: checked }));
+    if (!checked) {
+      setStartTimes(prev => {
+        const newTimes = { ...prev };
+        delete newTimes[name];
+        return newTimes;
+      });
+    }
+  };
+
+  const handleStartTimeChange = (day) => (event) => {
+    setStartTimes(prev => ({ ...prev, [day]: event.target.value }));
   };
 
   const isSlotSelected = () => {
@@ -41,12 +49,11 @@ export const PersonalSessionDetail = () => {
 
         if (response.ok) {
           const data = await response.json();
-          setTrainer(data); // Assuming the API returns the details for a single trainer
+          setTrainer(data);
         } else {
           throw new Error('Failed to fetch trainer details');
         }
       } catch (error) {
-        console.error('Error fetching trainer details:', error);
         setError(error.message);
       }
     };
@@ -59,14 +66,11 @@ export const PersonalSessionDetail = () => {
   };
 
   const handleRegister = async () => {
-    // Calculate the amount based on the duration and trainer's rate
-    const amount = Number(duration) * trainer.cost; // Adjust according to your rate logic
-  
-    // Extract the names of the days that were selected
+    const amount = Number(duration) * trainer.cost;
     const selectedSlotNames = Object.entries(selectedSlots)
       .filter(([day, isSelected]) => isSelected)
       .map(([day]) => day);
-  
+
     try {
       const response = await fetch(`http://localhost:5000/api/payment/processing/personal_training/${amount}`, {
         method: "POST",
@@ -77,24 +81,21 @@ export const PersonalSessionDetail = () => {
         body: JSON.stringify({
           trainerId: id,
           duration: duration,
-          selectedSlots: selectedSlotNames, // Send the array of selected day names
+          selectedSlots: selectedSlotNames,
+          startTimes: startTimes,
           amount: amount,
         }),
       });
-  
+
       if (response.ok) {
-        const data = await response.json();
-        console.log('Registration successful', data);
-        // Navigate to another page or show success message
+        console.log('Registration successful', await response.json());
       } else {
         throw new Error('Failed to process payment');
       }
     } catch (error) {
-      console.error('Error processing payment:', error);
       setError(error.message);
     }
   };
-  
 
   return (
     <Container maxWidth="sm" sx={{ marginTop: '2rem' }}>
@@ -102,30 +103,38 @@ export const PersonalSessionDetail = () => {
         {error && <Typography color="error">{error}</Typography>}
         {trainer && (
           <>
-            <Typography variant="h4" gutterBottom>
-              {trainer.name}
-            </Typography>
-            <Typography variant="h5">
-              ${trainer.cost} /hr
-            </Typography>
+            <Typography variant="h4" gutterBottom>{trainer.name}</Typography>
+            <Typography variant="h5">${trainer.cost} /hr</Typography>
             {Object.entries(trainer.availability).map(([day, timeRange]) => {
-              if (timeRange) {
+              const availability = formatAvailability(timeRange);
+              if (availability) { // Only display if availability is not null
                 return (
-                  <div key={day}>
-                    <Typography>
-                      {`${day.charAt(0).toUpperCase() + day.slice(1)}: ${formatAvailability(timeRange)}`}
-                    </Typography>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={!!selectedSlots[day]}
-                          onChange={handleSlotChange}
-                          name={day}
-                        />
-                      }
-                      label="Select"
-                    />
-                  </div>
+                  <Box key={day} sx={{ marginBottom: 2 }}> {/* Add margin between days */}
+                    <Typography>{`${day.charAt(0).toUpperCase() + day.slice(1)}: ${availability}`}</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <FormControlLabel
+                        control={<Checkbox checked={!!selectedSlots[day]} onChange={handleSlotChange} name={day} />}
+                        label="Select"
+                      />
+                      {selectedSlots[day] && (
+                        <Box sx={{ width: '100%', mt: 1 }}> {/* New line for start time */}
+                          <TextField
+                            fullWidth
+                            label="Start Time"
+                            type="time"
+                            value={startTimes[day] || ''}
+                            onChange={handleStartTimeChange(day)}
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            inputProps={{
+                              step: 300, // 5 min
+                            }}
+                          />
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
                 );
               }
               return null;

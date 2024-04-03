@@ -17,13 +17,13 @@ CREATE TABLE Users (
 CREATE TABLE Trainers (
     id INTEGER PRIMARY KEY,
     specialization TEXT,
-    monday_availability TSRANGE,
-    tuesday_availability TSRANGE,
-    wednesday_availability TSRANGE,
-    thursday_availability TSRANGE,
-    friday_availability TSRANGE,
-    saturday_availability TSRANGE,
-    sunday_availability TSRANGE,
+    monday_availability TSRANGE DEFAULT '[08:00, 20:00]',
+    tuesday_availability TSRANGE DEFAULT '[08:00, 20:00]',
+    wednesday_availability TSRANGE DEFAULT '[08:00, 20:00]',
+    thursday_availability TSRANGE DEFAULT '[08:00, 20:00]',
+    friday_availability TSRANGE DEFAULT '[08:00, 20:00]',
+    saturday_availability TSRANGE DEFAULT '[08:00, 20:00]',
+    sunday_availability TSRANGE DEFAULT '[08:00, 20:00]',
     cost INTEGER,
     FOREIGN KEY(id) REFERENCES Users(id) ON DELETE CASCADE
 );

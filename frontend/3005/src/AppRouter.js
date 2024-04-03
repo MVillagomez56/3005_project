@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Dashboard } from "./pages/Dashboard.tsx";
+import { Dashboard } from "./pages/Dashboard.js";
 import { Profile } from "./pages/Profile.js";
 import { Register } from "./pages/Register.js";
 import { Login } from "./pages/Login.tsx";
@@ -19,7 +19,7 @@ import { TrainersPage } from "./pages/TrainersPage.js";
 import { MemberRegistration } from "./pages/MemberRegistration.js";
 import { Payment } from "./pages/Payment.js";
 import { RegisterComplete } from "./pages/RegisterComplete.js";
-import { useAuth } from './store/AuthContext';
+import { useAuth } from "./store/AuthContext";
 import { PersonalSessionDetail } from "./pages/PersonalSessionDetail.js";
 import { Error } from "./pages/Error.js";
 
@@ -84,7 +84,7 @@ export const AppRouter = () => {
         <Route path="/searchMember" element={<MemberSearch />} />
         <Route path="/trainers" element={<TrainersPage />} />
         <Route path="/trainer/:id" element={<PersonalSessionDetail />} />
-        <Route path="/*" element={<Error/>}/>
+        <Route path="/*" element={<Error />} />
       </Routes>
       <Footer />
     </Router>

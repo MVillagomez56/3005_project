@@ -3,35 +3,9 @@ import { Box } from "@mui/system";
 import trainerProfile from "../assets/trainer_profile.png";
 import memberProfile from "../assets/member_profile.png";
 import adminProfile from "../assets/admin_profile.png";
-import { IconButton, Typography, Button, TextField } from "@mui/material";
+import { IconButton, Typography, Button } from "@mui/material";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
-
-const InfoField = ({ label, value, setValue, edit }) => {
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        gap: "0.5rem",
-      }}
-    >
-      <Typography variant="h6" fontWeight={"bold"}>
-        {label}:
-      </Typography>
-      {edit ? (
-        <TextField
-          value={value}
-          variant="standard"
-          onChange={(e) => setValue(e.target.value)}
-        />
-      ) : (
-        <Typography variant="h6">
-          {label === "Password" ? value.replace(/./g, "*") : value}
-        </Typography>
-      )}
-    </Box>
-  );
-};
+import { InfoField } from "./InfoField";
 
 export const ProfileInformation = (currentUser) => {
   const { role } = currentUser;

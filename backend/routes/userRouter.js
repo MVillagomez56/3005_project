@@ -5,7 +5,7 @@ console.log("user router started");
 
 // The user-controller is where all the logic for modifying backend works
 
-const userController = require("../controllers/users-controller.ts");
+const userController = require("../controllers/users-controller.js");
 
 // Get router
 // router.get("/api/user/:id", userController.getUserById);

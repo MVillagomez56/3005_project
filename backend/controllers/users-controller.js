@@ -549,16 +549,49 @@ const updateMember = async (req, res, next) => {
     }
 
     // Extract member details from request body
-    const { weight, height } = req.body;
+    const { weight, height, muscle_mass, body_fat } = req.body;
+
+    console.log("req.body", req.body)
+
+   //DEPENDING ON WHICH FIELDS ARE PASSED IN, UPDATE THE CORRESPONDING FIELDS
+    let updateQuery = `UPDATE Members SET `;
+    let values = [];
+    let valueIndex = 1;
+
+
+    if (weight) {
+      console.log("weight", weight);
+      updateQuery += `weight = $${valueIndex}, `;
+      values.push(weight);
+      valueIndex++;
+    }
+    if (height) {
+      updateQuery += `height = $${valueIndex}, `;
+      values.push(height);
+      valueIndex++;
+    }
+    if (muscle_mass) {
+      updateQuery += `muscle_mass = $${valueIndex}, `;
+      values.push(muscle_mass);
+      valueIndex++;
+    }
+    if (body_fat) {
+      updateQuery += `body_fat = $${valueIndex}, `;
+      values.push(body_fat);
+      valueIndex++;
+    }
+
+
+    // Remove the trailing comma and space
+    updateQuery = updateQuery.slice(0, -2);
+
+    // Add the WHERE clause to update the correct member
+    updateQuery += ` WHERE id = $${valueIndex} RETURNING *;`;
+    values.push(member_id);
+    console.log("updateQuery", updateQuery);
+
 
     // Update the member in the database
-    const updateQuery = `
-        UPDATE Members
-        SET weight = $1, height = $2
-        WHERE id = $3
-        RETURNING *;
-      `;
-    const values = [weight, height, member_id];
     const { rows } = await pool.query(updateQuery, values);
 
     // Check if a member was found and updated

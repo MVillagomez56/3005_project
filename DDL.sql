@@ -17,13 +17,13 @@ CREATE TABLE Users (
 CREATE TABLE Trainers (
     id INTEGER PRIMARY KEY,
     specialization TEXT,
-    monday_availability TSRANGE DEFAULT '[08:00, 20:00]',
-    tuesday_availability TSRANGE DEFAULT '[08:00, 20:00]',
-    wednesday_availability TSRANGE DEFAULT '[08:00, 20:00]',
-    thursday_availability TSRANGE DEFAULT '[08:00, 20:00]',
-    friday_availability TSRANGE DEFAULT '[08:00, 20:00]',
-    saturday_availability TSRANGE DEFAULT '[08:00, 20:00]',
-    sunday_availability TSRANGE DEFAULT '[08:00, 20:00]',
+    monday_availability TSRANGE,
+    tuesday_availability TSRANGE ,
+    wednesday_availability TSRANGE ,
+    thursday_availability TSRANGE ,
+    friday_availability TSRANGE ,
+    saturday_availability TSRANGE,
+    sunday_availability TSRANGE ,
     cost INTEGER,
     FOREIGN KEY(id) REFERENCES Users(id) ON DELETE CASCADE
 );
@@ -175,6 +175,23 @@ CREATE TRIGGER check_availability
 BEFORE INSERT ON Classes
 FOR EACH ROW
 EXECUTE FUNCTION check_availability();
+
+
+-- when completion status of a goal is updated, update the completion date as well
+CREATE OR REPLACE FUNCTION update_completion_date()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = TRUE THEN
+        NEW.completion_date := CURRENT_DATE;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_completion_date
+BEFORE UPDATE ON Fitness_Goals
+FOR EACH ROW
+EXECUTE FUNCTION update_completion_date();
 
 
  

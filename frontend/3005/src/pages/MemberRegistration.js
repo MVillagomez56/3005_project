@@ -29,13 +29,18 @@ export const MemberRegistration = () => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ numWeight, numHeight }),
+        body: JSON.stringify({ height:numWeight, weight:numHeight }),
       }
     );
 
     if (response.status !== 200) {
       return new Error("Update failed");
     }
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify({ ...currentUser, weight: numWeight, height: numHeight })
+    );
 
     ////////
 

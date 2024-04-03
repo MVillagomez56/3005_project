@@ -1,13 +1,15 @@
 const { Pool } = require("pg");
-const DB_NAME = 'GroupProject'
+//Just change these variables to your own database name and password
+const DB_NAME = 'test4'
+const PASSWORD = "postgres"
+const PORT = 5433
 
-// Please make sure that you set up exact the same cresidential as this one!!
 const pool = new Pool({
   user: 'postgres',
   host: "localhost",
-  database: "GroupProject",
-  password: 'zh2131',
-  port: 5432,
+  database: DB_NAME,
+  password: PASSWORD,
+  port: PORT
 });
 
 module.exports = pool;

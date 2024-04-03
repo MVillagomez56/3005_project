@@ -12,7 +12,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditRounded from "@mui/icons-material/EditRounded";
 
-export const FitnessGoals = (currentUser) => {
+export const FitnessGoals = ({ currentUser }) => {
   const [fitnessGoals, setFitnessGoals] = React.useState([]);
 
   const [newGoal, setNewGoal] = React.useState("");
@@ -28,7 +28,7 @@ export const FitnessGoals = (currentUser) => {
       }
     );
 
-    if (!response){
+    if (!response) {
       return new Error("Failed to fetch fitness goals");
     }
 

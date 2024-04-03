@@ -24,7 +24,7 @@ export const Profile = () => {
           justifyContent: "center",
         }}
       >
-        <FitnessGoals {...currentUser} />
+        <FitnessGoals currentUser={currentUser} />
         <HealthStats {...currentUser} />
       </Box>
     </>

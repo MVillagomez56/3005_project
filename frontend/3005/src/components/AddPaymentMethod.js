@@ -4,7 +4,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { useAuth } from "../store/AuthContext";
 
-export const AddPaymentMethod = () => {
+export const AddPaymentMethod = ({setHasPaymentMethod}) => {
   const [cardNumber, setCardNumber] = React.useState("");
   const [ccv, setCcv] = React.useState("");
   const [expiryDate, setExpiryDate] = React.useState("");
@@ -15,7 +15,7 @@ export const AddPaymentMethod = () => {
   const handleSubmit = async () => {
     //send payment to backend
     const response = await fetch(
-      `http://localhost:5000/users/api/updateMember/paymentInfo/${id}`,
+      `http://localhost:5000/api/updateMember/paymentInfo/${id}`,
       {
         method: "PUT",
         headers: {
@@ -38,6 +38,7 @@ export const AddPaymentMethod = () => {
         "user",
         JSON.stringify({ ...currentUser, has_payment_method: true })
       );
+      setHasPaymentMethod(true);
     }
 
     //update user payment method

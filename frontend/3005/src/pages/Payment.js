@@ -5,12 +5,14 @@ import { useAuth } from "../store/AuthContext";
 import { AddPaymentMethod } from "../components/AddPaymentMethod";
 import { useNavigate } from "react-router-dom";
 
-const Payment = () => {
+export const  Payment = () => {
   //get route params
+  const currentUser  = JSON.parse(localStorage.getItem("user"));
+
   const [error, setError] = React.useState(null);
+  const [hasPaymentMethod, setHasPaymentMethod] = React.useState(currentUser?.has_payment_method);
   const { service, amount } = useParams();
 
-  const { currentUser } = useAuth();
   const naviagate = useNavigate();
   console.log(currentUser);
 
@@ -31,7 +33,7 @@ const Payment = () => {
   const handleSubmit = async () => {
     const member_id = JSON.parse(localStorage.getItem("user")).id;
 
-    const response = await fetch(`http://localhost:5000/users/api/addPayment`, {
+    const response = await fetch(`http://localhost:5000/api/addPayment`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -82,12 +84,12 @@ const Payment = () => {
         Note: We do not offer refunds at the moment for our services!
       </Typography>
 
-      {!currentUser?.has_payment_method && <AddPaymentMethod />}
+      {!hasPaymentMethod && <AddPaymentMethod setHasPaymentMethod={setHasPaymentMethod} />}
 
       {error && <Typography variant="body">{error}</Typography>}
       <Button
         onClick={handleSubmit}
-        disabled={!currentUser?.has_payment_method}
+        disabled={!hasPaymentMethod}
         sx={{
           width: "fit-content",
           padding: "1rem 2rem",
@@ -101,4 +103,3 @@ const Payment = () => {
   );
 };
 
-export default Payment;

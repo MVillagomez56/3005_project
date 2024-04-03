@@ -1,6 +1,5 @@
 // src/context/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from "react";
-
 const AuthContext = createContext();
 
 const token = sessionStorage.getItem("token"); //Add this line
@@ -22,7 +21,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (email, password, name, date_of_birth, role) => {
     //post data to server
-    const response = await fetch("http://localhost:5000/users/api/register  ", {
+    const response = await fetch("http://localhost:5000/api/register  ", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -53,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     // post email and password to server
-    const response = await fetch("http://localhost:5000/users/api/login", {
+    const response = await fetch("http://localhost:5000/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -65,7 +64,7 @@ export const AuthProvider = ({ children }) => {
       body: JSON.stringify({ email, password }),
     });
 
-    if (!response.status === 200) {
+    if (response.status !== 200) {
       throw new Error("Login failed");
     }
 
@@ -86,6 +85,7 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(false);
     setCurrentUser(null);
     localStorage.removeItem("user"); // Clear user info from localStorage
+    window.location.href="/login";
   };
 
   const value = {

@@ -16,13 +16,19 @@ export const Login = () => {
   }
 
   const handleSubmit = async () => {
-    const loggedIn = await login(email, password);
 
-    if (loggedIn) {
-      navigate("/");
-    } else {
-      alert("Invalid credentials");
+    try{
+      const loggedIn = await login(email, password);
+      if (loggedIn) {
+        navigate("/");
+      } else {
+        alert("Invalid credentials");
+      }
     }
+    catch(err){
+      console.log(err);
+    }
+
 
   }
 

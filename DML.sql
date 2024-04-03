@@ -12,6 +12,27 @@ UPDATE Members SET weight = 75, height = 180, muscle_mass = 32, body_fat = 15 WH
 UPDATE Members SET weight = 65, height = 170, muscle_mass = 28, body_fat = 20 WHERE id = 5;
 UPDATE Members SET weight = 85, height = 175, muscle_mass = 35, body_fat = 10 WHERE id = 7;
 
+UPDATE Trainers
+SET 
+  specialization = 'Certified Wellness Coach',
+  tuesday_availability = tsrange('2024-03-26 09:00:00', '2024-03-26 17:00:00'),
+  thursday_availability = tsrange('2024-03-28 10:00:00', '2024-03-28 18:00:00'),
+  friday_availability = tsrange('2024-03-29 08:00:00', '2024-03-29 12:00:00'),
+  sunday_availability = tsrange('2024-03-31 11:00:00', '2024-03-31 15:00:00'),
+  cost = 50
+WHERE id = 3;
+
+UPDATE Trainers
+SET 
+  specialization = 'Stretching and Flexibility Coach',
+  monday_availability = tsrange('2024-03-25 10:00:00', '2024-03-25 18:00:00'),
+  wednesday_availability = tsrange('2024-03-27 09:00:00', '2024-03-27 13:00:00'),
+  thursday_availability = tsrange('2024-03-28 14:00:00', '2024-03-28 20:00:00'),
+  saturday_availability = tsrange('2024-03-30 12:00:00', '2024-03-30 16:00:00'),
+  cost = 60
+WHERE id = 6;
+
+
 
 
 INSERT INTO Rooms (name, description, capacity) VALUES

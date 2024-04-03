@@ -7,33 +7,48 @@ console.log("user router started");
 
 const userController = require("../controllers/users-controller.ts");
 
-// Get router 
+// Get router
 // router.get("/api/user/:id", userController.getUserById);
 
 // router.get("/api/members", userController.getAllMembers);
 
 // router.get("/api/member/:userid", userController.getMemberById);
 
+router.get("/searchMember", userController.searchMember);
 
+router.get("/trainers", userController.getAllTrainersWithPF);
+
+router.get("/fitnessGoals/:member_id", userController.getFitnessGoals);
+
+router.get('/trainer/:id', userController.getTrainerDetailById);
 
 // Post routers
 router.post("/register", userController.register);
 
 router.post("/login", userController.login);
 
-// router.post("/api/addMember", userController.addMember);
-
 router.post("/addPayment", userController.addPayment);
 
 router.post("/addFitnessGoals/:member_id", userController.addFitnessGoals);
 
-router.put('/updateMember/:member_id', userController.updateMember);
+router.post("/addFitnessGoal/:member_id", userController.addFitnessGoal);
 
-router.put('/updateMember/paymentInfo/:member_id', userController.updateMemberPaymentInfo);
+// Put routers
 
-router.get('/searchMember', userController.searchMember);
+router.put("/updateMember/:member_id", userController.updateMember);
 
-router.get('/trainers', userController.getAllTrainersWithPF);
+router.put(
+  "/updateMember/paymentInfo/:member_id",
+  userController.updateMemberPaymentInfo
+);
 
+router.put("/updateUser/:id", userController.updateUser);
+
+router.put("/updateFitnessGoal/:goal_id", userController.updateFitnessGoal);
+
+router.put("/completeFitnessGoal/:goal_id", userController.completeFitnessGoal);
+
+// Delete routers
+router.delete("/deleteFitnessGoal/:goal_id", userController.deleteFitnessGoal);
 
 module.exports = router;

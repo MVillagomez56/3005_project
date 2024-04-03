@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, TextField, Grid, Container, Typography } from '@mui/material';
-import testingCourse from "../data/testing_course"
+
 
 export const ClassEdit = () => {
     const { courseid } = useParams();
-    const [classData, setClassData] = useState(null); // Use state to store fetched classData
+    const [classData, setClassData] = useState({
+        name: '',
+        description: '',
+        cost: '',
+        capacity: '',
+        // Add any other fields you expect to manage
+    });// Use state to store fetched classData
   
     useEffect(() => {
       // Function to fetch classData data from the backend
@@ -15,6 +21,7 @@ export const ClassEdit = () => {
    // Adjust the URL/port as per your setup
           const data = await response.json();
           setClassData(data); // Set fetched classData to state
+          console.log(data);
         } catch (error) {
           console.error("Error fetching classData data:", error);
         }
@@ -32,15 +39,36 @@ export const ClassEdit = () => {
   
     const handleChange = (e) => {
         const { name, value } = e.target;
+        console.log(`Field changed: ${name}, Value: ${value}`); // Debugging line
         setClassData(prevState => ({
             ...prevState,
             [name]: value,
         }));
     };
+    
 
-    const handleSave = () => {
-        // Here you would typically send classData to your backend server for updating
-        console.log('Saving class data:', classData);
+    const handleSave = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/classes/updateClass/${courseid}`, {
+                method: 'POST', // Use POST or PUT as per your API design. PUT is more appropriate for updates.
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(classData), // Ensure classData contains the fields to update
+            });
+    
+            if (response.ok) {
+                const updatedClass = await response.json();
+                console.log('Class updated successfully:', updatedClass);
+                // Optionally, navigate to a different page or show a success message
+            } else {
+                console.error('Failed to update class.');
+                // Handle failure, show error message to user
+            }
+        } catch (error) {
+            console.error('Error saving class data:', error);
+            // Handle error, show error message to user
+        }
     };
 
     return (
@@ -51,8 +79,8 @@ export const ClassEdit = () => {
                     <TextField
                         fullWidth
                         label="Class Name"
-                        name="className"
-                        value={classData.name}
+                        name="name"
+                        value={classData?.name || ''}
                         onChange={handleChange}
                     />
                 </Grid>

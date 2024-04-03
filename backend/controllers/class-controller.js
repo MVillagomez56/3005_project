@@ -217,6 +217,35 @@ const getClassById = async (req, res) => {
   }
 };
 
+const updateClassById = async (req, res) => {
+  const { id } = req.params; // The class ID from URL
+  const { name, description, trainer_id, duration, cost, capacity, type, room_id } = req.body; // Destructure updated class data from request body
+
+  try {
+    // Construct the SQL query for updating the class information
+    const updateQuery = `
+      UPDATE Classes
+      SET name = $1, description = $2, trainer_id = $3, duration = $4, cost = $5, capacity = $6, type = $7, room_id = $8
+      WHERE id = $9
+      RETURNING *;
+    `;
+
+    // Execute the query with parameters
+    const { rows } = await pool.query(updateQuery, [name, description, trainer_id, duration, cost, capacity, type, room_id, id]);
+
+    // If no rows are returned, the class was not found
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Class not found.' });
+    }
+
+    // Respond with the updated class information
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    console.error('Error updating class:', err);
+    res.status(500).json({ error: 'An error occurred while updating the class information.' });
+  }
+};
+
 module.exports = {
   getAllRooms,
   getAllClasses,
@@ -225,4 +254,5 @@ module.exports = {
   getPopularClasses,
   addClass,
   getUpcomingClasses,
+  updateClassById,
 };

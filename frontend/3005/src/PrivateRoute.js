@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export const PrivateRoute = ({ children, roleRequired }) => {
+  console.log("PrivateRoute");
   const navigate = useNavigate();
   const userStr = localStorage.getItem('user');
   let user = null;
@@ -25,6 +26,7 @@ export const PrivateRoute = ({ children, roleRequired }) => {
 
   // If the user is null (unauthenticated) or role doesn't match, prevent children from rendering
   if (!user || (roleRequired && user.role !== roleRequired)) {
+    console.log("Not equal");
     return null; // Return null, a loading indicator, or a placeholder as appropriate
   }
 

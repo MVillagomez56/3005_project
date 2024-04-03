@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Typography, Grid, Box } from '@mui/material';
 import CompletedPayments from '../components/CompletedPayments';
-import PendingPayments from '../components/PendingPayment';
+import {PendingPayments} from '../components/PendingPayment';
 import testingPaymentData from "../data/testing_payment";
 
 

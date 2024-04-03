@@ -52,6 +52,7 @@ export const Navbar = () => {
           </Typography> 
           <Button color="inherit" onClick={() => navigate("/courses")}>Courses</Button>
           <Button color="inherit" onClick={() => navigate("/room")}>Room Booking</Button>
+          {!isLoggedIn && <Button color="inherit" onClick={() => navigate("/login")}>Login</Button>}
           {isLoggedIn && (
             <div>
               <IconButton

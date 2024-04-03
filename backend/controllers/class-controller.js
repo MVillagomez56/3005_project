@@ -1,3 +1,6 @@
+
+const pool = require("../db");
+
 const getAllRooms = async(req,res,next)=>{
     try {
         const { rows } = await pool.query("SELECT * FROM Rooms");
@@ -157,4 +160,38 @@ const addClass = async (req, res) => {
       res.status(500).json({ error: "Could not add the class to the database." });
     }
   };
+
+  const getClassById = async (req, res) => {
+    const classId = parseInt(req.params.id);
+    
+    if (isNaN(classId)) {
+      return res.status(400).json({ error: "Invalid class ID." });
+    }
   
+    try {
+      const query = `
+        SELECT id, name, description, trainer_id, duration, cost, capacity, type, room_id 
+        FROM Classes 
+        WHERE id = $1;
+      `;
+      const { rows } = await pool.query(query, [classId]);
+      
+      if (rows.length === 0) {
+        return res.status(404).json({ error: "Class not found." });
+      }
+  
+      res.json(rows[0]);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ error: "An error occurred while retrieving the class." });
+    }
+  };
+  
+module.exports = {
+  getAllRooms,
+  getAllClasses,
+  getAllEquipment,
+  getClassById,
+  getPopularClass,
+  addClass
+};

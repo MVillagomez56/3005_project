@@ -16,6 +16,7 @@ import {Room} from "./pages/Room.js";
 import {Billing} from './pages/Billing.js';
 import { MemberSearch } from './pages/MemberSearch.js';
 import { TrainersPage } from './pages/TrainersPage.js';
+import { Error } from './pages/Error.js';
 
 
 
@@ -30,6 +31,7 @@ export const AppRouter = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />
         <Route path="/courses" element={<Course/>} />
+        <Route path="/courses/edit/:courseid" element={<ClassEdit />} />
         <Route path="/courses/:courseid" element={<CourseDetail />} />
         <Route path="/room" element ={<Room/>} />
         <Route path="/room/:id" element={<RoomDetail />} />
@@ -37,8 +39,11 @@ export const AppRouter = () => {
         <Route path="/billing" element={<Billing/>} />
         <Route path="/searchMember" element={<MemberSearch />} /> 
         <Route path="/trainers" element={<TrainersPage />} />
+        <Route path="/*" element={<Error/>}/>
       </Routes>
       <Footer/>
     </Router>
   );
   }
+
+  // Annie's update: the classEdit is used for testing purpose, it should be 

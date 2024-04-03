@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Card, CardContent, Typography } from '@mui/material';
 
-const PendingPayments = ({ payments, onPaymentAction }) => {
+export const PendingPayments = ({ payments, onPaymentAction }) => {
   return (
     <>
       {payments.filter(payment => payment.completion_status === "Pending").map(payment => (
@@ -30,5 +30,3 @@ const PendingPayments = ({ payments, onPaymentAction }) => {
     </>
   );
 };
-
-export default PendingPayments;

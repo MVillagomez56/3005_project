@@ -4,15 +4,17 @@ const router = express.Router();
 const classController = require("../controllers/class-controller");
 
 // Get router for room
-router.get("/api/rooms");
+// router.get("/rooms");
 
-router.get("/api/classes", classController.getAllClasses);
+router.get("/getclasses", classController.getAllClasses);
+router.get('/getSpecificClass/:id', classController.getClassById);
 
-router.get("/api/equipments")
+// router.get("/equipments")
 
-router.get("/api/rooms:id");
+// router.get("/rooms:id");
 
-router.get("/api/popular-class");
+// router.get("/popular-class");
 
-router.post("/api/addClass", classController.addClass);
+router.post("/addClass", classController.addClass);
 
+module.exports = router;

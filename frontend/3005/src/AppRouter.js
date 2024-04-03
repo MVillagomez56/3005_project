@@ -21,6 +21,7 @@ import { Payment } from "./pages/Payment.js";
 import { RegisterComplete } from "./pages/RegisterComplete.js";
 import { useAuth } from './store/AuthContext';
 import { PersonalSessionDetail } from "./pages/PersonalSessionDetail.js";
+import { Error } from "./pages/Error.js";
 
 
 export const AppRouter = () => {
@@ -71,14 +72,14 @@ export const AppRouter = () => {
         />
         <Route path="/courses" element={<Course />} />
         <Route path="/courses/:courseid" element={<CourseDetail />} />
-        <Route path="/room" element={<Room />} />
-        <Route path="/room/:id" element={<RoomDetail />} />
         <Route
-          path="/class/:id"
+          path="/courses/edit/:courseid"
           element={
             <PrivateRoute component={ClassEdit} roleRequired="trainer" />
           }
         />
+        <Route path="/room" element={<Room />} />
+        <Route path="/room/:id" element={<RoomDetail />} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/searchMember" element={<MemberSearch />} />
         <Route path="/trainers" element={<TrainersPage />} />

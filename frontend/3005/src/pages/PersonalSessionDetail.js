@@ -1,6 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Typography, Button, Paper, TextField, FormControlLabel, Checkbox, Box } from '@mui/material';
+import {
+  Container,
+  Typography,
+  Button,
+  Paper,
+  Box,
+  FormControlLabel,
+  Checkbox,
+  MenuItem,
+  FormControl,
+  Select,
+  InputLabel,
+  TextField // Ensure TextField is imported here
+} from '@mui/material';
+
 
 export const PersonalSessionDetail = () => {
   const { id } = useParams();
@@ -107,9 +121,9 @@ export const PersonalSessionDetail = () => {
             <Typography variant="h5">${trainer.cost} /hr</Typography>
             {Object.entries(trainer.availability).map(([day, timeRange]) => {
               const availability = formatAvailability(timeRange);
-              if (availability) { // Only display if availability is not null
+              if (availability) {
                 return (
-                  <Box key={day} sx={{ marginBottom: 2 }}> {/* Add margin between days */}
+                  <Box key={day} sx={{ marginBottom: 2 }}>
                     <Typography>{`${day.charAt(0).toUpperCase() + day.slice(1)}: ${availability}`}</Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
                       <FormControlLabel
@@ -117,21 +131,22 @@ export const PersonalSessionDetail = () => {
                         label="Select"
                       />
                       {selectedSlots[day] && (
-                        <Box sx={{ width: '100%', mt: 1 }}> {/* New line for start time */}
-                          <TextField
-                            fullWidth
-                            label="Start Time"
-                            type="time"
+                        <FormControl fullWidth sx={{ mt: 1 }}>
+                          <InputLabel id={`start-time-label-${day}`}>Start Time</InputLabel>
+                          <Select
+                            labelId={`start-time-label-${day}`}
+                            id={`start-time-${day}`}
                             value={startTimes[day] || ''}
+                            label="Start Time"
                             onChange={handleStartTimeChange(day)}
-                            InputLabelProps={{
-                              shrink: true,
-                            }}
-                            inputProps={{
-                              step: 300, // 5 min
-                            }}
-                          />
-                        </Box>
+                          >
+                            {[...Array(24)].map((_, index) => (
+                              <MenuItem key={index} value={`${index < 10 ? '0' : ''}${index}:00`}>
+                                {`${index < 10 ? '0' : ''}${index}:00`}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
                       )}
                     </Box>
                   </Box>

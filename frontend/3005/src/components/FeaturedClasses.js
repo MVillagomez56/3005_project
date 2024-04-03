@@ -1,5 +1,6 @@
 import React from "react";
 import { Box } from "@mui/system";
+import { Grid } from '@mui/material';
 import FeaturedClass from "./FeaturedClass";
 
 export const FeaturedClasses = () => {
@@ -31,18 +32,24 @@ export const FeaturedClasses = () => {
   }, []);
   console.log(featuredClasses);
   return (
-    <Box>
-      {featuredClasses.length>0 ? (
+    <Grid container spacing={1} justifyContent="center"> {/* Adjusted spacing and added justifyContent */}
+      {featuredClasses.length > 0 ? (
         featuredClasses.map((featuredClass) => (
-          <FeaturedClass
-            courseID={featuredClass.id}
-            title={featuredClass.title}
-            description={featuredClass.description}
-          />
+          <Grid item xs={12} sm={6} md={4} lg={3} key={featuredClass.id} sx={{ display: 'flex', justifyContent: 'center' }}> {/* Added sx prop for centering items */}
+            <FeaturedClass
+              courseID={featuredClass.id}
+              title={featuredClass.name}
+              description={featuredClass.description}
+            />
+          </Grid>
         ))
       ) : (
-        <p>No featured classes available</p>
+        <Grid item xs={12}>
+          <p>No featured classes available</p>
+        </Grid>
       )}
-    </Box>
+    </Grid>
   );
+
+  
 };

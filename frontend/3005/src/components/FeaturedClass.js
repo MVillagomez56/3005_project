@@ -20,7 +20,7 @@ const FeaturedClass = ({ title, description, courseID }) => {
   };
 
   return (
-    <Grid item xs={12} sm={6} md={4}>
+    <Grid item xs={18} sm={20} md={20}>
       <Card
         sx={{
           height: "100%",
@@ -33,7 +33,7 @@ const FeaturedClass = ({ title, description, courseID }) => {
           component="img"
           image={image}
           alt={title}
-          sx={{ height: "140px", objectFit: "cover" }} // Adjust image height and fit as needed
+          sx={{ height: "300px", objectFit: "cover" }} // Adjust image height and fit as needed
         />
         <CardContent>
           <Typography

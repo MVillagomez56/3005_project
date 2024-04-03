@@ -28,6 +28,10 @@ export const FitnessGoals = (currentUser) => {
       }
     );
 
+    if (!response){
+      return new Error("Failed to fetch fitness goals");
+    }
+
     if (response.status !== 200) {
       return new Error("Failed to fetch fitness goals");
     }

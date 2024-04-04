@@ -13,6 +13,7 @@ import Menu from "@mui/material/Menu";
 import Button from "@mui/material/Button";
 
 export const Navbar = () => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const navigate = useNavigate();
   const { logout, currentUser, isLoggedIn } = useAuth();
 
@@ -57,6 +58,17 @@ export const Navbar = () => {
           <Button color="inherit" onClick={() => navigate("/room")}>
             Room Booking
           </Button>
+          {user.role === "member" && isLoggedIn && (
+            <Button color="inherit" onClick={() => navigate("/checkout")}>
+              Check Out
+            </Button>
+          )}
+
+          {user.role === "admin" && isLoggedIn && (
+            <Button color="inherit" onClick={() => navigate("/billing")}>
+              Billing
+            </Button>
+          )}
           {isLoggedIn && (
             <div>
               <IconButton
@@ -96,7 +108,6 @@ export const Navbar = () => {
               </Menu>
             </div>
           )}
-
           {!isLoggedIn && (
             <>
               <Button color="inherit" onClick={() => navigate("/login")}>

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 export const CourseDetail = ({course}) => {
     const navigate = useNavigate();
-    const isAdmin = true; // Testing purpose, it should be replace with the loggin in user's actual role
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
     return (
       <Card sx={{ maxWidth: 345, m: 2 }}>
         <CardContent>
@@ -21,7 +21,7 @@ export const CourseDetail = ({course}) => {
           <Button size="small" onClick={() => navigate(`/courses/${course.id}`)}>
             View Details
           </Button>
-          {isAdmin && (
+          {user.role === "trainer" && (
             <Button size="small" onClick={() => navigate(`/courses/edit/${course.id}`)}>
               Edit
             </Button>

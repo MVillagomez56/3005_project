@@ -7,7 +7,10 @@ export const PendingPayments = ({ payments, onPaymentAction }) => {
       {payments.filter(payment => payment.completion_status === "Pending").map(payment => (
         <Card key={payment.payment_id} sx={{ mb: 2 }}>
           <CardContent>
+            <Typography>Payment ID: {payment.payment_id}</Typography>
             <Typography>Member ID: {payment.member_id}</Typography>
+            <Typography>Amount: ${payment.amount}</Typography>
+            <Typography>Service: {payment.service}</Typography>
             <Typography>Status: {payment.completion_status}</Typography>
             <Button 
               variant="contained" 

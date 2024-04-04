@@ -1,7 +1,9 @@
 import React from 'react';
 import { Box, Typography, Button, Container } from '@mui/material';
 
+import { useNavigate } from 'react-router-dom';
 export const Hero = () => {
+  const navigate = useNavigate();
   return (
     <Box
       sx={{
@@ -26,7 +28,8 @@ export const Hero = () => {
           Muha muha the greatest!
         </Typography>
         <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-          <Button variant="contained" sx={{ backgroundColor: 'white', color: '#1976d2', '&:hover': { backgroundColor: '#e3f2fd' } }}>
+          <Button variant="contained" sx={{ backgroundColor: 'white', color: '#1976d2', '&:hover': { backgroundColor: '#e3f2fd' } }}
+            onClick={()=>navigate("/courses")}>
             Check out course
           </Button>
         </Box>

@@ -13,6 +13,8 @@ router.get('/getSpecificClass/:id', classController.getClassById);
 
 // router.get("/rooms:id");
 
+router.get("/getRoomById/:id", classController.getRoomById);
+
 router.post("/updateClass/:id", classController.updateClassById);
 
 router.get("/featuredClasses", classController.getPopularClasses);

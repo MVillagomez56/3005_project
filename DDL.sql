@@ -48,6 +48,8 @@ CREATE TABLE Rooms (
     capacity INTEGER NOT NULL
 );
 
+
+
 CREATE TABLE Classes (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,

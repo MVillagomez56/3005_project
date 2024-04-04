@@ -6,6 +6,7 @@ const pool = require("../db");
 
 // Get
 const getUserById = async (req, res, next) => {
+  console.log("getUserById");
   const userId = parseInt(req.params.id);
 
   // Validate that the provided ID is a number
@@ -15,7 +16,7 @@ const getUserById = async (req, res, next) => {
 
   try {
     const { rows } = await pool.query(
-      "SELECT id, email, name, date_of_birth, role FROM Users WHERE id = $1;",
+      "SELECT * FROM Users WHERE id = $1;",
       [userId]
     );
 
@@ -57,7 +58,7 @@ const getMemberById = async (req, res, next) => {
 
   try {
     const { rows } = await pool.query(
-      "SELECT m.id, u.name, m.weight, m.height, m.muscle_mass, m.body_fat FROM Members m JOIN Users u ON m.id = u.id WHERE m.id = $1;",
+      "SELECT * FROM Members m WHERE m.id = $1;",
       [userId]
     );
 
@@ -219,19 +220,9 @@ const searchMember = async (req, res) => {
   console.log("Trigger!");
   const { id, name } = req.query;
 
-  if (!id || !name) {
-    return res
-      .status(400)
-      .json({ error: "Both ID and name must be provided." });
-  }
-
   try {
-    const userId = parseInt(id);
-    const userName = name.trim();
+    
 
-    if (isNaN(userId) || userName === "") {
-      return res.status(400).json({ error: "Invalid ID or name." });
-    }
 
     // Use the parameter placeholders in the query
     const query = `
@@ -682,6 +673,8 @@ const updateUser = async (req, res, next) => {
 };
 
 module.exports = {
+  getUserById,
+  getMemberById,
   login,
   register,
   updateMember,

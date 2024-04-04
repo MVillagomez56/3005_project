@@ -3,15 +3,48 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import { InfoField } from "./InfoField";
 import { IconButton } from "@mui/material";
-export const HealthStats = (currentUser) => {
-  const [height, setHeight] = React.useState(currentUser.height);
-  const [weight, setWeight] = React.useState(currentUser.weight);
-  const [muscleMass, setMuscleMass] = React.useState(currentUser.muscleMass);
-  const [fatMass, setFatMass] = React.useState(currentUser.fatMass);
+export const HealthStats = ({ id }) => {
+  const [height, setHeight] = React.useState(0);
+  const [weight, setWeight] = React.useState(0);
+  const [muscleMass, setMuscleMass] = React.useState(0);
+  const [fatMass, setFatMass] = React.useState(0);
   const [edit, setEdit] = React.useState(false);
   const [error, setError] = React.useState(false);
 
+  const isOwner = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    return user.id === id;
+  };
+
+  const fetchCurrentMember = async () => {
+    const response = await fetch(`http://localhost:5000/api/member/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+
+    if (!response) {
+      return new Error("Failed to fetch member");
+    }
+    if (response.status !== 200) {
+      return new Error("Failed to fetch member");
+    }
+
+    const data = await response.json();
+    setHeight(data.height);
+    setWeight(data.weight);
+    setMuscleMass(data.muscle_mass);
+    setFatMass(data.body_fat);
+  };
+
+  React.useEffect(() => {
+    fetchCurrentMember();
+  }, []);
+
   const handleSubmit = async () => {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
     localStorage.setItem(
       "user",
       JSON.stringify({
@@ -55,10 +88,12 @@ export const HealthStats = (currentUser) => {
       }}
     >
       <Typography variant="h4">
-        Health Stats{" "}
-        <IconButton onClick={() => setEdit(!edit)}>
-          <EditRoundedIcon />
-        </IconButton>
+        Health Stats
+        {JSON.parse(localStorage.getItem("user")).id === id && (
+          <IconButton onClick={() => setEdit(!edit)}>
+            <EditRoundedIcon />
+          </IconButton>
+        )}
       </Typography>
 
       <Box
@@ -94,7 +129,7 @@ export const HealthStats = (currentUser) => {
         />
         <Button
           variant="contained"
-          disabled={!edit || !height || !weight}
+          disabled={!edit || !height || !weight || !isOwner()}
           onClick={handleSubmit}
         >
           Save

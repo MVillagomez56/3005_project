@@ -1,8 +1,10 @@
 import React from 'react';
 import { Grid, Card, CardContent, Typography, Button, CardActions } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import testingRoom from '../data/testing_room';
 
 export const Room = () => {
+  const navigate = useNavigate();
   return (
     <div style={{ marginTop: 20, padding: 30 }}>
       <Typography variant="h4" gutterBottom>
@@ -24,13 +26,8 @@ export const Room = () => {
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button 
-                  size="small" 
-                  variant="contained" 
-                  disabled={!room.availability}
-                  onClick={() => console.log(`Booking room: ${room.room_id}`)}
-                >
-                  Book
+                <Button size="small" onClick={() => navigate(`/room/${room.room_id}`)}>
+                  View Details
                 </Button>
               </CardActions>
             </Card>

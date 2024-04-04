@@ -82,7 +82,7 @@ export const AppRouter = () => {
         />
         <Route path="/room" element={<Room />} />
         <Route path="/room/:id" element={<RoomDetail />} />
-        <Route path="/billing" element={<Billing />} />
+        <Route path="/billing" element={<PrivateRoute roleRequired="admin"><Billing/></PrivateRoute>} />
         <Route path="/searchMember" element={<MemberSearch />} />
         <Route path="/trainers" element={<TrainersPage />} />
         <Route path="/trainer/:id" element={<PersonalSessionDetail />} />

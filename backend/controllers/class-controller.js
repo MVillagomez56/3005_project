@@ -1,5 +1,6 @@
 const pool = require("../db");
 
+// Rooms
 const getAllRooms = async (req, res, next) => {
   try {
     const { rows } = await pool.query("SELECT * FROM Rooms");
@@ -9,6 +10,29 @@ const getAllRooms = async (req, res, next) => {
     res.status(500).send("Server error while retrieving rooms.");
   }
 };
+
+const getRoomById = async (req, res, next) => {
+  const roomId = parseInt(req.params.id);
+
+  if (isNaN(roomId)) {
+    return res.status(400).json({ error: "Invalid room ID." });
+  }
+
+  try {
+    const query = "SELECT * FROM Rooms WHERE id = $1";
+    const { rows } = await pool.query(query, [roomId]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Room not found." });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "An error occurred while retrieving the room." });
+  }
+  
+}
 
 const getAllClasses = async (req, res, next) => {
   try {
@@ -255,4 +279,5 @@ module.exports = {
   addClass,
   getUpcomingClasses,
   updateClassById,
+  getRoomById,
 };

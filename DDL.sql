@@ -17,13 +17,6 @@ CREATE TABLE Users (
 CREATE TABLE Trainers (
     id INTEGER PRIMARY KEY,
     specialization TEXT,
-    monday_availability TSRANGE,
-    tuesday_availability TSRANGE ,
-    wednesday_availability TSRANGE ,
-    thursday_availability TSRANGE ,
-    friday_availability TSRANGE ,
-    saturday_availability TSRANGE,
-    sunday_availability TSRANGE ,
     cost INTEGER,
     FOREIGN KEY(id) REFERENCES Users(id) ON DELETE CASCADE
 );
@@ -37,8 +30,13 @@ CREATE TABLE Members (
     FOREIGN KEY(id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
-
-
+CREATE TABLE Availability (
+    trainer_id INTEGER,
+    day INTEGER, -- or TEXT, e.g., 'Monday', 'Tuesday', etc.
+    start_time TIME DEFAULT '09:00',
+    end_time TIME DEFAULT '17:00',
+    FOREIGN KEY(trainer_id) REFERENCES Trainers(id) ON DELETE CASCADE
+);
 
 CREATE TABLE Rooms (
     id SERIAL PRIMARY KEY,
@@ -52,7 +50,9 @@ CREATE TABLE Classes (
     name TEXT NOT NULL,
     description TEXT,
     trainer_id INTEGER NOT NULL,
-    duration TSRANGE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    day INTEGER NOT NULL,
     cost INTEGER NOT NULL,
     capacity INTEGER NOT NULL,
     type classType NOT NULL,
@@ -127,28 +127,27 @@ FOR EACH ROW
 WHEN (NEW.role = 'trainer')
 EXECUTE FUNCTION make_trainer();
 
-CREATE OR REPLACE FUNCTION check_trainer_availability(duration TSRANGE, trainer_id INTEGER)
-RETURNS BOOLEAN AS $$
-DECLARE 
-    day_of_week TEXT;
-    availability_range TSRANGE;
-    is_available BOOLEAN := FALSE;
+CREATE OR REPLACE FUNCTION check_trainer_availability(
+    tid INTEGER,
+    class_day INTEGER,
+    class_start_time TIME,
+    class_end_time TIME
+)
+RETURNS BOOLEAN AS $$  
+DECLARE
+    time_slot Availability%ROWTYPE;
 BEGIN
-    -- Get the day of the week from the lower bound of the duration
-    day_of_week := TO_CHAR(lower(duration), 'day');
-    
-    -- Adjust day_of_week to match the column names in the table
-    day_of_week := TRIM(day_of_week);
-    
-    -- Dynamically get the trainer's availability for that day using EXECUTE statement
-    EXECUTE format('SELECT %I FROM Trainers WHERE id = $1', day_of_week || '_availability')
-    INTO availability_range
-    USING trainer_id;
-    
-    -- Check if the duration overlaps with the trainer's availability for that day
-    is_available := availability_range @> duration;
-    
-    RETURN is_available;
+    FOR time_slot IN
+        SELECT *
+        FROM Availability
+        WHERE trainer_id = tid
+        AND day = class_day
+    LOOP
+        IF (time_slot.start_time, time_slot.end_time) OVERLAPS (class_start_time, class_end_time) THEN
+            RETURN TRUE;
+        END IF;
+    END LOOP;
+    RETURN FALSE;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -157,17 +156,22 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION check_availability()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF (SELECT COUNT(*) FROM Classes WHERE room_id = NEW.room_id AND (duration && NEW.duration)) > 0 THEN
-        RAISE EXCEPTION 'Room is not available';
+    IF NOT check_trainer_availability(NEW.trainer_id, NEW.day, NEW.start_time, NEW.end_time) THEN
+        RAISE EXCEPTION 'Trainer is not available at that time';
     END IF;
 
-    IF NOT check_trainer_availability(NEW.duration, NEW.trainer_id) THEN
-        RAISE EXCEPTION 'Trainer is not available';
-    END IF;
-    IF (SELECT COUNT(*) FROM Classes WHERE trainer_id = NEW.trainer_id AND (duration && NEW.duration)) > 0 THEN
-        RAISE EXCEPTION 'Trainer is not available';
+    --check if class room is available
+    IF EXISTS (
+        SELECT 1
+        FROM Classes
+        WHERE room_id = NEW.room_id
+        AND day = NEW.day
+        AND (start_time, end_time) OVERLAPS (NEW.start_time, NEW.end_time)
+    ) THEN
+        RAISE EXCEPTION 'Room is not available at that time';
     END IF;
     RETURN NEW;
+    
 END;
 $$ LANGUAGE plpgsql;
 
@@ -175,6 +179,58 @@ CREATE TRIGGER check_availability
 BEFORE INSERT ON Classes
 FOR EACH ROW
 EXECUTE FUNCTION check_availability();
+
+-- after a class is created, change the trainer's availability
+CREATE OR REPLACE FUNCTION split_trainer_availability()
+RETURNS TRIGGER AS $$
+DECLARE
+    existing_start TIME;
+    existing_end TIME;
+BEGIN
+    -- Find the overlapping availability
+    SELECT start_time, end_time INTO existing_start, existing_end
+    FROM Availability
+    WHERE trainer_id = NEW.trainer_id
+    AND day = NEW.day
+    AND start_time < NEW.end_time
+    AND end_time > NEW.start_time
+    LIMIT 1; -- Assuming only one entry overlaps
+
+    -- If an overlapping availability was found
+    IF FOUND THEN
+        -- Update the existing entry to end right before the class starts, if the class does not start at the existing start time
+        IF existing_start < NEW.start_time THEN --eg if existing_start = 9:00 and new start time = 10:00
+            UPDATE Availability
+            SET end_time = NEW.start_time
+            WHERE trainer_id = NEW.trainer_id
+            AND day = NEW.day
+            AND start_time = existing_start;
+        ELSE
+            -- eg if existing_start = 10:00 and new start time = 10:00
+            -- Delete the existing entry if the class starts at the same time as the availability starts
+            DELETE FROM Availability
+            WHERE trainer_id = NEW.trainer_id
+            AND day = NEW.day
+            AND start_time = existing_start;
+        END IF;
+        
+        -- Insert a new availability entry for the period after the class, if the class does not end at the existing end time
+        -- eg if existing_end = 17:00 and new end time = 16:00
+        IF existing_end > NEW.end_time THEN
+            INSERT INTO Availability (trainer_id, day, start_time, end_time)
+            VALUES (NEW.trainer_id, NEW.day, NEW.end_time, existing_end);
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER split_trainer_availability
+AFTER INSERT ON Classes
+FOR EACH ROW
+EXECUTE FUNCTION split_trainer_availability();
+
 
 
 -- when completion status of a goal is updated, update the completion date as well

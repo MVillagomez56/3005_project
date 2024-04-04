@@ -86,6 +86,7 @@ export const AppRouter = () => {
         <Route path="/searchMember" element={<MemberSearch />} />
         <Route path="/trainers" element={<TrainersPage />} />
         <Route path="/trainer/:id" element={<PersonalSessionDetail />} />
+        <Route path="members" element={<MemberSearch />} />
         <Route path="/*" element={<Error />} />
       </Routes>
       <Footer />

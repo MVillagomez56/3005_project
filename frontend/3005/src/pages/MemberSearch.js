@@ -26,7 +26,7 @@ export const MemberSearch = () => {
       }).toString();
 
       const response = await fetch(
-        `http://localhost:5000/api/searchMember?${queryParams}`, // Ensure this matches your actual API endpoint
+        `http://localhost:5000/api/searchMember?${queryParams}`, 
         {
           method: "GET",
           headers: {
@@ -37,8 +37,7 @@ export const MemberSearch = () => {
 
       if (response.ok) {
         const data = await response.json();
-        // Navigate to the member's profile page
-        //navigate(`/profile/${data.id}`);
+        navigate(`/profile/${data.id}`);
 
         console.log("Found member!!");
       } else if (response.status === 404) {

@@ -7,7 +7,7 @@ import { IconButton, Typography, Button } from "@mui/material";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import { InfoField } from "./InfoField";
 
-export const ProfileInformation = (currentUser) => {
+export const ProfileInformation = ({ currentUser }) => {
   const { role } = currentUser;
 
   const [edit, setEdit] = React.useState(false);
@@ -90,9 +90,15 @@ export const ProfileInformation = (currentUser) => {
             }}
           >
             <Typography variant="h3">{currentUser.name}</Typography>
-            <IconButton onClick={() => setEdit(!edit)}>
-              <EditRoundedIcon />
-            </IconButton>
+            {JSON.parse(localStorage.getItem("user")).id === currentUser.id && (
+              <IconButton
+                onClick={() => {
+                  setEdit(!edit);
+                }}
+              >
+                <EditRoundedIcon />
+              </IconButton>
+            )}
           </Box>
           <Typography variant="h5">{currentUser.role}</Typography>
         </Box>

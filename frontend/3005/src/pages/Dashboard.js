@@ -49,6 +49,9 @@ export const Dashboard = () => {
       </Box>
       <Hero />
       <div style={{ margin: 60 }}>
+        <Typography variant="h4" fontWeight={"bold"}>
+          Featured Classes
+        </Typography>
         <Grid container spacing={3}>
           <FeaturedClasses />
         </Grid>

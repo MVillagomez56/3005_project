@@ -27,6 +27,9 @@ CREATE TABLE Members (
     height INTEGER,
     muscle_mass INTEGER,
     body_fat INTEGER,
+    cc_number TEXT,
+    ccv INTEGER,
+    cc_expiry_date DATE,
     FOREIGN KEY(id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
@@ -74,7 +77,7 @@ CREATE TABLE Fitness_Goals (
     id SERIAL PRIMARY KEY,
     member_id INTEGER NOT NULL,
     goal TEXT NOT NULL,
-    completion_date DATE NOT NULL,
+    completion_date DATE,
     status BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY(member_id) REFERENCES Members(id) ON DELETE CASCADE
 );

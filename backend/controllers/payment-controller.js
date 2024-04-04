@@ -1,6 +1,7 @@
+const pool = require("../db");
 const getAllPayments = async (req, res) => {
     try {
-        const rows = await db.query("SELECT * FROM payment");
+        const rows = await pool.query("SELECT * FROM payments");
         res.json(rows.rows);
     } catch (err) {
         console.error(err.message);
@@ -12,21 +13,21 @@ const getPaymentById = async (req, res) => {
     const paymentId = parseInt(req.params.id);
 
     if (isNaN(paymentId)) {
-        return res.status(400).json({ error: "Invalid payment ID." });
+        return res.status(400).json({ error: "Invalid payments ID." });
     }
 
     try {
-        const query = "SELECT * FROM payment WHERE payment_id = $1";
-        const { rows } = await db.query(query, [paymentId]);
+        const query = "SELECT * FROM payments WHERE payment_id = $1";
+        const { rows } = await pool.query(query, [paymentId]);
 
         if (rows.length === 0) {
-            return res.status(404).json({ error: "Payment not found." });
+            return res.status(404).json({ error: "payments not found." });
         }
 
         res.json(rows[0]);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "An error occurred while retrieving the payment." });
+        res.status(500).json({ error: "An error occurred while retrieving the payments." });
     }
 }
 
@@ -35,15 +36,15 @@ const addPayment = async (req, res) => {
     const { member_id, amount, service, completion_status } = req.body;
 
     try {
-        const query = "INSERT INTO payment (member_id, amount, service, completion_status) VALUES ($1, $2, $3, $4) RETURNING *";
+        const query = "INSERT INTO payments (member_id, amount, service, completion_status) VALUES ($1, $2, $3, $4) RETURNING *";
         const values = [member_id, amount, service, completion_status];
 
-        const { rows } = await db.query(query, values);
+        const { rows } = await pool.query(query, values);
 
         res.status(201).json(rows[0]);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "An error occurred while adding the payment." });
+        res.status(500).json({ error: "An error occurred while adding the payments." });
     }
 
 }
@@ -56,8 +57,8 @@ const approvePayment = async (req, res) => {
     }
 
     try {
-        const query = "UPDATE payment SET completion_status = 'Completed' WHERE payment_id = $1 RETURNING *";
-        const { rows } = await db.query(query, [paymentId]);
+        const query = "UPDATE Payments SET completion_status = TRUE WHERE id = $1 RETURNING *";
+        const { rows } = await pool.query(query, [paymentId]);
 
         if (rows.length === 0) {
             return res.status(404).json({ error: "Payment not found." });
@@ -68,10 +69,9 @@ const approvePayment = async (req, res) => {
         console.error(err.message);
         res.status(500).json({ error: "An error occurred while approving the payment." });
     }
-}
+};
 
 const declinePayment = async (req, res) => {
-    
     const paymentId = parseInt(req.params.id);
 
     if (isNaN(paymentId)) {
@@ -79,8 +79,11 @@ const declinePayment = async (req, res) => {
     }
 
     try {
-        const query = "UPDATE payment SET completion_status = 'Declined' WHERE payment_id = $1 RETURNING *";
-        const { rows } = await db.query(query, [paymentId]);
+        // Since there's no 'Declined' status in a BOOLEAN, assuming you want to set it back to FALSE (Pending).
+        // If you intend to mark it as something else, you might need to adjust your data model.
+        // For now, setting it to FALSE or considering adding another column to represent declined status.
+        const query = "UPDATE Payments SET completion_status = FALSE WHERE id = $1 RETURNING *";
+        const { rows } = await pool.query(query, [paymentId]);
 
         if (rows.length === 0) {
             return res.status(404).json({ error: "Payment not found." });
@@ -91,7 +94,8 @@ const declinePayment = async (req, res) => {
         console.error(err.message);
         res.status(500).json({ error: "An error occurred while declining the payment." });
     }
-}
+};
+
 
 module.exports = {
     getAllPayments,

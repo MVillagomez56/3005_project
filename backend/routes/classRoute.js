@@ -18,7 +18,7 @@ router.get("/getRoomById/:id", classController.getRoomById);
 router.post("/updateClass/:id", classController.updateClassById);
 
 router.get("/featuredClasses", classController.getPopularClasses);
-router.get('/upcomingClasses', classController.getUpcomingClasses);
+router.get('/upcomingClasses/:id', classController.getUpcomingClasses);
 
 router.post("/addClass", classController.addClass);
 

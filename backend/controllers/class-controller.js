@@ -69,7 +69,7 @@ const getAllEquipment = async (req, res, next) => {
 const getPopularClasses = async (req, res, next) => {
   try {
     const query = `
-            SELECT c.id, c.name, COUNT(cm.member_id) as member_count 
+            SELECT c.id, c.name, c.description, COUNT(cm.member_id) as member_count, c.start_time, c.end_time, c.day, c.cost, c.capacity, c.type, c.room_id, c.trainer_id
             FROM Classes c
             JOIN Classes_Members cm ON c.id = cm.class_id
             GROUP BY c.id
@@ -90,9 +90,10 @@ const getPopularClasses = async (req, res, next) => {
 
 const getUpcomingClasses = async (req, res, next) => {
   try {
-    const member_id = req.user.id;
+    console.log(req);
+    const member_id = req.params.id;
     const query = `
-            SELECT c.id, c.name, c.description, c.duration, c.cost, c.capacity, c.type, c.room_id, c.trainer_id,
+            SELECT c.id, c.name, c.description, c.start_time, c.end_time, c.day, c.cost, c.capacity, c.type, c.room_id, c.trainer_id,
             r.name AS room_name, r.description AS room_description, r.capacity AS room_capacity,
             t.specialization, t.cost AS trainer_cost, u.name AS trainer_name
             FROM Classes c
@@ -104,8 +105,7 @@ const getUpcomingClasses = async (req, res, next) => {
                 FROM Classes_Members
                 WHERE member_id = $1
             )
-            AND c.duration @> NOW()
-            ORDER BY c.duration;
+            ORDER BY c.start_time;
         `;
 
     const { rows } = await pool.query(query, [member_id]);

@@ -8,3 +8,5 @@ router.get("/getPayment/:id", paymentController.getPaymentById);
 router.post("/addPayment", paymentController.addPayment);
 router.post("/approvePayment/:id", paymentController.approvePayment);
 router.post("/declinePayment/:id", paymentController.declinePayment);
+
+module.exports = router;

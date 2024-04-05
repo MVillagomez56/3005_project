@@ -28,7 +28,7 @@ export const Course = () => {
         Courses
       </Typography>
       <Grid container spacing={4}>
-        {courses.map(course => (
+        {courses && courses.map(course => (
           <Grid item key={course.id} xs={12} sm={6} md={4}>
             <CourseDetail course={course} />
           </Grid>

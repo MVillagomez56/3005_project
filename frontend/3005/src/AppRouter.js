@@ -23,7 +23,6 @@ import { useAuth } from "./store/AuthContext";
 import { PersonalSessionDetail } from "./pages/PersonalSessionDetail.js";
 import { Error } from "./pages/Error.js";
 
-
 export const AppRouter = () => {
   const { logout } = useAuth();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -76,14 +75,28 @@ export const AppRouter = () => {
           path="/courses/edit/:courseid"
           element={
             <PrivateRoute roleRequired="trainer">
-              <ClassEdit/>
+              <ClassEdit />
             </PrivateRoute>
           }
         />
         <Route path="/room" element={<Room />} />
         <Route path="/room/:id" element={<RoomDetail />} />
-        <Route path="/billing" element={<PrivateRoute roleRequired="admin"><Billing/></PrivateRoute>} />
-        <Route path="/searchMember" element={<MemberSearch />} />
+        <Route
+          path="/billing"
+          element={
+            <PrivateRoute roleRequired="admin">
+              <Billing />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/searchMember"
+          element={
+            <PrivateRoute roleRequired={"trainer"}>
+              <MemberSearch />
+            </PrivateRoute>
+          }
+        />
         <Route path="/trainers" element={<TrainersPage />} />
         <Route path="/trainer/:id" element={<PersonalSessionDetail />} />
         <Route path="members" element={<MemberSearch />} />

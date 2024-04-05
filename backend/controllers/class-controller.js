@@ -37,14 +37,12 @@ const getRoomById = async (req, res, next) => {
 const getAllClasses = async (req, res, next) => {
   try {
     const { rows } = await pool.query(
-      `SELECT 
-        Classes.id, Classes.name, Classes.description, Classes.duration, Classes.cost, Classes.capacity, Classes.type, Classes.room_id, Classes.trainer_id, 
-        Trainers.specialization, Trainers.cost AS trainer_cost, Users.name AS trainer_name, 
-        Rooms.name AS room_name, Rooms.description AS room_description, Rooms.capacity AS room_capacity
+      `SELECT Classes.id, Classes.name, Classes.description, Classes.start_time, Classes.end_time, Classes.day, Classes.cost, Classes.capacity, Classes.type, Rooms.name AS room_name, Trainers.specialization, Users.name AS trainer_name
       FROM Classes
       JOIN Trainers ON Classes.trainer_id = Trainers.id
       JOIN Users ON Trainers.id = Users.id
       JOIN Rooms ON Classes.room_id = Rooms.id
+      WHERE Classes.capacity > (SELECT COUNT(*) FROM Classes_Members WHERE Classes.id = class_id)
       ORDER BY Classes.id;`
     );
     res.json(rows);
@@ -222,9 +220,14 @@ const getClassById = async (req, res) => {
 
   try {
     const query = `
-        SELECT id, name, description, trainer_id, duration, cost, capacity, type, room_id 
-        FROM Classes 
-        WHERE id = $1;
+        SELECT c.id, c.name, c.description, c.start_time, c.end_time, c.day, c.cost, c.capacity, c.type, c.room_id, c.trainer_id,
+        r.name AS room_name, r.description AS room_description, r.capacity AS room_capacity,
+        t.specialization, t.cost AS trainer_cost, u.name AS trainer_name
+        FROM Classes c
+        JOIN Rooms r ON c.room_id = r.id
+        JOIN Trainers t ON c.trainer_id = t.id
+        JOIN Users u ON t.id = u.id
+        WHERE c.id = $1;
       `;
     const { rows } = await pool.query(query, [classId]);
 
@@ -270,6 +273,39 @@ const updateClassById = async (req, res) => {
   }
 };
 
+const registerClass = async (req, res) => {
+  const { class_id, member_id } = req.body;
+
+  try {
+
+    // Check if the class is full
+    const classCapacity = await pool.query(
+      "SELECT capacity FROM Classes WHERE id = $1",
+      [class_id]
+    );
+    const registeredMembers = await pool.query(
+      "SELECT COUNT(*) FROM Classes_Members WHERE class_id = $1",
+      [class_id]
+    );
+    if (registeredMembers.rows[0].count >= classCapacity.rows[0].capacity) {
+      return res.status(400).json({ error: "Class is full." });
+    }
+
+    // Register the member for the class
+    const registerQuery = `
+      INSERT INTO Classes_Members (class_id, member_id)
+      VALUES ($1, $2)
+      RETURNING *;
+    `;
+    const { rows } = await pool.query(registerQuery, [class_id, member_id]);
+
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Could not register member for the class." });
+  }
+};
+
 module.exports = {
   getAllRooms,
   getAllClasses,
@@ -280,4 +316,5 @@ module.exports = {
   getUpcomingClasses,
   updateClassById,
   getRoomById,
+  registerClass
 };

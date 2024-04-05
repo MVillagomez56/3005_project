@@ -22,4 +22,5 @@ router.get('/upcomingClasses/:id', classController.getUpcomingClasses);
 
 router.post("/addClass", classController.addClass);
 
+router.post("/registerClass", classController.registerClass);
 module.exports = router;

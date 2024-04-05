@@ -218,26 +218,40 @@ const deleteFitnessGoal = async (req, res, next) => {
 
 const searchMember = async (req, res) => {
   console.log("Trigger!");
-  const { id, name } = req.query;
+  const id = parseInt(req.query.id);
+  const name = req.query.name;
 
   try {
-    
+    if (!id && !name) {
+      return res.status(400).json({ error: "Please provide a valid ID or name" });
+    }
 
+    console.log("id", id);
+    console.log("name", name);
 
-    // Use the parameter placeholders in the query
-    const query = `
-      SELECT u.id, u.name
-      FROM Users u
-      JOIN Members m ON u.id = m.id
-      WHERE u.id = $1 AND u.name = $2;
-    `;
+    let updateQuery = `SELECT * FROM Members m JOIN Users u ON m.id = u.id`;
+    let values = [];
+    let valueIndex = 1;
 
-    // Execute the query with the actual parameters
-    const { rows } = await pool.query(query, [userId, userName]);
+    if (id) {
+      updateQuery += ` WHERE m.id = $${valueIndex}`;
+      values.push(id);
+      valueIndex++;
+    }
+
+    //if name is provided and id exists ignore name
+    // check if name is similar to any name in the database
+    if (name && !id) {
+      updateQuery += ` WHERE u.name ILIKE $${valueIndex}`;
+      values.push(`%${name}%`);
+      valueIndex++;
+    }
+  
+    const { rows } = await pool.query(updateQuery, values);
 
     if (rows.length > 0) {
-      console.log(rows[0]);
-      res.json(rows[0]);
+      console.log(rows);
+      res.json(rows);
     } else {
       res.status(404).json({ message: "Member not found" });
     }

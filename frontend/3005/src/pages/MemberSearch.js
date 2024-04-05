@@ -1,23 +1,64 @@
 import React, { useState } from "react";
-import { Container, TextField, Button, Typography } from "@mui/material";
+import {
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Avatar,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import memberProfile from "../assets/member_profile.png";
+
+const MemberRow = ({ member }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/profile/${member.id}`);
+  };
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px",
+        padding: "10px",
+        border: "1px solid #ccc",
+        borderRadius: "10px",
+        width: "300px",
+      }}
+    >
+      <Box sx={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+        <Avatar
+          alt={member.name}
+          src={memberProfile}
+          sx={{ width: 70, height: 70 }}
+        />
+        <div>
+          <Typography variant="h5">{member.name}</Typography>
+          <Typography>{member.email}</Typography>
+        </div>
+      </Box>
+      <Button
+       variant="contained" onClick={handleClick}>
+        View Profile
+      </Button>
+    </Box>
+  );
+};
 
 export const MemberSearch = () => {
   const [searchId, setSearchId] = useState("");
   const [searchName, setSearchName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [members, setMembers] = useState([]);
 
   const navigate = useNavigate();
 
   const handleSearch = async () => {
     // Clear previous error messages
     setErrorMessage("");
-
-    // Check if both ID and name are provided
-    if (!searchId.trim() || !searchName.trim()) {
-      setErrorMessage("Both ID and name must be provided for the search.");
-      return;
-    }
 
     try {
       const queryParams = new URLSearchParams({
@@ -26,7 +67,7 @@ export const MemberSearch = () => {
       }).toString();
 
       const response = await fetch(
-        `http://localhost:5000/api/searchMember?${queryParams}`, 
+        `http://localhost:5000/api/searchMember?${queryParams}`,
         {
           method: "GET",
           headers: {
@@ -37,20 +78,20 @@ export const MemberSearch = () => {
 
       if (response.ok) {
         const data = await response.json();
-        navigate(`/profile/${data.id}`);
-
-        console.log("Found member!!");
+        setMembers(data);
       } else if (response.status === 404) {
         setErrorMessage("Member not found. Please try again.");
+        setMembers([]);
       } else {
         setErrorMessage("An error occurred. Please try again.");
+        setMembers([]);
       }
     } catch (error) {
       console.error("Network error:", error);
       setErrorMessage("Network error. Please try again.");
+      setMembers([]);
     }
   };
-
 
   return (
     <Container
@@ -103,6 +144,8 @@ export const MemberSearch = () => {
           {errorMessage}
         </Typography>
       )}
+      {members &&
+        members.map((member) => <MemberRow key={member.id} member={member} />)}
     </Container>
   );
 };

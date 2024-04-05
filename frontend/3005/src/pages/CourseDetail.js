@@ -19,6 +19,8 @@ export const CourseDetail = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [error, setError] = useState(null);
 
+  const [isRegistered, setIsRegistered] = useState(false);
+
   useEffect(() => {
     // Function to fetch course data from the backend
     const fetchCourse = async () => {
@@ -29,6 +31,23 @@ export const CourseDetail = () => {
         // Adjust the URL/port as per your setup
         const data = await response.json();
         setCourse(data); // Set fetched course to state
+        //check if user is already registered for the course
+        if (user.role === "member") {
+          const response = await fetch(
+            `http://localhost:5000/api/classes/isRegistered/${user.id}/${courseid}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            }
+          );
+          const data = await response.json();
+          console.log(data);
+          setIsRegistered(data.registered);
+        }
+
         console.log(data);
       } catch (error) {
         console.error("Error fetching course data:", error);
@@ -38,7 +57,7 @@ export const CourseDetail = () => {
     if (courseid) {
       fetchCourse();
     }
-  }, [courseid]); // Dependency array includes courseid to refetch if it changes
+  }, [courseid, user.id, user.role]); // Dependency array includes courseid to refetch if it changes
 
   const onRegister = async () => {
     try {
@@ -65,6 +84,34 @@ export const CourseDetail = () => {
     } catch (error) {
       console.error("Error registering for course:", error);
       setError("Failed to register for the course");
+    }
+  };
+
+  const onUnregister = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/classes/unregisterClass`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            member_id: user.id,
+            class_id: courseid,
+          }),
+        }
+      );
+      console.log(response);
+      if (response.status === 200) {
+        setIsRegistered(false);
+      } else {
+        setError("Failed to unregister from the course");
+      }
+    } catch (error) {
+      console.error("Error unregistering from course:", error);
+      setError("Failed to unregister from the course");
     }
   };
 
@@ -129,20 +176,32 @@ export const CourseDetail = () => {
               {convertTime(course.end_time)} on {dayOfWeek[course.day]}
             </Typography>
 
-            <Button
-              variant="contained"
-              disabled={user.role !== "member"}
-              sx={{
-                mt: 2,
-                backgroundColor: "pink",
-                "&:hover": {
-                  backgroundColor: "deepPink",
-                },
-              }}
-              onClick={onRegister}
-            >
-              Register
-            </Button>
+            {isRegistered ? (
+              <Button
+                sx={{
+                  mt: 2,
+                  color: "purple"
+                }}
+                onClick={onUnregister}
+              >
+                Unregister
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                disabled={user.role !== "member"}
+                sx={{
+                  mt: 2,
+                  backgroundColor: "pink",
+                  "&:hover": {
+                    backgroundColor: "deepPink",
+                  },
+                }}
+                onClick={onRegister}
+              >
+                Register
+              </Button>
+            )}
             {error && <Typography color="error">{error}</Typography>}
           </CardContent>
         </Card>

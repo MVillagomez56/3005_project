@@ -29,10 +29,11 @@ const getRoomById = async (req, res, next) => {
     res.json(rows[0]);
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ error: "An error occurred while retrieving the room." });
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving the room." });
   }
-  
-}
+};
 
 const getAllClasses = async (req, res, next) => {
   try {
@@ -244,9 +245,63 @@ const getClassById = async (req, res) => {
   }
 };
 
+const isRegistered = async (req, res) => {
+  const class_id = parseInt(req.params.class_id);
+  const member_id = parseInt(req.params.member_id);
+
+  try {
+    const query = `
+      SELECT COUNT(*) FROM Classes_Members
+      WHERE class_id = $1 AND member_id = $2;
+    `;
+    const { rows } = await pool.query(query, [class_id, member_id]);
+    console.log(rows, class_id, member_id);
+    res.json({ registered: rows[0].count > 0 });
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while checking registration." });
+  }
+};
+
+const unregisterClass = async (req, res) => {
+  const { class_id, member_id } = req.body;
+
+  try {
+    const query = `
+
+      DELETE FROM Classes_Members
+      WHERE class_id = $1 AND member_id = $2
+      RETURNING *;
+    `;
+    const { rows } = await pool.query(query, [class_id, member_id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Class not found." });
+    }
+
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({ error: "An error occurred while unregistering the class." });
+  }
+};
+
 const updateClassById = async (req, res) => {
   const { id } = req.params; // The class ID from URL
-  const { name, description, trainer_id, duration, cost, capacity, type, room_id } = req.body; // Destructure updated class data from request body
+  const {
+    name,
+    description,
+    trainer_id,
+    duration,
+    cost,
+    capacity,
+    type,
+    room_id,
+  } = req.body; // Destructure updated class data from request body
 
   try {
     // Construct the SQL query for updating the class information
@@ -258,18 +313,32 @@ const updateClassById = async (req, res) => {
     `;
 
     // Execute the query with parameters
-    const { rows } = await pool.query(updateQuery, [name, description, trainer_id, duration, cost, capacity, type, room_id, id]);
+    const { rows } = await pool.query(updateQuery, [
+      name,
+      description,
+      trainer_id,
+      duration,
+      cost,
+      capacity,
+      type,
+      room_id,
+      id,
+    ]);
 
     // If no rows are returned, the class was not found
     if (rows.length === 0) {
-      return res.status(404).json({ message: 'Class not found.' });
+      return res.status(404).json({ message: "Class not found." });
     }
 
     // Respond with the updated class information
     res.status(200).json(rows[0]);
   } catch (err) {
-    console.error('Error updating class:', err);
-    res.status(500).json({ error: 'An error occurred while updating the class information.' });
+    console.error("Error updating class:", err);
+    res
+      .status(500)
+      .json({
+        error: "An error occurred while updating the class information.",
+      });
   }
 };
 
@@ -277,7 +346,6 @@ const registerClass = async (req, res) => {
   const { class_id, member_id } = req.body;
 
   try {
-
     // Check if the class is full
     const classCapacity = await pool.query(
       "SELECT capacity FROM Classes WHERE id = $1",
@@ -316,5 +384,7 @@ module.exports = {
   getUpcomingClasses,
   updateClassById,
   getRoomById,
-  registerClass
+  registerClass,
+  isRegistered,
+  unregisterClass
 };

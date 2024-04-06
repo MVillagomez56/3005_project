@@ -399,4 +399,38 @@ FOR EACH ROW
 EXECUTE FUNCTION update_payment_status();
 
 
- 
+ -- when the admin updates the time of a class, check if the room and trainer is available
+ -- if yes, update the trainer's availability
+CREATE OR REPLACE FUNCTION update_class_time()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- in theory they shouldnt be able to select a new timeslot that the trainer is not available for
+    IF NOT check_trainer_availability(NEW.trainer_id, NEW.day, NEW.start_time, NEW.end_time) THEN
+        RAISE EXCEPTION 'Trainer is not available at that time';
+    END IF;
+
+
+    --check if class room is available
+    IF EXISTS (
+        SELECT 1
+        FROM Classes
+        WHERE room_id = NEW.room_id
+        AND day = NEW.day
+        AND (start_time, end_time) OVERLAPS (NEW.start_time, NEW.end_time)
+        AND id != NEW.id
+    ) THEN
+        RAISE EXCEPTION 'Room is not available at that time';
+    END IF;
+
+    -- if the class is a group class, update the trainer's availability
+    IF NEW.type = 'group' THEN
+        PERFORM update_trainer_availability(NEW.trainer_id, NEW.day, NEW.start_time, NEW.end_time);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_class_time
+BEFORE UPDATE ON Classes
+FOR EACH ROW
+EXECUTE FUNCTION update_class_time();

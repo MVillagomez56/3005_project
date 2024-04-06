@@ -41,13 +41,20 @@ CREATE TABLE Availability (
     FOREIGN KEY(trainer_id) REFERENCES Trainers(id) ON DELETE CASCADE
 );
 
+CREATE TABLE Schedule (
+    trainer_id INTEGER,
+    day INTEGER, -- or TEXT, e.g., 'Monday', 'Tuesday', etc.
+    start_time TIME DEFAULT '09:00',
+    end_time TIME DEFAULT '17:00',
+    FOREIGN KEY(trainer_id) REFERENCES Trainers(id) ON DELETE CASCADE
+);
+
 CREATE TABLE Rooms (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT,
     capacity INTEGER NOT NULL
 );
-
 
 
 CREATE TABLE Classes (
@@ -62,6 +69,7 @@ CREATE TABLE Classes (
     capacity INTEGER NOT NULL,
     type classType NOT NULL,
     room_id INTEGER NOT NULL,
+    approval_status BOOLEAN NOT NULL,
     FOREIGN KEY(room_id) REFERENCES Rooms(id) ON DELETE CASCADE,
     FOREIGN KEY(trainer_id) REFERENCES Trainers(id) ON DELETE CASCADE
 );

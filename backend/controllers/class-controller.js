@@ -44,6 +44,8 @@ const getAllClasses = async (req, res, next) => {
       JOIN Users ON Trainers.id = Users.id
       JOIN Rooms ON Classes.room_id = Rooms.id
       WHERE Classes.capacity > (SELECT COUNT(*) FROM Classes_Members WHERE Classes.id = class_id)
+      AND Classes.approval_status = true
+      AND Classes.type = 'group'
       ORDER BY Classes.id;`
     );
     res.json(rows);
@@ -71,6 +73,8 @@ const getPopularClasses = async (req, res, next) => {
             SELECT c.id, c.name, c.description, COUNT(cm.member_id) as member_count, c.start_time, c.end_time, c.day, c.cost, c.capacity, c.type, c.room_id, c.trainer_id
             FROM Classes c
             JOIN Classes_Members cm ON c.id = cm.class_id
+            WHERE c.approval_status = true
+            AND c.type = 'group'
             GROUP BY c.id
             ORDER BY member_count DESC
             LIMIT 3;
@@ -103,6 +107,7 @@ const getUpcomingClasses = async (req, res, next) => {
                 SELECT class_id
                 FROM Classes_Members
                 WHERE member_id = $1
+                and isPaymentProcessed = true
             )
             ORDER BY c.start_time;
         `;
@@ -359,13 +364,21 @@ const registerClass = async (req, res) => {
       return res.status(400).json({ error: "Class is full." });
     }
 
+    //if class is a group class set approval status to true
+    const classType = await pool.query(
+      "SELECT type FROM Classes WHERE id = $1",
+      [class_id]
+    );
+
+    const approvalStatus = classType.rows[0].type === "group" ? true : false;
+
     // Register the member for the class
     const registerQuery = `
-      INSERT INTO Classes_Members (class_id, member_id)
-      VALUES ($1, $2)
+      INSERT INTO Classes_Members (class_id, member_id, approval_status)
+      VALUES ($1, $2, $3)
       RETURNING *;
     `;
-    const { rows } = await pool.query(registerQuery, [class_id, member_id]);
+    const { rows } = await pool.query(registerQuery, [class_id, member_id, approvalStatus]);
 
     res.status(201).json(rows[0]);
   } catch (err) {

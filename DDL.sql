@@ -143,11 +143,49 @@ WHEN (NEW.role = 'trainer')
 EXECUTE FUNCTION make_trainer();
 
 
+CREATE OR REPLACE FUNCTION update_trainer_schedule(new_schedule_start TIME, new_schedule_end TIME, trainer_id_arg INTEGER, day_arg INTEGER)
+RETURNS VOID AS $$
+DECLARE
+    class_record RECORD;
+BEGIN
+    -- Delete all old availabilities for that trainer for the specified day
+    DELETE FROM Availability
+    WHERE trainer_id = trainer_id_arg AND day = day_arg;
+    
+    -- Initialize the start of availability to the start of the new schedule
+    -- This will adjust as we account for classes
+    -- Classes need to be sorted by start_time to correctly calculate availability slots
+    FOR class_record IN
+        SELECT start_time, end_time FROM Classes
+        WHERE trainer_id = trainer_id_arg AND day = day_arg
+        ORDER BY start_time
+    LOOP
+        -- If there is time between the current availability start and the class start, insert an availability slot
+        IF new_schedule_start < class_record.start_time THEN
+            INSERT INTO Availability(trainer_id, day, start_time, end_time)
+            VALUES (trainer_id_arg, day_arg, new_schedule_start, class_record.start_time);
+        END IF;
+        
+        -- Adjust the start of the next availability slot to the end of the current class
+        new_schedule_start := class_record.end_time;
+    END LOOP;
+    
+    -- After accounting for all classes, if there is time left in the trainer's schedule, add the final availability slot
+    IF new_schedule_start < new_schedule_end THEN
+        INSERT INTO Availability(trainer_id, day, start_time, end_time)
+        VALUES (trainer_id_arg, day_arg, new_schedule_start, new_schedule_end);
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
 CREATE OR REPLACE FUNCTION update_trainer_schedule()
 RETURNS TRIGGER AS $$
 DECLARE
     time_slot Classes%ROWTYPE;
     availability_slot Availability%ROWTYPE;
+    latest_class_end TIME;
 BEGIN
    -- check if any of their classes fall outside this new schedule
     FOR time_slot IN
@@ -161,57 +199,8 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- get the first and the last availability slots for that day
-    SELECT * INTO availability_slot
-    FROM Availability
-    WHERE trainer_id = NEW.trainer_id
-    AND day = NEW.day
-    ORDER BY start_time ASC
-    LIMIT 1;
-
-    -- if the new schedule starts before the first availability slot, update the first availability slot
-    IF (NEW.start_time < availability_slot.start_time) THEN
-        UPDATE Availability
-        SET end_time = NEW.start_time
-        WHERE trainer_id = NEW.trainer_id
-        AND day = NEW.day
-        AND start_time = availability_slot.start_time;
-    END IF;
-
-    --if the new schedule starts at the same time the first avail ends, delete the first avail
-    IF (NEW.start_time = availability_slot.start_time) THEN
-        DELETE FROM Availability
-        WHERE trainer_id = NEW.trainer_id
-        AND day = NEW.day
-        AND start_time = availability_slot.start_time;
-    END IF;
-
-    -- get the last availability slot for that day
-
-    SELECT * INTO availability_slot
-    FROM Availability
-    WHERE trainer_id = NEW.trainer_id
-    AND day = NEW.day
-    ORDER BY start_time DESC
-    LIMIT 1;
-
-    -- if the new schedule ends after the last availability slot, update the last availability slot
-    IF (NEW.end_time > availability_slot.end_time) THEN
-        UPDATE Availability
-        SET start_time = NEW.end_time
-        WHERE trainer_id = NEW.trainer_id
-        AND day = NEW.day
-        AND start_time = availability_slot.start_time;
-    END IF;
-
-    -- if the new schedule ends at the same time the last avail starts, delete the last avail
-    IF (NEW.end_time = availability_slot.end_time) THEN
-        DELETE FROM Availability
-        WHERE trainer_id = NEW.trainer_id
-        AND day = NEW.day
-        AND start_time = availability_slot.start_time;
-    END IF;
-
+    -- call the function to update the trainer's schedule
+    PERFORM update_trainer_schedule(NEW.start_time, NEW.end_time, NEW.trainer_id, NEW.day);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -334,7 +323,7 @@ CREATE OR REPLACE FUNCTION split_trainer_availability()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.type = 'group' THEN
-        SELECT update_trainer_availability(NEW.trainer_id, NEW.day, NEW.start_time, NEW.end_time);
+        PERFORM update_trainer_availability(NEW.trainer_id, NEW.day, NEW.start_time, NEW.end_time);
     END IF;
     RETURN NEW;
 END;
@@ -370,6 +359,11 @@ EXECUTE FUNCTION update_completion_date();
 
 CREATE OR REPLACE FUNCTION update_payment_status()
 RETURNS TRIGGER AS $$
+DECLARE
+    t_id INTEGER;
+    d INTEGER;
+    s_time TIME;
+    e_time TIME;
 BEGIN
     IF NEW.completion_status = TRUE THEN
         UPDATE Classes_Members
@@ -386,7 +380,13 @@ BEGIN
             UPDATE Classes
             SET approval_status = TRUE
             WHERE id = NEW.class_id;
-            SELECT update_trainer_availability(NEW.trainer_id, NEW.day, NEW.start_time, NEW.end_time);
+
+            SELECT trainer_id, day, start_time, end_time
+            INTO t_id, d, s_time, e_time
+            FROM Classes
+            WHERE id = NEW.class_id;
+
+            PERFORM update_trainer_availability(t_id, d, s_time, e_time);
         END IF;
     END IF;
     RETURN NEW;
@@ -400,39 +400,3 @@ EXECUTE FUNCTION update_payment_status();
 
 
  
-
---- TESTING TRAINERS AVAILABILITY WITH GROUP AND PERSONAL CLASSES
---- ENSURE THAT TRAINER AVAILABILITY DOES NOT CHANGE WHEN A PERSONAL CLASS IS CREATED
---- ENSURE THAT TRAINER AVAILABILITY CHANGES WHEN A GROUP CLASS IS CREATED
---- ENSURE AVAILABILITY CHANGES WHEN PAYMENT IS PROCESSED FOR A PERSONAL CLASS
-
-INSERT INTO Users (password, email, name, date_of_birth, role)
-VALUES ('password', 'member@mail.com', 'member', '1990-01-01', 'member');
-
-INSERT INTO Users (password, email, name, date_of_birth, role)
-VALUES ('password', 'trainer@mail.com', 'trainer', '1990-01-01', 'trainer');
-
-INSERT INTO Availability (trainer_id, day, start_time, end_time)
-VALUES (6, 1, '09:00', '17:00');
-
-INSERT INTO ROOMS (name, description, capacity)
-VALUES ('Room 1', 'Room 1', 10);
-
--- A user would sign up for a personal class, which would first create a class, then add user to class_members, then create a payment
-
-INSERT INTO Classes (name, description, trainer_id, start_time, end_time, day, cost, capacity, type, room_id, approval_status)
-VALUES ('Personal Class', 'Personal Class', 6, '10:00', '11:00', 1, 100, 1, 'personal', 1, FALSE);
-
-INSERT INTO Classes_Members (class_id, member_id, isPaymentProcessed)
-VALUES (1, 5, FALSE);
-
-INSERT INTO Payments (member_id, class_id, amount, date, service, completion_status)
-VALUES (5, 1, 100, '2021-01-01', 'personal fitness class', FALSE);
-
--- check if trainer availability changes when a personal class is created
-SELECT * FROM Availability;
-
--- Submit payment for the personal class
-UPDATE Payments
-SET completion_status = TRUE
-WHERE id = 1;

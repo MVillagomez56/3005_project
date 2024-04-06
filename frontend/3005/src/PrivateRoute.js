@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const PrivateRoute = ({ children, roleRequired }) => {
   console.log("PrivateRoute");
   const navigate = useNavigate();
-  const userStr = localStorage.getItem('user');
+  const userStr = localStorage.getItem("user");
   let user = null;
 
   // Try parsing the user string from localStorage
@@ -17,10 +17,17 @@ export const PrivateRoute = ({ children, roleRequired }) => {
   useEffect(() => {
     if (!user) {
       // User not authenticated; redirect them to the login page
-      navigate('/login');
-    } else if (roleRequired && user.role !== roleRequired) {
-      // If role doesn't match, navigate away (e.g., to the home page)
-      navigate('/');
+      navigate("/login");
+    } else if (roleRequired) {
+      if (roleRequired === "admin" && user.role !== "admin") {
+        navigate("/");
+      }
+      if (roleRequired === "member" && user.role !== "member" && user.role !== "admin") {
+        navigate("/");
+      }
+      if (roleRequired === "trainer" && user.role !== "trainer" && user.role !== "admin") {
+        navigate("/");
+      }
     }
   }, [navigate, user, roleRequired]); // Dependency array includes navigate, user, and roleRequired to handle changes
 

@@ -40,6 +40,10 @@ export const FeaturedClasses = () => {
               courseID={featuredClass.id}
               title={featuredClass.name}
               description={featuredClass.description}
+              start_time={featuredClass.start_time}
+              end_time={featuredClass.end_time}
+              day={featuredClass.day}
+              approval_status={true}
             />
           </Grid>
         ))

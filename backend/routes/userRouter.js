@@ -8,11 +8,11 @@ console.log("user router started");
 const userController = require("../controllers/users-controller.js");
 
 // Get router
-// router.get("/api/user/:id", userController.getUserById);
+router.get("/user/:id", userController.getUserById);
 
 // router.get("/api/members", userController.getAllMembers);
 
-// router.get("/api/member/:userid", userController.getMemberById);
+router.get("/member/:userid", userController.getMemberById);
 
 router.get("/searchMember", userController.searchMember);
 

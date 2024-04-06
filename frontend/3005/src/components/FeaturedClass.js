@@ -11,8 +11,10 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import image from "../assets/success_image.png";
+import { convertTime, dayOfWeek } from "../utils/time_converter";
 
-const FeaturedClass = ({ title, description, courseID }) => {
+
+const FeaturedClass = ({ title, description, courseID, start_time, end_time, day, approval_status }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -23,6 +25,8 @@ const FeaturedClass = ({ title, description, courseID }) => {
     <Grid item xs={18} sm={20} md={20}>
       <Card
         sx={{
+          maxWidth: 345,
+          borderRadius: "10px",
           height: "100%",
           display: "flex",
           flexDirection: "column",
@@ -42,14 +46,25 @@ const FeaturedClass = ({ title, description, courseID }) => {
             component="div"
             sx={{ textAlign: "center" }}
           >
-            {title}
+            {title} {!!approval_status ? "" : " - (Pending)"}
           </Typography>
           <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ flexGrow: 1 }}
+            sx={{
+              flexGrow: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
             {description}
+          </Typography>
+          <Typography
+          component={"div"}
+          variant="body2"
+          sx={{ textAlign: "center" }}
+          >
+            {convertTime(start_time)} - {convertTime(end_time)} on {dayOfWeek[day]}
           </Typography>
         </CardContent>
         <CardActions sx={{ justifyContent: "center" }}>

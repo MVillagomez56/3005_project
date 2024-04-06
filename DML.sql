@@ -5,12 +5,6 @@ VALUES
   ('password123', 'john.doe@example.com', 'John Doe', '1980-01-01', 'trainer'),
 ('password456', 'jane.smith@example.com', 'Jane Smith', '1985-02-01', 'trainer');
 
-INSERT INTO Trainers (id, specialization, cost) VALUES
-(1, 'Yoga', 50),
-(2, 'Cardio', 60);
-
-
-  
 
 -- Assuming the id generated for the trainer is 1
 -- Insert a room
@@ -18,13 +12,6 @@ INSERT INTO
   Rooms (name, description, capacity)
 VALUES
   ('Room 1', 'A spacious room', 20);
-
--- Assuming the id generated for the room is 1
--- Insert availability for the trainer
-INSERT INTO
-  Availability (trainer_id, day, start_time, end_time)
-VALUES
-  (1, 1, '09:00', '17:00');
 
 INSERT INTO Schedule (trainer_id, day, start_time, end_time) VALUES
 (1, 1, '09:00', '17:00'),

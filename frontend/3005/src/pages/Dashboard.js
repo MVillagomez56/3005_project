@@ -6,6 +6,8 @@ import { FeaturedClasses } from "../components/FeaturedClasses";
 import { FitnessGoals } from "../components/FitnessGoals";
 import { HealthStats } from "../components/HealthStats";
 import { UpcomingClasses } from "../components/UpcomingClasses";
+import {TrainerSchedule} from "../components/trainerSchedule";
+
 // temporary data for testing, should be deleted once database data is being implemented
 
 export const Dashboard = () => {
@@ -56,6 +58,15 @@ export const Dashboard = () => {
           <FeaturedClasses />
         </Grid>
       </div>
+      {user.role ==="trainer" && (
+        <div>
+          <Typography variant="h4" fontWeight={"bold"}>
+            Trainer Schedule
+          </Typography>
+          <TrainerSchedule/>
+        </div>
+      
+      )}
       {user.role === "member" && (
         <>
           <div>

@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import image from "../assets/success_image.png";
 import { convertTime, dayOfWeek } from "../utils/time_converter";
 
+
 const FeaturedClass = ({ title, description, courseID, start_time, end_time, day, approval_status }) => {
   const navigate = useNavigate();
 

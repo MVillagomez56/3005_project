@@ -38,6 +38,15 @@ CREATE TABLE Availability (
     FOREIGN KEY(trainer_id) REFERENCES Trainers(id) ON DELETE CASCADE
 );
 
+CREATE TABLE Room_Availability (
+    room_id INTEGER,
+    day INTEGER, -- or TEXT, e.g., 'Monday', 'Tuesday', etc.
+    start_time TIME DEFAULT '09:00',
+    end_time TIME DEFAULT '17:00',
+    FOREIGN KEY(room_id) REFERENCES Rooms(id) ON DELETE CASCADE
+);
+
+
 CREATE TABLE Rooms (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,

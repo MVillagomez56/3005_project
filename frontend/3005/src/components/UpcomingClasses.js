@@ -59,6 +59,7 @@ export const UpcomingClasses = ({ id }) => {
             start_time={upcomingClass.start_time}
             end_time={upcomingClass.end_time}
             day={upcomingClass.day}
+            approval_status={upcomingClass.payment_status}
           />
         ))}
       </Box>

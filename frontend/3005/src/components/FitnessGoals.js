@@ -146,7 +146,7 @@ export const FitnessGoals = ({ currentUser }) => {
       ) : (
         fitnessGoals.map((goal, index) => (
           <ListItem
-            secondaryAction={
+            secondaryAction={ JSON.parse(localStorage.getItem("user")).id === currentUser.id &&
               <>
                 <IconButton
                   edge="end"
@@ -174,6 +174,7 @@ export const FitnessGoals = ({ currentUser }) => {
               checked={goal.status}
               tabIndex={-1}
               disableRipple
+              disabled={JSON.parse(localStorage.getItem("user")).id !== currentUser.id}
               inputProps={{
                 "aria-labelledby": `checkbox-list-label-${goal.id}`,
               }}
@@ -194,28 +195,30 @@ export const FitnessGoals = ({ currentUser }) => {
         ))
       )}
 
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: "10px",
-        }}
-      >
-        <TextField
-          label="Add Goal"
-          variant="outlined"
-          size="small"
-          onChange={(e) => setNewGoal(e.target.value)}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleAddGoal(newGoal)}
+      { JSON.parse(localStorage.getItem("user")).id === currentUser.id && 
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "10px",
+          }}
         >
-          Add
-        </Button>
-      </Box>
+          <TextField
+            label="Add Goal"
+            variant="outlined"
+            size="small"
+            onChange={(e) => setNewGoal(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => handleAddGoal(newGoal)}
+          >
+            Add
+          </Button>
+        </Box>
+      }
     </Box>
   );
 };

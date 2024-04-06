@@ -48,7 +48,7 @@ export const Register = () => {
   const handleSubmit = async () => {
     const loggedIn = await signup(email, password, name, date_of_birth, role);
     if (loggedIn) {
-      if (role !== "admin") {
+      if (role !== "admin" && role !== "trainer") { //temporary fix
         navigate(`/register/${role}`);
       } else {
         navigate("/");

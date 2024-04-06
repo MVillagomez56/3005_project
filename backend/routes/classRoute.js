@@ -19,7 +19,11 @@ router.post("/updateClass/:id", classController.updateClassById);
 
 router.get("/featuredClasses", classController.getPopularClasses);
 router.get('/upcomingClasses/:id', classController.getUpcomingClasses);
+router.get("/isRegistered/:member_id/:class_id", classController.isRegistered);
 
 router.post("/addClass", classController.addClass);
 
+router.post("/registerClass", classController.registerClass);
+
+router.delete("/unregisterClass", classController.unregisterClass);
 module.exports = router;

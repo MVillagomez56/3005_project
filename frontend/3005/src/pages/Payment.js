@@ -12,23 +12,37 @@ export const  Payment = () => {
   const [error, setError] = React.useState(null);
   const [hasPaymentMethod, setHasPaymentMethod] = React.useState(currentUser?.has_payment_method);
   const { service, amount } = useParams();
+  const [serviceName, setServiceName] = React.useState("");
 
   const naviagate = useNavigate();
   console.log(currentUser);
-
-  if (
-    service !== "membership" &&
-    service !== "personal-fitness-class" &&
-    service !== "group-fitness-class"
-  ) {
-    naviagate("/");
-  }
 
   if (service === "membership" && currentUser?.setup_complete) {
     naviagate("/");
   }
 
-  const serviceName = service.replace(/-/g, " ");
+  //if service is number, fetch relevant class
+  const fetchService = async () => {
+    const response = await fetch(`http://localhost:5000/api/classes/getSpecificClass/${service}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+
+    if (response.status !== 200) {
+      setError("Failed to fetch service");
+    } else {
+      const data = await response.json();
+      setServiceName(data.name);
+    }
+  }
+
+  React.useEffect(() => {
+    fetchService();
+  }, []);
+
 
   const handleSubmit = async () => {
     const member_id = JSON.parse(localStorage.getItem("user")).id;
@@ -40,7 +54,7 @@ export const  Payment = () => {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        service: serviceName,
+        service,
         amount,
         member_id,
         payment_date: new Date(),
@@ -77,7 +91,7 @@ export const  Payment = () => {
       }}
     >
       <Typography variant="h1">Please confirm your payment</Typography>
-      <Typography variant="h2">{serviceName}</Typography>
+      <Typography variant="h2">{service === "membership" ? "Membership" : serviceName}</Typography>
       <Typography variant="h2">${amount}</Typography>
 
       <Typography variant="body">

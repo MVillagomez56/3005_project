@@ -34,11 +34,25 @@ const getPaymentById = async (req, res) => {
 const addPayment = async (req, res) => {
 
     const { member_id, amount, service, completion_status } = req.body;
+    let serviceName;
+
+    //if service is number, fetch relevant class
+    if (service!== "membership") {
+        const query= "SELECT * FROM classes WHERE class_id = $1";
+        const { rows } = await db.query(query, [service]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: "Class not found." });
+        }
+        serviceName = rows[0].type + " fitness class";
+
+    } else {
+        serviceName = "membership";
+    }
 
     try {
-        const query = "INSERT INTO payments (member_id, amount, service, completion_status) VALUES ($1, $2, $3, $4) RETURNING *";
-        const values = [member_id, amount, service, completion_status];
-
+        console.log("Adding payment", serviceName);
+        const query = "INSERT INTO payment (member_id, amount, service, completion_status) VALUES ($1, $2, $3, $4) RETURNING *";
+        const values = [member_id, amount, serviceName, completion_status];
         const { rows } = await pool.query(query, values);
 
         res.status(201).json(rows[0]);

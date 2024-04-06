@@ -21,7 +21,7 @@ export const CourseDetail = ({course}) => {
           <Button size="small" onClick={() => navigate(`/courses/${course.id}`)}>
             View Details
           </Button>
-          {user.role === "trainer" && (
+          {(user.role === "trainer" || user.role==="admin") && (
             <Button size="small" onClick={() => navigate(`/courses/edit/${course.id}`)}>
               Edit
             </Button>

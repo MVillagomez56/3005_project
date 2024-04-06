@@ -6,6 +6,7 @@ const pool = require("../db");
 
 // Get
 const getUserById = async (req, res, next) => {
+  console.log("getUserById");
   const userId = parseInt(req.params.id);
 
   // Validate that the provided ID is a number
@@ -15,7 +16,7 @@ const getUserById = async (req, res, next) => {
 
   try {
     const { rows } = await pool.query(
-      "SELECT id, email, name, date_of_birth, role FROM Users WHERE id = $1;",
+      "SELECT * FROM Users WHERE id = $1;",
       [userId]
     );
 
@@ -57,7 +58,7 @@ const getMemberById = async (req, res, next) => {
 
   try {
     const { rows } = await pool.query(
-      "SELECT m.id, u.name, m.weight, m.height, m.muscle_mass, m.body_fat FROM Members m JOIN Users u ON m.id = u.id WHERE m.id = $1;",
+      "SELECT * FROM Members m WHERE m.id = $1;",
       [userId]
     );
 
@@ -217,36 +218,40 @@ const deleteFitnessGoal = async (req, res, next) => {
 
 const searchMember = async (req, res) => {
   console.log("Trigger!");
-  const { id, name } = req.query;
-
-  if (!id || !name) {
-    return res
-      .status(400)
-      .json({ error: "Both ID and name must be provided." });
-  }
+  const id = parseInt(req.query.id);
+  const name = req.query.name;
 
   try {
-    const userId = parseInt(id);
-    const userName = name.trim();
-
-    if (isNaN(userId) || userName === "") {
-      return res.status(400).json({ error: "Invalid ID or name." });
+    if (!id && !name) {
+      return res.status(400).json({ error: "Please provide a valid ID or name" });
     }
 
-    // Use the parameter placeholders in the query
-    const query = `
-      SELECT u.id, u.name
-      FROM Users u
-      JOIN Members m ON u.id = m.id
-      WHERE u.id = $1 AND u.name = $2;
-    `;
+    console.log("id", id);
+    console.log("name", name);
 
-    // Execute the query with the actual parameters
-    const { rows } = await pool.query(query, [userId, userName]);
+    let updateQuery = `SELECT * FROM Members m JOIN Users u ON m.id = u.id`;
+    let values = [];
+    let valueIndex = 1;
+
+    if (id) {
+      updateQuery += ` WHERE m.id = $${valueIndex}`;
+      values.push(id);
+      valueIndex++;
+    }
+
+    //if name is provided and id exists ignore name
+    // check if name is similar to any name in the database
+    if (name && !id) {
+      updateQuery += ` WHERE u.name ILIKE $${valueIndex}`;
+      values.push(`%${name}%`);
+      valueIndex++;
+    }
+  
+    const { rows } = await pool.query(updateQuery, values);
 
     if (rows.length > 0) {
-      console.log(rows[0]);
-      res.json(rows[0]);
+      console.log(rows);
+      res.json(rows);
     } else {
       res.status(404).json({ message: "Member not found" });
     }
@@ -456,6 +461,7 @@ const addPayment = async (req, res, next) => {
     // Destructure payment information from request body
     const { member_id, amount, payment_date, service } = req.body;
 
+    
     const amountNum = parseFloat(amount);
 
     // Basic validation
@@ -466,8 +472,19 @@ const addPayment = async (req, res, next) => {
       return res.status(400).json({ error: "Invalid amount" });
     }
 
-    if (typeof service !== "string" || !service.trim()) {
-      return res.status(400).json({ error: "Invalid service" });
+    let serviceName;
+
+    //if service is number, fetch relevant class
+    if (service!== "membership") {
+        const query= "SELECT * FROM classes WHERE id = $1";
+        const { rows } = await pool.query(query, [service]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: "Class not found." });
+        }
+        serviceName = rows[0].type + " fitness class";
+
+    } else {
+        serviceName = "membership";
     }
 
     const memberCheck = await pool.query(
@@ -479,10 +496,21 @@ const addPayment = async (req, res, next) => {
     }
 
     // Insert payment information into the database, using parameterized query for security
-    const { rows } = await pool.query(
-      "INSERT INTO payments (member_id, amount, date, service) VALUES ($1, $2, $3, $4) RETURNING *;",
-      [member_id, amountNum, payment_date, service]
-    );
+    // if service is a number, pass it as a number to class_id. if not, pass null
+
+    const queryText = `
+      INSERT INTO payments (member_id, amount, service, date, class_id)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *;
+    `;
+    let values = [member_id, amountNum, serviceName, payment_date];
+    if (service !== "membership") {
+      values.push(service);
+    } else {
+      values.push(null);
+    }
+
+    const { rows } = await pool.query(queryText, values);
 
     // Respond with the newly created payment entry
     res.status(201).json(rows[0]);
@@ -682,6 +710,8 @@ const updateUser = async (req, res, next) => {
 };
 
 module.exports = {
+  getUserById,
+  getMemberById,
   login,
   register,
   updateMember,

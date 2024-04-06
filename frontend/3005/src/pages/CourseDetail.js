@@ -140,7 +140,7 @@ export const CourseDetail = () => {
             objectFit: "cover",
           }}
           alt={course.name}
-          src={courseImage} // Replace with your image path
+          src={courseImage} 
         />
         <Card
           sx={{

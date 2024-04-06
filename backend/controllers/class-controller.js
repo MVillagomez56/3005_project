@@ -364,21 +364,13 @@ const registerClass = async (req, res) => {
       return res.status(400).json({ error: "Class is full." });
     }
 
-    //if class is a group class set approval status to true
-    const classType = await pool.query(
-      "SELECT type FROM Classes WHERE id = $1",
-      [class_id]
-    );
-
-    const approvalStatus = classType.rows[0].type === "group" ? true : false;
-
     // Register the member for the class
     const registerQuery = `
-      INSERT INTO Classes_Members (class_id, member_id, approval_status)
+      INSERT INTO Classes_Members (class_id, member_id)
       VALUES ($1, $2, $3)
       RETURNING *;
     `;
-    const { rows } = await pool.query(registerQuery, [class_id, member_id, approvalStatus]);
+    const { rows } = await pool.query(registerQuery, [class_id, member_id]);
 
     res.status(201).json(rows[0]);
   } catch (err) {

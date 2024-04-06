@@ -96,7 +96,7 @@ const getUpcomingClasses = async (req, res, next) => {
     console.log(req);
     const member_id = req.params.id;
     const query = `
-            SELECT c.id, c.name, c.description, c.start_time, c.end_time, c.day, c.cost, c.capacity, c.type, c.room_id, c.trainer_id,
+            SELECT c.id, c.name, c.description, c.start_time, c.end_time, c.day, c.cost, c.capacity, c.type, c.room_id, c.trainer_id, c.approval_status,
             r.name AS room_name, r.description AS room_description, r.capacity AS room_capacity,
             t.specialization, t.cost AS trainer_cost, u.name AS trainer_name
             FROM Classes c
@@ -107,7 +107,6 @@ const getUpcomingClasses = async (req, res, next) => {
                 SELECT class_id
                 FROM Classes_Members
                 WHERE member_id = $1
-                and isPaymentProcessed = true
             )
             ORDER BY c.start_time;
         `;

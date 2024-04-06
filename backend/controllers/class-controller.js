@@ -96,13 +96,15 @@ const getUpcomingClasses = async (req, res, next) => {
     console.log(req);
     const member_id = req.params.id;
     const query = `
-            SELECT c.id, c.name, c.description, c.start_time, c.end_time, c.day, c.cost, c.capacity, c.type, c.room_id, c.trainer_id, c.approval_status,
+            SELECT c.id, c.name, c.description, c.start_time, c.end_time, c.day, c.cost, c.capacity, c.type, c.room_id, c.trainer_id,
             r.name AS room_name, r.description AS room_description, r.capacity AS room_capacity,
-            t.specialization, t.cost AS trainer_cost, u.name AS trainer_name
+            t.specialization, t.cost AS trainer_cost, u.name AS trainer_name,
+            cm.isPaymentProcessed as payment_status
             FROM Classes c
             JOIN Rooms r ON c.room_id = r.id
             JOIN Trainers t ON c.trainer_id = t.id
             JOIN Users u ON t.id = u.id
+            JOIN Classes_Members cm ON c.id = cm.class_id AND cm.member_id = $1
             WHERE c.id IN (
                 SELECT class_id
                 FROM Classes_Members
@@ -366,7 +368,7 @@ const registerClass = async (req, res) => {
     // Register the member for the class
     const registerQuery = `
       INSERT INTO Classes_Members (class_id, member_id)
-      VALUES ($1, $2, $3)
+      VALUES ($1, $2)
       RETURNING *;
     `;
     const { rows } = await pool.query(registerQuery, [class_id, member_id]);

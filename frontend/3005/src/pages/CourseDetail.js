@@ -77,7 +77,7 @@ export const CourseDetail = () => {
       );
       console.log(response);
       if (response.status === 201) {
-        navigate(`/payment/group-fitness-class/${course.cost}`);
+        navigate(`/payment/${courseid}/${course.cost}`);
       } else {
         setError("Failed to register for the course");
       }
@@ -180,7 +180,7 @@ export const CourseDetail = () => {
               <Button
                 sx={{
                   mt: 2,
-                  color: "purple"
+                  color: "purple",
                 }}
                 onClick={onUnregister}
               >

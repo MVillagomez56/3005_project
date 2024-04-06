@@ -434,3 +434,21 @@ CREATE TRIGGER update_class_time
 BEFORE UPDATE ON Classes
 FOR EACH ROW
 EXECUTE FUNCTION update_class_time();
+
+-- if user deregisters before their payment is processed, delete the payment
+CREATE OR REPLACE FUNCTION delete_payment()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD.isPaymentProcessed = FALSE THEN
+        DELETE FROM Payments
+        WHERE member_id = OLD.member_id
+        AND class_id = OLD.class_id;
+    END IF;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER delete_payment
+AFTER DELETE ON Classes_Members
+FOR EACH ROW
+EXECUTE FUNCTION delete_payment();  

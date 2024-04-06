@@ -461,6 +461,7 @@ const addPayment = async (req, res, next) => {
     // Destructure payment information from request body
     const { member_id, amount, payment_date, service } = req.body;
 
+    
     const amountNum = parseFloat(amount);
 
     // Basic validation
@@ -471,8 +472,19 @@ const addPayment = async (req, res, next) => {
       return res.status(400).json({ error: "Invalid amount" });
     }
 
-    if (typeof service !== "string" || !service.trim()) {
-      return res.status(400).json({ error: "Invalid service" });
+    let serviceName;
+
+    //if service is number, fetch relevant class
+    if (service!== "membership") {
+        const query= "SELECT * FROM classes WHERE id = $1";
+        const { rows } = await pool.query(query, [service]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: "Class not found." });
+        }
+        serviceName = rows[0].type + " fitness class";
+
+    } else {
+        serviceName = "membership";
     }
 
     const memberCheck = await pool.query(
@@ -484,10 +496,21 @@ const addPayment = async (req, res, next) => {
     }
 
     // Insert payment information into the database, using parameterized query for security
-    const { rows } = await pool.query(
-      "INSERT INTO payments (member_id, amount, date, service) VALUES ($1, $2, $3, $4) RETURNING *;",
-      [member_id, amountNum, payment_date, service]
-    );
+    // if service is a number, pass it as a number to class_id. if not, pass null
+
+    const queryText = `
+      INSERT INTO payments (member_id, amount, service, date, class_id)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *;
+    `;
+    let values = [member_id, amountNum, serviceName, payment_date];
+    if (service !== "membership") {
+      values.push(service);
+    } else {
+      values.push(null);
+    }
+
+    const { rows } = await pool.query(queryText, values);
 
     // Respond with the newly created payment entry
     res.status(201).json(rows[0]);

@@ -36,6 +36,7 @@ const getEquipmentById = async (req, res, next) => {
 }
 
 const changeEquipmentStatus = async (req, res, next) => {
+    console.log("triggered!");
     const equipmentId = parseInt(req.params.id);
     const { newStatus } = req.body; // Assuming the new status is sent in the request body
 

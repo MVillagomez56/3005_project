@@ -89,7 +89,7 @@ export const HealthStats = ({ id }) => {
     >
       <Typography variant="h4">
         Health Stats
-        {JSON.parse(localStorage.getItem("user")).id === id && (
+        {isOwner && (
           <IconButton onClick={() => setEdit(!edit)}>
             <EditRoundedIcon />
           </IconButton>
@@ -129,7 +129,7 @@ export const HealthStats = ({ id }) => {
         />
         <Button
           variant="contained"
-          disabled={!edit || !height || !weight || !isOwner()}
+          disabled={!edit || !height || !weight || !isOwner}
           onClick={handleSubmit}
         >
           Save

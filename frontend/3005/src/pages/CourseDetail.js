@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import courseImage from "../assets/course_image.png";
 import { convertTime, dayOfWeek } from "./../utils/time_converter";
+import { RoomAvailability } from "../components/RoomAvailability";
 
 export const CourseDetail = () => {
   const { courseid } = useParams();
@@ -140,7 +141,7 @@ export const CourseDetail = () => {
             objectFit: "cover",
           }}
           alt={course.name}
-          src={courseImage} 
+          src={courseImage}
         />
         <Card
           sx={{
@@ -175,6 +176,12 @@ export const CourseDetail = () => {
               Time: {convertTime(course.start_time)} -{" "}
               {convertTime(course.end_time)} on {dayOfWeek[course.day]}
             </Typography>
+            {user.role === "member" && (
+              <>
+                <RoomAvailability roomId={course.room_id} />
+                {/* <TrainerAvailability trainerId={course.trainer_id} /> */}
+              </>
+            )}
 
             {isRegistered ? (
               <Button

@@ -12,6 +12,7 @@ const userRouter = require("./routes/userRouter");
 const classRouter = require("./routes/classRoute");
 const paymentRouter = require("./routes/paymentRoute");
 const trainerRouter = require("./routes/trainerRoute");
+const roomRouter = require("./routes/roomRoute");
 
 // Use the routes
 app.use(cors());
@@ -20,6 +21,7 @@ app.use("/api", userRouter);
 app.use("/api/classes", classRouter);
 app.use("/api/payments", paymentRouter);
 app.use("/api/trainers", trainerRouter);
+app.use("/api/rooms", roomRouter);
 
 // Check database connection 
 pool.query("SELECT NOW()", (err, res) => {

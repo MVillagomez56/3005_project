@@ -102,36 +102,30 @@ function subtractTimeSlots(slots, start, end) {
     ]);
   }
 
-  const splitSlots = splitTimeSlots(availableSlots);
+  const splitSlots = splitIntoHourlySlots([{ timeSlots: availableSlots }]);
   return splitSlots;
 }
 
 //split the timeslots into 1 hour slots
 
-const splitTimeSlots = (slots) => {
-  let splitSlots = [];
-  slots.forEach((slot) => {
-    let [start, end] = slot;
-    let [startHour, startMin] = start.split(":").map(Number);
-    let [endHour, endMin] = end.split(":").map(Number);
+export const splitIntoHourlySlots = (timeSlots) => {
+  return timeSlots.map(daySlot => {
+    const newTimeSlots = daySlot.timeSlots.flatMap(slot => {
+      const chunks = [];
+      let startTime = new Date(`1970-01-01T${slot.start}`);
+      const endTime = new Date(`1970-01-01T${slot.end}`);
 
-    while (
-      startHour < endHour ||
-      (startHour === endHour && startMin < endMin)
-    ) {
-      let newEndHour = startHour + 1;
-      let newEndMin = startMin;
-      if (newEndHour === endHour && newEndMin > endMin) {
-        newEndHour = endHour;
-        newEndMin = endMin;
+      while (startTime < endTime) {
+        const endChunkTime = new Date(startTime.getTime() + 60 * 60000); // Add 60 minutes
+        chunks.push({
+          start: startTime.toTimeString().substring(0, 5),
+          end: endChunkTime > endTime ? endTime.toTimeString().substring(0, 5) : endChunkTime.toTimeString().substring(0, 5),
+        });
+        startTime = endChunkTime;
       }
-      splitSlots.push([
-        `${startHour}:${startMin.toString().padStart(2, "0")}`,
-        `${newEndHour}:${newEndMin.toString().padStart(2, "0")}`,
-      ]);
-      startHour = newEndHour;
-      startMin = newEndMin;
-    }
+      return chunks;
+    });
+
+    return { ...daySlot, timeSlots: newTimeSlots };
   });
-  return splitSlots;
 };

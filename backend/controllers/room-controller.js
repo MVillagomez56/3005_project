@@ -9,7 +9,39 @@ const getRoomSchedule = async (req, res, next) => {
           WHERE room_id = $1;
         `;
         const { rows } = await pool.query(query, [roomId]);
-        res.json(rows);
+
+        const availableTimeSlots = [];
+
+        for (let i = 0; i < 7; i++) {
+          const classes = rows.filter((classTime) => classTime.day === i);
+          availableTimeSlots.push({
+            day: i,
+            timeSlots: [],
+          });
+
+          let start = "00:00:00"
+          let end = "24:00:00"
+
+          for (const classTime of classes) {
+            if (classTime.start_time >= start && classTime.start_time < end) {
+              availableTimeSlots[i].timeSlots.push({
+                start: start,
+                end: classTime.start_time,
+              });
+            }
+            start = classTime.end_time;
+          }
+
+          if (start < end) {
+            availableTimeSlots[i].timeSlots.push({
+              start: start,
+              end: end,
+            });
+          }
+        }
+
+
+        res.json(availableTimeSlots);
       } catch (err) {
         console.error(err);
         res.status(500).send("Server error while retrieving room schedule.");

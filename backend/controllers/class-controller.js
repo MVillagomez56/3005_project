@@ -300,34 +300,51 @@ const updateClassById = async (req, res) => {
   const {
     name,
     description,
-    trainer_id,
-    duration,
     cost,
     capacity,
-    type,
-    room_id,
+    start_time,
+    end_time,
+    day,
   } = req.body; // Destructure updated class data from request body
 
   try {
     // Construct the SQL query for updating the class information
-    const updateQuery = `
+    let updateQuery = `
       UPDATE Classes
-      SET name = $1, description = $2, trainer_id = $3, duration = $4, cost = $5, capacity = $6, type = $7, room_id = $8
-      WHERE id = $9
+      SET name = $1, description = $2, cost = $3, capacity = $4
+    `;
+
+    if (start_time) {
+      console.log("start_time", start_time);
+      updateQuery += `, start_time = $5`;
+    }
+
+    if (end_time) {
+      console.log("end_time", end_time);
+      updateQuery += `, end_time = $6`;
+    }
+
+    if (day) {
+      updateQuery += `, day = $7`;
+    }
+
+    updateQuery += `
+      WHERE id = $8
       RETURNING *;
     `;
+
+
 
     // Execute the query with parameters
     const { rows } = await pool.query(updateQuery, [
       name,
       description,
-      trainer_id,
-      duration,
       cost,
       capacity,
-      type,
-      room_id,
-      id,
+      start_time,
+      end_time,
+      day, 
+      id
     ]);
 
     // If no rows are returned, the class was not found
@@ -339,11 +356,9 @@ const updateClassById = async (req, res) => {
     res.status(200).json(rows[0]);
   } catch (err) {
     console.error("Error updating class:", err);
-    res
-      .status(500)
-      .json({
-        error: "An error occurred while updating the class information.",
-      });
+    res.status(500).json({
+      error: "An error occurred while updating the class information.",
+    });
   }
 };
 
@@ -379,6 +394,178 @@ const registerClass = async (req, res) => {
   }
 };
 
+const getClassAvailableTimeSlots = async (req, res) => {
+  const classId = parseInt(req.params.id);
+
+  if (isNaN(classId)) {
+    return res.status(400).json({ error: "Invalid class ID." });
+  }
+
+  try {
+    const query = `
+        SELECT start_time, end_time, day, room_id, trainer_id FROM Classes
+        WHERE id = $1;
+      `;
+    const { rows: classTime } = await pool.query(query, [classId]);
+
+    const query1 = `
+    SELECT start_time, end_time, day FROM Classes
+    WHERE room_id = $1;
+  `;
+
+    const { rows: roomTimes } = await pool.query(query1, [
+      classTime[0].room_id,
+    ]);
+    // rooms are available at all times except when there is a class
+
+    const query2 = `
+    SELECT start_time, end_time, day FROM Classes
+    WHERE trainer_id = $1;
+  `;
+
+    const { rows: trainerClassTimes } = await pool.query(query2, [
+      classTime[0].trainer_id,
+    ]);
+
+    const query3 = `
+    SELECT start_time, end_time, day FROM Schedule
+    WHERE trainer_id = $1;
+  `;
+    const { rows: trainerScheduleTime } = await pool.query(query3, [
+      classTime[0].trainer_id,
+    ]);
+
+    // get the available time slots for the class based when the room and trainer are available
+    const availableTimeSlots = [];
+
+    function calculateTrainerAvailability(scheduleTime, classTime) {
+      const availableTimeSlots = [];
+
+      for (let i = 0; i < 7; i++) {
+        const schedule = scheduleTime.find((schedule) => schedule.day === i);
+        const classes = classTime.filter((classTime) => classTime.day === i);
+
+        if (!schedule) {
+          availableTimeSlots.push({
+            day: i,
+            timeSlots: [],
+          });
+        } else {
+          availableTimeSlots.push({
+            day: i,
+            timeSlots: [],
+          });
+          let start = schedule.start_time;
+          let end = schedule.end_time;
+
+          for (const classTime of classes) {
+            if (classTime.start_time >= start && classTime.start_time < end) {
+              availableTimeSlots[i].timeSlots.push({
+                start: start,
+                end: classTime.start_time,
+              });
+            }
+            start = classTime.end_time;
+          }
+
+          if (start < end) {
+            availableTimeSlots[i].timeSlots.push({
+              start: start,
+              end: end,
+            });
+          }
+        }
+      }
+      return availableTimeSlots;
+    }
+
+    function calculateRoomAvailability(rows) {
+      const availableTimeSlots = [];
+
+      for (let i = 0; i < 7; i++) {
+        const classes = rows.filter((classTime) => classTime.day === i);
+        availableTimeSlots.push({
+          day: i,
+          timeSlots: [],
+        });
+
+        let start = "00:00:00";
+        let end = "24:00:00";
+
+        for (const classTime of classes) {
+          if (classTime.start_time >= start && classTime.start_time < end) {
+            availableTimeSlots[i].timeSlots.push({
+              start: start,
+              end: classTime.start_time,
+            });
+          }
+          start = classTime.end_time;
+        }
+
+        if (start < end) {
+          availableTimeSlots[i].timeSlots.push({
+            start: start,
+            end: end,
+          });
+        }
+      }
+      return availableTimeSlots;
+    }
+
+    const trainerAvailability = calculateTrainerAvailability(
+      trainerScheduleTime,
+      trainerClassTimes
+    );
+
+    const roomAvailability = calculateRoomAvailability(roomTimes);
+
+    // get the intersection of the room and trainer availability
+    for (let i = 0; i < 7; i++) {
+      const roomSlots = roomAvailability[i].timeSlots;
+      const trainerSlots = trainerAvailability[i].timeSlots;
+
+      const availableSlots = [];
+
+      for (let j = 0; j < roomSlots.length; j++) {
+        const roomSlot = roomSlots[j];
+        for (let k = 0; k < trainerSlots.length; k++) {
+          const trainerSlot = trainerSlots[k];
+          console.log("roomSlot", roomSlot, "trainerSlot", trainerSlot);
+          const start = Math.max(
+            parseInt(roomSlot.start.slice(0, 2)),
+            parseInt(trainerSlot.start.slice(0, 2))
+          );
+          const end = Math.min(
+            parseInt(roomSlot.end.slice(0, 2)),
+            parseInt(trainerSlot.end.slice(0, 2))
+          );
+
+          if (start < end) {
+            availableSlots.push({
+              start: `${start}:00:00`,
+              end: `${end}:00:00`,
+            });
+          }
+        }
+      }
+
+      availableTimeSlots.push({
+        day: i,
+        timeSlots: availableSlots,
+      });
+    }
+
+    console.log(availableTimeSlots);
+
+    res.json(availableTimeSlots);
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .send("Server error while retrieving class available time slots.");
+  }
+};
+
 module.exports = {
   getAllRooms,
   getAllClasses,
@@ -391,5 +578,6 @@ module.exports = {
   getRoomById,
   registerClass,
   isRegistered,
-  unregisterClass
+  unregisterClass,
+  getClassAvailableTimeSlots,
 };

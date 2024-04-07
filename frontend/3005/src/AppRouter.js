@@ -22,6 +22,7 @@ import { RegisterComplete } from "./pages/RegisterComplete.js";
 import { useAuth } from "./store/AuthContext";
 import { PersonalSessionDetail } from "./pages/PersonalSessionDetail.js";
 import { Error } from "./pages/Error.js";
+import { CreateClass } from "./pages/CreateClass.js";
 
 export const AppRouter = () => {
   const { logout } = useAuth();
@@ -87,6 +88,15 @@ export const AppRouter = () => {
           element={
             <PrivateRoute roleRequired="admin">
               <Billing />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/billing"
+          element={
+            <PrivateRoute roleRequired="admin">
+              <CreateClass />
             </PrivateRoute>
           }
         />

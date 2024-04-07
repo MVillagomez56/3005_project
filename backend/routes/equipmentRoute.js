@@ -7,6 +7,6 @@ router.get("/getEquipment", equipmentController.getAllEquipment);
 
 router.get("/getEquipmentById/:id", equipmentController.getEquipmentById);
 
-router.get('/changeEquipmentStatus/:id', equipmentController.changeEquipmentStatus);
+router.post('/changeEquipmentStatus/:id', equipmentController.changeEquipmentStatus);
 
 module.exports = router;

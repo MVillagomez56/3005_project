@@ -7,6 +7,7 @@ import { FitnessGoals } from "../components/FitnessGoals";
 import { HealthStats } from "../components/HealthStats";
 import { UpcomingClasses } from "../components/UpcomingClasses";
 import {TrainerSchedule} from "../components/trainerSchedule";
+import { EquipmentStatus } from "../components/EquipmentStatus";
 
 // temporary data for testing, should be deleted once database data is being implemented
 
@@ -67,6 +68,10 @@ export const Dashboard = () => {
         </div>
       
       )}
+      {user.role === "admin" && (
+        <div>
+          <EquipmentStatus/>
+        </div>)}
       {user.role === "member" && (
         <>
           <div>
@@ -132,6 +137,7 @@ export const Dashboard = () => {
               )}
             </Box>
           </div>
+          <EquipmentStatus/>
           <Box backgroundColor="mistyrose" padding>
             <Box
               sx={{

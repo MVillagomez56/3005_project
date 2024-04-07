@@ -224,12 +224,15 @@ CREATE OR REPLACE FUNCTION update_class_time()
 RETURNS TRIGGER AS $$
 BEGIN
     -- in theory they shouldnt be able to select a new timeslot that the trainer is not available for
-    IF NOT is_trainer_available(NEW.trainer_id, NEW.day, NEW.start_time, NEW.end_time) THEN
-        RAISE EXCEPTION 'Trainer is not available at that time';
-    END IF;
+   -- if the start and end times are changed, check if the room and trainer is available
+   IF NEW.start_time <> OLD.start_time OR NEW.end_time <> OLD.end_time THEN
+        IF NOT is_trainer_available(NEW.trainer_id, NEW.day, NEW.start_time, NEW.end_time) THEN
+            RAISE EXCEPTION 'Trainer is not available at that time';
+        END IF;
 
-    IF NOT is_room_available(NEW.room_id, NEW.day, NEW.start_time, NEW.end_time) THEN
-        RAISE EXCEPTION 'Room is not available at that time';
+        IF NOT is_room_available(NEW.room_id, NEW.day, NEW.start_time, NEW.end_time) THEN
+            RAISE EXCEPTION 'Room is not available at that time';
+        END IF;
     END IF;
     RETURN NEW;
 END;

@@ -1,3 +1,4 @@
+const { start } = require("repl");
 const pool = require("../db");
 
 // Rooms
@@ -297,15 +298,8 @@ const unregisterClass = async (req, res) => {
 
 const updateClassById = async (req, res) => {
   const { id } = req.params; // The class ID from URL
-  const {
-    name,
-    description,
-    cost,
-    capacity,
-    start_time,
-    end_time,
-    day,
-  } = req.body; // Destructure updated class data from request body
+  const { name, description, cost, capacity, start_time, end_time, day } =
+    req.body; // Destructure updated class data from request body
 
   try {
     // Construct the SQL query for updating the class information
@@ -314,44 +308,26 @@ const updateClassById = async (req, res) => {
       SET name = $1, description = $2, cost = $3, capacity = $4
     `;
 
-    if (start_time) {
-      console.log("start_time", start_time);
-      updateQuery += `, start_time = $5`;
+    let updateValues = [name, description, cost, capacity];
+    if (start_time && end_time && day) {
+      console.log("start_time", start_time, "end_time", end_time, "day", day);
+      updateQuery += `, start_time = $5, end_time = $6, day = $7`;
+      updateQuery += ` WHERE id = $8 
+      RETURNING *
+      `;
+      updateValues.push(start_time, end_time, day, id);
+    } else {
+      updateQuery += ` WHERE id = $5
+      RETURNING *`;
+      updateValues.push(id);
     }
-
-    if (end_time) {
-      console.log("end_time", end_time);
-      updateQuery += `, end_time = $6`;
-    }
-
-    if (day) {
-      updateQuery += `, day = $7`;
-    }
-
-    updateQuery += `
-      WHERE id = $8
-      RETURNING *;
-    `;
-
-
 
     // Execute the query with parameters
-    const { rows } = await pool.query(updateQuery, [
-      name,
-      description,
-      cost,
-      capacity,
-      start_time,
-      end_time,
-      day, 
-      id
-    ]);
-
-    // If no rows are returned, the class was not found
+    const { rows } = await pool.query(updateQuery, updateValues);
+    console.log(rows);
     if (rows.length === 0) {
-      return res.status(404).json({ message: "Class not found." });
+      return res.status(404).json({ error: "Class not found." });
     }
-
     // Respond with the updated class information
     res.status(200).json(rows[0]);
   } catch (err) {

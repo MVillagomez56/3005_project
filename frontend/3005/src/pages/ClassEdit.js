@@ -13,26 +13,9 @@ export const ClassEdit = () => {
     start_time: "",
     end_time: "",
     day: "",
-    // Add any other fields you expect to manage
   }); // Use state to store fetched classData
 
-  console.log(classData);
-  //   const [newTime, setNewTime] = useState({
-  //     day: "",
-  //     start: "",
-  //     end: "",
-  //   });
-
-  //   useEffect(() => {
-  //     //whenever newTime changes, update classData
-  //     setClassData((prevState) => ({
-  //       ...prevState,
-  //       start_time: newTime.start,
-  //       end_time: newTime.end,
-  //       day: newTime.day,
-  //     }));
-
-  //   }, [newTime]);
+  const [response, setResponse] = useState(null);
 
   useEffect(() => {
     // Function to fetch classData data from the backend
@@ -76,7 +59,9 @@ export const ClassEdit = () => {
       const newClassData = () => {
         if (
           classData.start_time === Infinity ||
-          classData.end_time === -Infinity
+          classData.end_time === -Infinity ||
+          isNaN(classData.start_time) ||
+          isNaN(classData.end_time)
         ) {
           return {
             name: classData.name,
@@ -107,12 +92,14 @@ export const ClassEdit = () => {
         }
       );
 
-      if (response.ok) {
+      if (response.status === 200) {
         const updatedClass = await response.json();
         console.log("Class updated successfully:", updatedClass);
+        setResponse("success");
         // Optionally, navigate to a different page or show a success message
       } else {
         console.error("Failed to update class.");
+        setResponse("failed");
         // Handle failure, show error message to user
       }
     } catch (error) {
@@ -175,6 +162,18 @@ export const ClassEdit = () => {
           <Button variant="contained" color="primary" onClick={handleSave}>
             Save Changes
           </Button>
+        </Grid>
+        <Grid item xs={12}>
+          {response === "success" && (
+            <Typography variant="body1" color="primary">
+              Class updated successfully!
+            </Typography>
+          )}
+          {response === "failed" && (
+            <Typography variant="body1" color="error">
+              Failed to update class. Please try again.
+            </Typography>
+          )}
         </Grid>
       </Grid>
     </Container>

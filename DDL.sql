@@ -157,7 +157,6 @@ BEGIN
         RETURN FALSE;
     END IF;
     RETURN TRUE;
-    
 END;
 $$ LANGUAGE plpgsql;
 
@@ -170,7 +169,6 @@ CREATE OR REPLACE FUNCTION is_trainer_available(
 )
 RETURNS BOOLEAN AS $$  
 BEGIN   
-
     -- check if the proposed time is within the trainer's schedule
     IF NOT EXISTS (
         SELECT 1

@@ -44,7 +44,6 @@ const getAllClasses = async (req, res, next) => {
       JOIN Users ON Trainers.id = Users.id
       JOIN Rooms ON Classes.room_id = Rooms.id
       WHERE Classes.capacity > (SELECT COUNT(*) FROM Classes_Members WHERE Classes.id = class_id)
-      AND Classes.approval_status = true
       AND Classes.type = 'group'
       ORDER BY Classes.id;`
     );

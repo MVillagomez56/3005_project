@@ -1,8 +1,55 @@
 import React from "react";
-import { transformUnavailableIntoTimeSlots } from "../utils/time_converter";
+import {
+  List,
+  ListItemButton,
+  ListItemText,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Box,
+} from "@mui/material";
+import {
+  transformUnavailableIntoTimeSlots,
+  dayOfWeek,
+} from "../utils/time_converter";
+
 export const RoomAvailability = ({ roomId }) => {
-  const [timeSlots, setTimeSlots] = React.useState([]); // {day: [ [slot1_start, slot1_end], [slot2_start, slot2_end], ... ]}
-  console.log(roomId);
+  const [timeSlots, setTimeSlots] = React.useState([]);
+  const [newSelectedTimes, setNewSelectedTimes] = React.useState([]);
+  const [day, setDay] = React.useState("");
+
+  const handleSelectSlot = (dayIndex, slotIndex) => {
+    //check if new slot is not contiguous with existing slots
+    if (newSelectedTimes.length > 0) {
+      for (let i = 0; i < newSelectedTimes.length; i++) {
+        const [day, slot] = newSelectedTimes[i].split("-");
+        if (day === dayIndex) {
+          if (
+            parseInt(slot) === slotIndex - 1 ||
+            parseInt(slot) === slotIndex + 1 ||
+            parseInt(slot) === slotIndex
+          ) {
+            break;
+          } else {
+            return;
+          }
+        } else {
+          return;
+        }
+      }
+    }
+
+    const newSelected = `${dayIndex}-${slotIndex}`;
+
+    if (newSelectedTimes.includes(newSelected)) {
+      setNewSelectedTimes((prev) =>
+        prev.filter((selected) => selected !== newSelected)
+      );
+    } else {
+      setNewSelectedTimes((prev) => [...prev, newSelected]);
+    }
+  };
 
   const fetchTimeSlots = async () => {
     try {
@@ -17,38 +64,54 @@ export const RoomAvailability = ({ roomId }) => {
         }
       );
       const data = await response.json();
-
       const slots = transformUnavailableIntoTimeSlots(data, 0, 24);
-
       setTimeSlots(slots);
     } catch (error) {
       console.error("Error fetching time slots: ", error);
     }
   };
 
-
   React.useEffect(() => {
     fetchTimeSlots();
-  }, []);
+  }, [roomId]); // Added roomId as a dependency
 
   return (
     <div>
       <h1>Room Availability</h1>
-      <ul>
-        {timeSlots &&
-          timeSlots.map((day) => (
-            <li key={day.day}>
-              <h2>Day {day.day}</h2>
-              <ul>
-                {day.slots.map((slot, index) => (
-                  <li key={index}>
-                    {slot[0]} - {slot[1]}
-                  </li>
-                ))}
-              </ul>
-            </li>
+      <FormControl fullWidth>
+        <InputLabel id="day-select-label">Day</InputLabel>
+        <Select
+          labelId="day-select-label"
+          id="day-select"
+          value={day}
+          label="Day"
+          onChange={(e) => setDay(e.target.value)}
+        >
+          {Object.keys(dayOfWeek).map((day, index) => (
+            <MenuItem key={index} value={day}>
+              {dayOfWeek[day]}
+            </MenuItem>
           ))}
-      </ul>
+        </Select>
+      </FormControl>
+
+      {day !== "" && timeSlots.length > 0 && (
+        <Box sx={{ mt: 2 }}>
+          <ListItemText primary={dayOfWeek[day]} />
+          <List sx={{ height: "15rem", overflowY: "scroll" }}>
+            {timeSlots[day].slots.map((slot, slotIndex) => (
+              <ListItemButton
+                sx={{ height: "2rem" }} // Adjusted height for better UI
+                key={slotIndex}
+                onClick={() => handleSelectSlot(day, slotIndex)}
+                selected={newSelectedTimes.includes(`${day}-${slotIndex}`)}
+              >
+                <ListItemText primary={`${slot[0]} - ${slot[1]}`} />
+              </ListItemButton>
+            ))}
+          </List>
+        </Box>
+      )}
     </div>
   );
 };

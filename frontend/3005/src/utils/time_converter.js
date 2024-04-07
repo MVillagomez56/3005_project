@@ -27,16 +27,18 @@ export function transformUnavailableIntoTimeSlots(unavailable, start, end) {
     const daySlots = { day: day, slots: subtractedSlots };
     output.push(daySlots);
   }
+
+  console.log("out",output);
   return output;
 }
 
 function formatTimeSlots(aslots) {
   let timeSlots = {};
+  //make it for all days
+  for (let i = 0; i < 7; i++) {
+    timeSlots[i] = [];
+  }
   aslots.forEach((slot) => {
-    if (!timeSlots[slot.day]) {
-      timeSlots[slot.day] = [];
-    }
-    //remove the last 3 characters from the string
     timeSlots[slot.day].push([
       slot.start_time.slice(0, -3),
       slot.end_time.slice(0, -3),
@@ -50,7 +52,6 @@ function subtractTimeSlots(slots, start, end) {
   const endOfDay = end * 60; // 8:00 PM in minutes
   let timeline = Array(endOfDay - startOfDay).fill(true); // true indicates availability
 
-  // Convert time slots to minutes and mark as unavailable
   slots.forEach((slot) => {
     let [start, end] = slot.map((time) => {
       let [hours, minutes] = time.split(":").map(Number);

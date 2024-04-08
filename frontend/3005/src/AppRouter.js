@@ -22,6 +22,7 @@ import { RegisterComplete } from "./pages/RegisterComplete.js";
 import { useAuth } from "./store/AuthContext";
 import { PersonalSessionDetail } from "./pages/PersonalSessionDetail.js";
 import { Error } from "./pages/Error.js";
+import { AdminClassModification } from "./pages/AdminClassModification.js";
 import { CreateClass } from "./pages/CreateClass.js";
 
 export const AppRouter = () => {
@@ -96,10 +97,15 @@ export const AppRouter = () => {
           path="/billing"
           element={
             <PrivateRoute roleRequired="admin">
-              <CreateClass />
+              <Billing />
             </PrivateRoute>
           }
         />
+        <Route path="/createClass" element={
+          <PrivateRoute roleRequired="admin">
+            <CreateClass />
+          </PrivateRoute>
+        } />
         <Route
           path="/searchMember"
           element={

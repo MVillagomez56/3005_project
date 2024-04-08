@@ -65,9 +65,15 @@ export const Navbar = () => {
           )}
 
           {user.role === "admin" && isLoggedIn && (
-            <Button color="inherit" onClick={() => navigate("/billing")}>
-              Billing
-            </Button>
+            <>
+              <Button color="inherit" onClick={() => navigate("/billing")}>
+                Billing
+              </Button>
+              <Button color="inherit" onClick={() => navigate("/createClass")}>
+                Create class
+              </Button>
+            </>
+
           )}
           {isLoggedIn && (
             <div>

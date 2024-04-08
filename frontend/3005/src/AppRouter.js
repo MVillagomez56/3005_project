@@ -23,6 +23,7 @@ import { useAuth } from "./store/AuthContext";
 import { PersonalSessionDetail } from "./pages/PersonalSessionDetail.js";
 import { Error } from "./pages/Error.js";
 import { CreateClass } from "./pages/CreateClass.js";
+import { TrainerRegistration } from "./pages/TrainerRegistration.js";
 
 export const AppRouter = () => {
   const { logout } = useAuth();
@@ -44,6 +45,7 @@ export const AppRouter = () => {
           }
         />
         <Route path="/register/member" element={<MemberRegistration />} />
+        <Route path="/register/trainer" element={<TrainerRegistration />} />
         <Route
           path="/payment/:service/:amount"
           element={

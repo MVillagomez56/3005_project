@@ -389,7 +389,8 @@ const getClassAvailableTimeSlots = async (req, res) => {
 
     const query1 = `
     SELECT start_time, end_time, day FROM Classes
-    WHERE room_id = $1;
+    WHERE room_id = $1
+    AND approval_status = true;
   `;
 
     const { rows: roomTimes } = await pool.query(query1, [
@@ -399,7 +400,8 @@ const getClassAvailableTimeSlots = async (req, res) => {
 
     const query2 = `
     SELECT start_time, end_time, day FROM Classes
-    WHERE trainer_id = $1;
+    WHERE trainer_id = $1
+    AND approval_status = true;
   `;
 
     const { rows: trainerClassTimes } = await pool.query(query2, [

@@ -11,4 +11,8 @@ router.get("/getTrainerCourses/:id", trainerController.getTrainerCourses);
 
 router.get("/availableTimeSlots/:id", trainerController.getTrainerAvailableTimeSlots);
 
+router.put("/updateTrainer/:id", trainerController.updateTrainer);
+
+router.post("/addTrainerSchedule/:id", trainerController.addTrainerSchedule);    
+
 module.exports = router;

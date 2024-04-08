@@ -122,9 +122,62 @@ const getTrainerCourses = async (req, res, next) => {
   }
 };
 
+const updateTrainer = async (req, res, next) => {
+  const id = parseInt(req.params.id);
+  try {
+    const { specialization, cost } = req.body;
+    const query = `
+      UPDATE Trainers
+      SET specialization = $1, cost = $2
+      WHERE id = $3
+      RETURNING *;
+    `;
+
+    const { rows } = await pool.query(query, [specialization, cost, id]);
+
+    if (rows.length == 0) {
+      res.status(404).send("Trainer not found");
+    }
+    res.status(200).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to update trainer.");
+  }
+};
+
+const addTrainerSchedule = async (req, res, next) => {
+  const { scheduledHours } = req.body;
+  const trainerId = parseInt(req.params.id);
+
+  try {
+    for (let i = 0; i < scheduledHours.length; i++) {
+      if (scheduledHours[i]) {
+        const query = `
+        INSERT INTO Schedule (trainer_id, day, start_time, end_time)
+        VALUES ($1, $2, $3, $4)
+        ;`;
+
+        await pool.query(query, [
+          trainerId,
+          i,
+          scheduledHours[i].start_time,
+          scheduledHours[i].end_time,
+        ]);
+      }
+    }
+
+    res.status(200).send("Schedule added successfully.");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to add the schedule.");
+  }
+};
+
 module.exports = {
   getTrainerSchedule,
   updateTrainerSchedule,
   getTrainerCourses,
   getTrainerAvailableTimeSlots,
+  updateTrainer,
+  addTrainerSchedule,
 };

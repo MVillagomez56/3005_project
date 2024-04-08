@@ -48,4 +48,15 @@ const getRoomSchedule = async (req, res, next) => {
       }
 }
 
-module.exports = { getRoomSchedule };
+const getAllRooms = async (req, res, next) => {
+    try {
+        const query = "SELECT * FROM Rooms";
+        const { rows } = await pool.query(query);
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server error while retrieving rooms.");
+    }
+}
+
+module.exports = { getRoomSchedule, getAllRooms };

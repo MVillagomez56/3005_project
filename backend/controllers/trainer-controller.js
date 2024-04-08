@@ -15,6 +15,32 @@ const getTrainerSchedule = async (req, res, next) => {
   }
 };
 
+
+const getAllValidTrainers = async (req, res, next) => {
+  try {
+    // Query to select trainers with both specialization and cost defined
+    const queryText = `
+      SELECT * FROM Trainers
+      WHERE specialization IS NOT NULL AND cost IS NOT NULL;
+    `;
+
+    // Execute query
+    const { rows } = await pool.query(queryText);
+
+    // Send response back with trainers
+    res.status(200).json({
+      status: 'success',
+      data: {
+        trainers: rows,
+      },
+    });
+  } catch (err) {
+    // Log and forward the error if any
+    console.error(err.message);
+    next(err);
+  }
+};
+
 const getTrainerAvailableTimeSlots = async (req, res, next) => {
   try {
     const trainerId = parseInt(req.params.id);
@@ -175,6 +201,7 @@ const addTrainerSchedule = async (req, res, next) => {
 
 module.exports = {
   getTrainerSchedule,
+  getAllValidTrainers,
   updateTrainerSchedule,
   getTrainerCourses,
   getTrainerAvailableTimeSlots,

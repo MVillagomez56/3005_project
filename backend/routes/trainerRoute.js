@@ -3,6 +3,8 @@ const router = express.Router();
 
 const trainerController = require("../controllers/trainer-controller");
 
+router.get("/getValidTrainers", trainerController.getAllValidTrainers);
+
 router.get("/getTrainerSchedule/:id", trainerController.getTrainerSchedule);
 
 router.post("/updateTrainerSchedule/:id", trainerController.updateTrainerSchedule);

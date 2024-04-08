@@ -1,5 +1,9 @@
 const pool = require("../db");
-
+const {
+  calculateRoomAvailability,
+  calculateTrainerAvailability,
+  findOverlap,
+} = require("../utils/availability_functions.js");
 // Rooms
 const getAllRooms = async (req, res, next) => {
   try {
@@ -44,7 +48,6 @@ const getAllClasses = async (req, res, next) => {
       JOIN Users ON Trainers.id = Users.id
       JOIN Rooms ON Classes.room_id = Rooms.id
       WHERE Classes.capacity > (SELECT COUNT(*) FROM Classes_Members WHERE Classes.id = class_id)
-      AND Classes.approval_status = true
       AND Classes.type = 'group'
       ORDER BY Classes.id;`
     );
@@ -298,53 +301,43 @@ const unregisterClass = async (req, res) => {
 
 const updateClassById = async (req, res) => {
   const { id } = req.params; // The class ID from URL
-  const {
-    name,
-    description,
-    trainer_id,
-    duration,
-    cost,
-    capacity,
-    type,
-    room_id,
-  } = req.body; // Destructure updated class data from request body
+  const { name, description, cost, capacity, start_time, end_time, day } =
+    req.body; // Destructure updated class data from request body
 
   try {
     // Construct the SQL query for updating the class information
-    const updateQuery = `
+    let updateQuery = `
       UPDATE Classes
-      SET name = $1, description = $2, trainer_id = $3, duration = $4, cost = $5, capacity = $6, type = $7, room_id = $8
-      WHERE id = $9
-      RETURNING *;
+      SET name = $1, description = $2, cost = $3, capacity = $4
     `;
 
-    // Execute the query with parameters
-    const { rows } = await pool.query(updateQuery, [
-      name,
-      description,
-      trainer_id,
-      duration,
-      cost,
-      capacity,
-      type,
-      room_id,
-      id,
-    ]);
-
-    // If no rows are returned, the class was not found
-    if (rows.length === 0) {
-      return res.status(404).json({ message: "Class not found." });
+    let updateValues = [name, description, cost, capacity];
+    if (start_time && end_time && day) {
+      console.log("start_time", start_time, "end_time", end_time, "day", day);
+      updateQuery += `, start_time = $5, end_time = $6, day = $7`;
+      updateQuery += ` WHERE id = $8 
+      RETURNING *
+      `;
+      updateValues.push(start_time, end_time, day, id);
+    } else {
+      updateQuery += ` WHERE id = $5
+      RETURNING *`;
+      updateValues.push(id);
     }
 
+    // Execute the query with parameters
+    const { rows } = await pool.query(updateQuery, updateValues);
+    console.log(rows);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Class not found." });
+    }
     // Respond with the updated class information
     res.status(200).json(rows[0]);
   } catch (err) {
     console.error("Error updating class:", err);
-    res
-      .status(500)
-      .json({
-        error: "An error occurred while updating the class information.",
-      });
+    res.status(500).json({
+      error: "An error occurred while updating the class information.",
+    });
   }
 };
 
@@ -380,6 +373,73 @@ const registerClass = async (req, res) => {
   }
 };
 
+const getClassAvailableTimeSlots = async (req, res) => {
+  const classId = parseInt(req.params.id);
+
+  if (isNaN(classId)) {
+    return res.status(400).json({ error: "Invalid class ID." });
+  }
+
+  try {
+    const query = `
+        SELECT start_time, end_time, day, room_id, trainer_id FROM Classes
+        WHERE id = $1;
+      `;
+    const { rows: classTime } = await pool.query(query, [classId]);
+
+    const query1 = `
+    SELECT start_time, end_time, day FROM Classes
+    WHERE room_id = $1
+    AND approval_status = true;
+  `;
+
+    const { rows: roomTimes } = await pool.query(query1, [
+      classTime[0].room_id,
+    ]);
+    // rooms are available at all times except when there is a class
+
+    const query2 = `
+    SELECT start_time, end_time, day FROM Classes
+    WHERE trainer_id = $1
+    AND approval_status = true;
+  `;
+
+    const { rows: trainerClassTimes } = await pool.query(query2, [
+      classTime[0].trainer_id,
+    ]);
+
+    const query3 = `
+    SELECT start_time, end_time, day FROM Schedule
+    WHERE trainer_id = $1;
+  `;
+    const { rows: trainerScheduleTime } = await pool.query(query3, [
+      classTime[0].trainer_id,
+    ]);
+
+    // get the available time slots for the class based when the room and trainer are available
+    const availableTimeSlots = [];
+
+    const trainerAvailability = calculateTrainerAvailability(
+      trainerScheduleTime,
+      trainerClassTimes
+    );
+
+    const roomAvailability = calculateRoomAvailability(roomTimes);
+
+    // get the intersection of the room and trainer availability
+    findOverlap(roomAvailability, trainerAvailability, availableTimeSlots);
+
+    console.log(availableTimeSlots);
+
+    res.json(availableTimeSlots);
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .send("Server error while retrieving class available time slots.");
+  }
+};
+
 module.exports = {
   getAllRooms,
   getAllClasses,
@@ -392,5 +452,6 @@ module.exports = {
   getRoomById,
   registerClass,
   isRegistered,
-  unregisterClass
+  unregisterClass,
+  getClassAvailableTimeSlots,
 };

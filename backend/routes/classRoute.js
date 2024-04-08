@@ -26,4 +26,6 @@ router.post("/addClass", classController.addClass);
 router.post("/registerClass", classController.registerClass);
 
 router.delete("/unregisterClass", classController.unregisterClass);
+
+router.get('/getClassAvailableTimeSlots/:id', classController.getClassAvailableTimeSlots);
 module.exports = router;

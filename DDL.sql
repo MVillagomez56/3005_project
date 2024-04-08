@@ -35,10 +35,11 @@ CREATE TABLE Members (
 
 CREATE TABLE Schedule (
     trainer_id INTEGER,
-    day INTEGER, -- or TEXT, e.g., 'Monday', 'Tuesday', etc.
+    day INTEGER,
     start_time TIME DEFAULT '09:00',
     end_time TIME DEFAULT '17:00',
     FOREIGN KEY(trainer_id) REFERENCES Trainers(id) ON DELETE CASCADE
+    UNIQUE(trainer_id, day)
 );
 
 CREATE TABLE Rooms (
@@ -157,7 +158,6 @@ BEGIN
         RETURN FALSE;
     END IF;
     RETURN TRUE;
-    
 END;
 $$ LANGUAGE plpgsql;
 
@@ -170,7 +170,6 @@ CREATE OR REPLACE FUNCTION is_trainer_available(
 )
 RETURNS BOOLEAN AS $$  
 BEGIN   
-
     -- check if the proposed time is within the trainer's schedule
     IF NOT EXISTS (
         SELECT 1
@@ -226,12 +225,15 @@ CREATE OR REPLACE FUNCTION update_class_time()
 RETURNS TRIGGER AS $$
 BEGIN
     -- in theory they shouldnt be able to select a new timeslot that the trainer is not available for
-    IF NOT is_trainer_available(NEW.trainer_id, NEW.day, NEW.start_time, NEW.end_time) THEN
-        RAISE EXCEPTION 'Trainer is not available at that time';
-    END IF;
+   -- if the start and end times are changed, check if the room and trainer is available
+   IF NEW.start_time <> OLD.start_time OR NEW.end_time <> OLD.end_time THEN
+        IF NOT is_trainer_available(NEW.trainer_id, NEW.day, NEW.start_time, NEW.end_time) THEN
+            RAISE EXCEPTION 'Trainer is not available at that time';
+        END IF;
 
-    IF NOT is_room_available(NEW.room_id, NEW.day, NEW.start_time, NEW.end_time) THEN
-        RAISE EXCEPTION 'Room is not available at that time';
+        IF NOT is_room_available(NEW.room_id, NEW.day, NEW.start_time, NEW.end_time) THEN
+            RAISE EXCEPTION 'Room is not available at that time';
+        END IF;
     END IF;
     RETURN NEW;
 END;

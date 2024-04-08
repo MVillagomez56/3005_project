@@ -52,15 +52,23 @@ export const Navbar = () => {
               MuhaMuhaGym
             </Button>
           </Typography>
-          <Button color="inherit" onClick={() => navigate("/courses")}>
-            Courses
-          </Button>
+          {(user.role === "admin" || user.role === "member") && (
+            <Button color="inherit" onClick={() => navigate("/courses")}>
+              Courses
+            </Button>
+          )}
           <Button color="inherit" onClick={() => navigate("/room")}>
             Room Booking
           </Button>
           {user.role === "member" && isLoggedIn && (
             <Button color="inherit" onClick={() => navigate("/checkout")}>
               Check Out
+            </Button>
+          )}
+
+          {user.role === "trainer" && (
+            <Button color="inherit" onClick={() => navigate("/searchMember")}>
+              Search Member
             </Button>
           )}
 

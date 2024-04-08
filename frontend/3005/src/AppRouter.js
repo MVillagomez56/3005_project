@@ -24,6 +24,7 @@ import { PersonalSessionDetail } from "./pages/PersonalSessionDetail.js";
 import { Error } from "./pages/Error.js";
 import { AdminClassModification } from "./pages/AdminClassModification.js";
 import { CreateClass } from "./pages/CreateClass.js";
+import { TrainerRegistration } from "./pages/TrainerRegistration.js";
 
 export const AppRouter = () => {
   const { logout } = useAuth();
@@ -45,6 +46,7 @@ export const AppRouter = () => {
           }
         />
         <Route path="/register/member" element={<MemberRegistration />} />
+        <Route path="/register/trainer" element={<TrainerRegistration />} />
         <Route
           path="/payment/:service/:amount"
           element={
@@ -76,7 +78,7 @@ export const AppRouter = () => {
         <Route
           path="/courses/edit/:courseid"
           element={
-            <PrivateRoute roleRequired="trainer">
+            <PrivateRoute roleRequired="admin">
               <ClassEdit />
             </PrivateRoute>
           }

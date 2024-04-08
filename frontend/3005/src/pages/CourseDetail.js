@@ -140,7 +140,7 @@ export const CourseDetail = () => {
             objectFit: "cover",
           }}
           alt={course.name}
-          src={courseImage} 
+          src={courseImage}
         />
         <Card
           sx={{
@@ -175,6 +175,16 @@ export const CourseDetail = () => {
               Time: {convertTime(course.start_time)} -{" "}
               {convertTime(course.end_time)} on {dayOfWeek[course.day]}
             </Typography>
+            {user.role === "admin" && (
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ mt: 2 }}
+                onClick={() => navigate(`/courses/edit/${courseid}`)}
+              >
+                Edit
+              </Button>
+            )}
 
             {isRegistered ? (
               <Button

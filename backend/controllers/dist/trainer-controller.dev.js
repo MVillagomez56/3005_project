@@ -518,5 +518,9 @@ module.exports = {
   getAllValidTrainers: getAllValidTrainers,
   updateTrainerSchedule: updateTrainerSchedule,
   getTrainerCourses: getTrainerCourses,
-  getTrainerAvailableTimeSlots: getTrainerAvailableTimeSlots
+  getTrainerAvailableTimeSlots: getTrainerAvailableTimeSlots,
+  getApprovedClasses: getApprovedClasses,
+  updateOrInsertSchedule: updateOrInsertSchedule,
+  addTrainerSchedule: addTrainerSchedule,
+  updateTrainer: updateTrainer
 };

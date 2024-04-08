@@ -322,4 +322,8 @@ module.exports = {
   updateTrainerSchedule,
   getTrainerCourses,
   getTrainerAvailableTimeSlots,
+  getApprovedClasses,
+  updateOrInsertSchedule,
+  addTrainerSchedule,
+  updateTrainer,
 };

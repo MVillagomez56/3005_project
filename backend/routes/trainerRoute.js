@@ -20,4 +20,6 @@ router.post('/schedule/:trainerId', trainerController.updateOrInsertSchedule);
 
 router.get('/approvedClasses/:trainerId', trainerController.getApprovedClasses);
 
+router.post('/update/:id', trainerController.updateTrainer); // update/insert the trainer specialization and cost
+
 module.exports = router;

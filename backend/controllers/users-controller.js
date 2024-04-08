@@ -4,6 +4,17 @@ const bcrypt = require("bcrypt");
 
 const pool = require("../db");
 
+const dayMappings = { 
+  "Monday": 1, 
+  "Tuesday": 2, 
+  "Wednesday": 3, 
+  "Thursday": 4, 
+  "Friday": 5, 
+  "Saturday": 6, 
+  "Sunday": 7 
+};
+
+
 // Get
 const getUserById = async (req, res, next) => {
   console.log("getUserById");
@@ -307,14 +318,7 @@ const getTrainerDetailById = async (req, res) => {
       SELECT 
         t.id, 
         u.name, 
-        t.specialization, 
-        t.monday_availability,
-        t.tuesday_availability,
-        t.wednesday_availability,
-        t.thursday_availability,
-        t.friday_availability,
-        t.saturday_availability,
-        t.sunday_availability,
+        t.specialization,
         t.cost
       FROM 
         Trainers t
@@ -324,31 +328,22 @@ const getTrainerDetailById = async (req, res) => {
         t.id = $1 AND u.role = 'trainer';
     `;
 
-    // Execute the query
-    const { rows } = await pool.query(trainerDetailQuery, [trainerId]);
+    // Execute the trainer detail query
+    const trainerResult = await pool.query(trainerDetailQuery, [trainerId]);
 
     // Check if the trainer was found
-    if (rows.length === 0) {
+    if (trainerResult.rows.length === 0) {
       return res.status(404).json({ error: "Trainer not found." });
     }
 
-    // Assuming there's only one match due to ID uniqueness
-    const trainer = rows[0];
+    // Assuming there's only one match due to ID uniqueness for trainer details
+    const trainer = trainerResult.rows[0];
 
-    // Formatting the trainer's data for the response, including availability
+    // Format the trainer's data for the response
     const formattedTrainer = {
       id: trainer.id,
       name: trainer.name,
       specialization: trainer.specialization,
-      availability: {
-        monday: trainer.monday_availability,
-        tuesday: trainer.tuesday_availability,
-        wednesday: trainer.wednesday_availability,
-        thursday: trainer.thursday_availability,
-        friday: trainer.friday_availability,
-        saturday: trainer.saturday_availability,
-        sunday: trainer.sunday_availability,
-      },
       cost: trainer.cost
     };
 
@@ -360,6 +355,8 @@ const getTrainerDetailById = async (req, res) => {
     });
   }
 };
+
+
 
 
 const registerCourse = async (req, res, next) => {};
@@ -709,6 +706,98 @@ const updateUser = async (req, res, next) => {
   }
 };
 
+const registerPersonalTraining = async (req, res) => {
+  const { userId, slots, duration } = req.body;
+  const trainerId = parseInt(req.params.id, 10); 
+
+  try {
+    // Fetch the trainer's hourly rate and name from the Trainers table
+    // by joining with the Users table
+    const trainerQuery = `
+      SELECT Users.name, Trainers.cost 
+      FROM Trainers 
+      INNER JOIN Users ON Trainers.id = Users.id 
+      WHERE Trainers.id = $1
+    `;
+    const trainerResult = await pool.query(trainerQuery, [trainerId]);
+    if (trainerResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Trainer not found.' });
+    }
+    const trainer = trainerResult.rows[0];
+    const totalCost = trainer.cost * parseInt(duration, 10); // Calculate total cost based on duration
+
+    for (const slot of slots) {
+      const slotParts = slot.slotKey.split('-');
+      const dayOfWeek = slotParts[0];
+      const day = dayMappings[dayOfWeek]; // Convert weekday name to int
+
+      if (!day) {
+        throw new Error(`Invalid dayOfWeek '${dayOfWeek}' received in slotKey '${slot.slotKey}'`);
+      }
+
+      const startTime = slot.startTime;
+      let startTimeDate = new Date(`1970-01-01T${startTime}Z`);
+      startTimeDate.setHours(startTimeDate.getHours() + parseInt(duration, 10));
+      let endTime = startTimeDate.toISOString().substr(11, 5);
+
+      const name = `${req.body.userName} and ${trainer.name} personal`;
+      const description = `Personal training session with ${trainer.name}`;
+
+      const queryText = `
+        INSERT INTO Classes (name, description, trainer_id, start_time, end_time, day, cost, capacity, type, room_id, approval_status)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, 1, 'personal', 1, false)
+        RETURNING id
+      `;
+      const values = [name, description, trainerId, startTime, endTime, day, totalCost];
+
+      // Insert class and capture the returned class ID
+      const classResult = await pool.query(queryText, values);
+      const classId = classResult.rows[0].id;
+
+      // Insert record into Classes_Members
+      const insertClassMemberQuery = `
+        INSERT INTO Classes_Members (class_id, member_id)
+        VALUES ($1, $2)
+      `;
+      await pool.query(insertClassMemberQuery, [classId, userId]);
+    }
+
+    res.status(200).json({ message: 'Registration successful' });
+  } catch (error) {
+    console.error('Registration failed:', error);
+    res.status(500).json({ error: 'Failed to process registration: ' + error.message });
+  }
+};
+
+const getRooms = async (req, res) => {
+  try {
+    const roomsQuery = `SELECT id, name, description FROM Rooms;`;
+    const roomsResult = await pool.query(roomsQuery);
+    res.status(200).json(roomsResult.rows);
+  } catch (error) {
+    console.error('Failed to fetch rooms:', error);
+    res.status(500).json({ error: 'Failed to fetch rooms' });
+  }
+};
+
+const getTrainerSchedule = async (req, res) => {
+  const trainerId = parseInt(req.params.id); // Assuming the ID is passed as a URL parameter
+  try {
+    const scheduleQuery = `
+      SELECT day, start_time, end_time
+      FROM Schedule
+      WHERE trainer_id = $1;
+    `;
+    const scheduleResult = await pool.query(scheduleQuery, [trainerId]);
+    res.status(200).json(scheduleResult.rows);
+  } catch (error) {
+    console.error(`Failed to fetch schedule for trainer ${trainerId}:`, error);
+    res.status(500).json({ error: `Failed to fetch schedule for trainer ${trainerId}` });
+  }
+};
+
+
+
 module.exports = {
   getUserById,
   getMemberById,
@@ -727,4 +816,7 @@ module.exports = {
   completeFitnessGoal,
   deleteFitnessGoal,
   getTrainerDetailById,
+  registerPersonalTraining,
+  getRooms,
+  getTrainerSchedule,
 };

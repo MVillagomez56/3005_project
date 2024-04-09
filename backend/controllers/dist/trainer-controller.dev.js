@@ -53,7 +53,7 @@ var getAllValidTrainers = function getAllValidTrainers(req, res, next) {
         case 0:
           _context2.prev = 0;
           // Query to select trainers with both specialization and cost defined
-          queryText = "\n      SELECT * FROM Trainers\n      WHERE specialization IS NOT NULL AND cost IS NOT NULL;\n    "; // Execute query
+          queryText = "\n      SELECT t.id, u.name, t.specialization, t.cost\n      FROM Trainers t\n      INNER JOIN Users u ON t.id = u.id\n      WHERE t.specialization IS NOT NULL AND t.cost IS NOT NULL;\n    "; // Execute query
 
           _context2.next = 4;
           return regeneratorRuntime.awrap(pool.query(queryText));
@@ -513,6 +513,83 @@ var getApprovedClasses = function getApprovedClasses(req, res) {
   }, null, null, [[4, 12]]);
 };
 
+var getTrainerDetails = function getTrainerDetails(req, res, next) {
+  var trainerId, query, _ref8, rows;
+
+  return regeneratorRuntime.async(function getTrainerDetails$(_context10) {
+    while (1) {
+      switch (_context10.prev = _context10.next) {
+        case 0:
+          _context10.prev = 0;
+          trainerId = parseInt(req.params.id);
+          query = "\n      SELECT specialization, cost FROM Trainers\n      WHERE id = $1;\n    ";
+          _context10.next = 5;
+          return regeneratorRuntime.awrap(pool.query(query, [trainerId]));
+
+        case 5:
+          _ref8 = _context10.sent;
+          rows = _ref8.rows;
+
+          if (!(rows.length === 0)) {
+            _context10.next = 9;
+            break;
+          }
+
+          return _context10.abrupt("return", res.status(404).send('Trainer not found.'));
+
+        case 9:
+          res.json(rows[0]);
+          _context10.next = 16;
+          break;
+
+        case 12:
+          _context10.prev = 12;
+          _context10.t0 = _context10["catch"](0);
+          console.error(_context10.t0);
+          res.status(500).send('Server error while retrieving trainer details.');
+
+        case 16:
+        case "end":
+          return _context10.stop();
+      }
+    }
+  }, null, null, [[0, 12]]);
+};
+
+var getWorkingHours = function getWorkingHours(req, res) {
+  var trainerId, query, _ref9, rows;
+
+  return regeneratorRuntime.async(function getWorkingHours$(_context11) {
+    while (1) {
+      switch (_context11.prev = _context11.next) {
+        case 0:
+          _context11.prev = 0;
+          trainerId = parseInt(req.params.trainer_id);
+          query = "\n      SELECT day, start_time, end_time FROM Schedule\n      WHERE trainer_id = $1;\n    ";
+          _context11.next = 5;
+          return regeneratorRuntime.awrap(pool.query(query, [trainerId]));
+
+        case 5:
+          _ref9 = _context11.sent;
+          rows = _ref9.rows;
+          res.json(rows);
+          _context11.next = 14;
+          break;
+
+        case 10:
+          _context11.prev = 10;
+          _context11.t0 = _context11["catch"](0);
+          console.error(_context11.t0);
+          res.status(500).send('Server error while retrieving working hours.');
+
+        case 14:
+        case "end":
+          return _context11.stop();
+      }
+    }
+  }, null, null, [[0, 10]]);
+};
+
 module.exports = {
   getTrainerSchedule: getTrainerSchedule,
   getAllValidTrainers: getAllValidTrainers,
@@ -522,5 +599,7 @@ module.exports = {
   getApprovedClasses: getApprovedClasses,
   updateOrInsertSchedule: updateOrInsertSchedule,
   addTrainerSchedule: addTrainerSchedule,
-  updateTrainer: updateTrainer
+  updateTrainer: updateTrainer,
+  getTrainerDetails: getTrainerDetails,
+  getWorkingHours: getWorkingHours
 };

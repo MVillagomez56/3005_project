@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import {useNavigate} from 'react-router-dom';
 import { Container, TextField, Button, Typography, FormControl, InputLabel, Select, MenuItem, FormGroup } from '@mui/material';
 import {TrainerRoomAvailability} from '../components/TrainerRoomAvailability';
 
 export const CreateClass = () => {
+  const navigate = useNavigate();
   const [showAvailability, setShowAvailability] = useState(false);
   const [trainersList, setTrainersList] = useState([]); // This should come from your backend
   const [roomsList, setRoomsList] = useState([]); // This should come from your backend
@@ -15,7 +17,7 @@ export const CreateClass = () => {
     day: '',
     cost: '',
     capacity: '',
-    classType: '',
+    type: '',
     roomId: '',
     approvalStatus: false,
   });
@@ -46,6 +48,39 @@ export const CreateClass = () => {
   }, []);
 
   
+  const handleSearchAvailability = () => { 
+    setShowAvailability(true);
+  }
+  const checkSlotAvailability = async () => {
+    console.log("Checking slot availability" + classDetails.day);
+    console.log("Checking slot availability" + classDetails.startTime);
+    console.log("Checking slot availability" + classDetails.endTime);
+  const url = `http://localhost:5000/api/availability/checkAvailability`; // This should be the URL to your new endpoint
+  const params = {
+    roomId: classDetails.roomId,
+    trainerId: classDetails.trainerId,
+    day: classDetails.day,
+    startTime: classDetails.startTime,
+    endTime: classDetails.endTime,
+  };
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    });
+    const data = await response.json();
+    return data.isAvailable; // Assuming the endpoint returns { isAvailable: true/false }
+  } catch (error) {
+    console.error('Error checking slot availability:', error);
+    return false; // Assume not available if there's an error
+  }
+  };
+  
+
+  
   const handleChange = (event) => {
     const { name, value, checked, type } = event.target;
     setClassDetails((prevDetails) => ({
@@ -54,18 +89,69 @@ export const CreateClass = () => {
     }));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log(classDetails);
-    // Here you would send the classDetails to your backend
+  
+
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  
+  //   // Convert to integers as needed
+  // const dayInt = parseInt(classDetails.day);
+  // const costInt = parseInt(classDetails.cost);
+  // const capacityInt = parseInt(classDetails.capacity);
+
+  const payload = {
+    ...classDetails,
+    trainerId: Number(classDetails.trainerId),
+    day: Number(classDetails.day),
+    cost: Number(classDetails.cost),
+    startTime: `${classDetails.startTime}:00`,
+    endTime: `${classDetails.endTime}:00`,
+    capacity: Number(classDetails.capacity),
+    classType: classDetails.type, // Ensure this matches your DB and API expectation
+    roomId: Number(classDetails.roomId),
   };
 
-  const handleSearchAvailability = () => {
-    // Trigger showing the availability component
-    setShowAvailability(true);
-    console.log("trainer ID" + classDetails.trainerId);
-    console.log("room ID" + classDetails.roomId);
-  };
+  // Remove any fields not expected by the backend, for example:
+  delete payload.type; // If your backend expects classType instead of type
+  delete payload.approvalStatus; // If this is set by the backend automatically
+
+  // Step 1: Check Slot Availability
+  const isAvailable = await checkSlotAvailability();
+  if (!isAvailable) {
+    alert('The selected slot is not available. Please choose another time.');
+    return; // Early return if the selected slot is not available
+  }
+
+  // Step 2: Proceed with Class Submission if the Slot is Available
+  try {
+    const submitUrl = 'http://localhost:5000/api/classes/addClass'; // Adjust this URL to your endpoint for class creation
+    const response = await fetch(submitUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorDetails = await response.json();
+      throw new Error(`Network response was not ok: ${errorDetails.error}`);
+    }
+
+    const result = await response.json();
+    console.log('Class submitted successfully:', result);
+    alert('Class created successfully!');
+
+    // Optionally, reset the form or redirect the user
+    // setClassDetails({ ...initialFormState }); // Reset form
+    // navigate('/successPage'); // Redirect if using React Router
+    navigate("/"); // Redirect to home page (change this to your desired URL
+
+  } catch (error) {
+    console.error('Error submitting class:', error);
+    alert('There was an error creating the class. Please try again.');
+  }
+};
 
   return (
     <Container maxWidth="sm">
@@ -116,13 +202,13 @@ export const CreateClass = () => {
           <TextField name="capacity" label="Capacity" type="number" value={classDetails.capacity} onChange={handleChange} margin="normal" required />
           <FormControl fullWidth margin="normal">
             <InputLabel>Type</InputLabel>
-            <Select name="classType" value={classDetails.classType} label="Type" onChange={handleChange} required>
+            <Select name="type" value={classDetails.type} label="Type" onChange={handleChange} required>
               <MenuItem value="personal">Personal</MenuItem>
               <MenuItem value="group">Group</MenuItem>
             </Select>
           </FormControl>
 
-          <Button type="submit" variant="contained" sx={{ mt: 3 }}>Create</Button>
+          <Button type="submit" variant="contained" sx={{ mt: 3 }} onSubmit={handleSubmit}>Create</Button>
         </FormGroup>
       </form>
     </Container>

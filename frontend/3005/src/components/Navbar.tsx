@@ -118,6 +118,9 @@ export const Navbar = () => {
                 >
                   Profile
                 </MenuItem>
+                  <Button color="inherit" onClick={() => navigate("/trainers")}>
+                    Trainers
+                  </Button>
                 <MenuItem onClick={handleLogOut}>Logout</MenuItem>
               </Menu>
             </div>

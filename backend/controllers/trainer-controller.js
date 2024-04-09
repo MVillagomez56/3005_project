@@ -201,12 +201,131 @@ const addTrainerSchedule = async (req, res, next) => {
   }
 };
 
+
+const updateOrInsertSchedule = async (req, res) => {
+  const { trainerId } = req.params;
+  const { startTime, endTime, day } = req.body; // Assuming day is sent in the request
+
+  console.log(`Received schedule for trainer ${trainerId} - Day: ${day}, Start: ${startTime}, End: ${endTime}`);
+
+  const timeToMinutes = (time) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
+  try {
+    const classQuery = `
+      SELECT start_time, end_time
+      FROM Classes
+      WHERE trainer_id = $1 AND approval_status = true AND day = $2;
+    `;
+    const classResult = await pool.query(classQuery, [trainerId, day]);
+    const classes = classResult.rows;
+
+    console.log(`Fetched ${classes.length} classes for conflict check.`);
+
+    const startMinutes = timeToMinutes(startTime);
+    const endMinutes = timeToMinutes(endTime);
+
+    console.log(`Schedule times in minutes - Start: ${startMinutes}, End: ${endMinutes}`);
+
+    const hasConflict = classes.some(classItem => {
+      const classStartMinutes = timeToMinutes(classItem.start_time);
+      const classEndMinutes = timeToMinutes(classItem.end_time);
+
+      console.log(`Checking against class - Start: ${classStartMinutes}, End: ${classEndMinutes}`);
+
+      const conflict = (startMinutes >= classStartMinutes) ||
+                        (endMinutes <= classEndMinutes);
+
+      console.log(`Conflict: ${conflict}`);
+
+      return conflict;
+    });
+
+    console.log(`Conflict check result: ${hasConflict}`);
+
+    if (hasConflict) {
+      return res.status(400).json({ message: 'Schedule conflicts with an existing class.' });
+    }
+
+    const updateQuery = `
+      UPDATE Schedule
+      SET start_time = $1, end_time = $2
+      WHERE trainer_id = $3 AND day = $4;
+    `;
+    const insertQuery = `
+      INSERT INTO Schedule (trainer_id, day, start_time, end_time)
+      SELECT $1, $2, $3, $4
+      WHERE NOT EXISTS (
+        SELECT 1 FROM Schedule WHERE trainer_id = $1 AND day = $2
+      );
+    `;
+
+    const updateResult = await pool.query(updateQuery, [startTime, endTime, trainerId, day]);
+
+    if (updateResult.rowCount === 0) {
+      const insertResult = await pool.query(insertQuery, [trainerId, day, startTime, endTime]);
+      console.log(`Insert result:`, insertResult);
+    } else {
+      console.log(`Update result:`, updateResult);
+    }
+
+    res.status(200).json({ message: 'Schedule updated successfully' });
+  } catch (error) {
+    console.error(`Failed to update schedule for trainer ${trainerId}:`, error);
+    res.status(500).json({ error: `Failed to update schedule for trainer ${trainerId}` });
+  }
+};
+
+
+
+const getApprovedClasses = async (req, res) => {
+  console.log("getApprovedClasses");
+  const trainerId = parseInt(req.params.trainerId);
+
+  if (isNaN(trainerId)) {
+    return res.status(400).json({ error: "Invalid trainer ID provided." });
+  }
+  try {
+    const query = `
+      SELECT 
+        name, 
+        description, 
+        start_time, 
+        end_time, 
+        CASE day
+          WHEN 1 THEN 'Monday'
+          WHEN 2 THEN 'Tuesday'
+          WHEN 3 THEN 'Wednesday'
+          WHEN 4 THEN 'Thursday'
+          WHEN 5 THEN 'Friday'
+          WHEN 6 THEN 'Saturday'
+          WHEN 7 THEN 'Sunday'
+        END AS day,
+        room_id
+      FROM Classes
+      WHERE trainer_id = $1 AND approval_status = true;
+    `;
+    const result = await pool.query(query, [trainerId]);
+    //console.log(result);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error(`Failed to fetch approved classes for trainer ${trainerId}:`, error);
+    res.status(500).json({ error: `Failed to fetch approved classes for trainer ${trainerId}` });
+  }
+};
+
+
+
 module.exports = {
   getTrainerSchedule,
   getAllValidTrainers,
   updateTrainerSchedule,
   getTrainerCourses,
   getTrainerAvailableTimeSlots,
-  updateTrainer,
+  getApprovedClasses,
+  updateOrInsertSchedule,
   addTrainerSchedule,
+  updateTrainer,
 };

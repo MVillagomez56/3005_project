@@ -5,22 +5,25 @@ var express = require("express");
 var router = express.Router();
 console.log("user router started"); // The user-controller is where all the logic for modifying backend works
 
-var userController = require("../controllers/users-controller.ts"); // Get router
-// router.get("/api/user/:id", userController.getUserById);
-// router.get("/api/members", userController.getAllMembers);
-// router.get("/api/member/:userid", userController.getMemberById);
+var userController = require("../controllers/users-controller.js"); // Get router
 
 
+router.get("/user/:id", userController.getUserById); // router.get("/api/members", userController.getAllMembers);
+
+router.get("/member/:userid", userController.getMemberById);
 router.get("/searchMember", userController.searchMember);
 router.get("/trainers", userController.getAllTrainersWithPF);
 router.get("/fitnessGoals/:member_id", userController.getFitnessGoals);
-router.get('/trainer/:id', userController.getTrainerDetailById); // Post routers
+router.get('/trainer/:id', userController.getTrainerDetailById);
+router.get('/schedule/:id', userController.getTrainerSchedule);
+router.get('/rooms', userController.getRooms); // Post routers
 
 router.post("/register", userController.register);
 router.post("/login", userController.login);
 router.post("/addPayment", userController.addPayment);
 router.post("/addFitnessGoals/:member_id", userController.addFitnessGoals);
-router.post("/addFitnessGoal/:member_id", userController.addFitnessGoal); // Put routers
+router.post("/addFitnessGoal/:member_id", userController.addFitnessGoal);
+router.post('/trainer/:id', userController.registerPersonalTraining); // Put routers
 
 router.put("/updateMember/:member_id", userController.updateMember);
 router.put("/updateMember/paymentInfo/:member_id", userController.updateMemberPaymentInfo);

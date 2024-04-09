@@ -22,6 +22,11 @@ router.get("/fitnessGoals/:member_id", userController.getFitnessGoals);
 
 router.get('/trainer/:id', userController.getTrainerDetailById);
 
+router.get('/schedule/:id', userController.getTrainerSchedule);
+
+router.get('/rooms', userController.getRooms);
+
+
 // Post routers
 router.post("/register", userController.register);
 
@@ -32,6 +37,9 @@ router.post("/addPayment", userController.addPayment);
 router.post("/addFitnessGoals/:member_id", userController.addFitnessGoals);
 
 router.post("/addFitnessGoal/:member_id", userController.addFitnessGoal);
+
+router.post('/trainer/:id', userController.registerPersonalTraining);
+
 
 // Put routers
 

@@ -3,12 +3,12 @@ import { Box } from "@mui/system";
 import { ProfileInformation } from "../components/ProfileInformation";
 import { FitnessGoals } from "../components/FitnessGoals";
 import { Typography } from "@mui/material";
-import { Button, TextField } from "@mui/material";
 import { HealthStats } from "../components/HealthStats";
 import { useParams } from "react-router-dom";
 import { TrainerScheduleSetter } from "../components/TrainerScheduleSetter";
 import { TrainerApprovedClasses } from "../components/TrainerApprovedClasses";
-import { SpecializationUpdater } from '../components/SpecializationUpdater';
+import { SpecializationUpdater } from "../components/SpecializationUpdater";
+import { TrainerDetails } from "../components/TrainerDetails";
 
 export const Profile = () => {
   const { id } = useParams();
@@ -61,26 +61,28 @@ export const Profile = () => {
 
   const saveSpecialization = async (specialization, cost) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/trainers/update/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ specialization, cost }),
-      });
-  
+      const response = await fetch(
+        `http://localhost:5000/api/trainers/update/${id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ specialization, cost }),
+        }
+      );
+
       if (!response.ok) {
         throw new Error("Failed to update specialization and cost");
       }
-  
+
       alert("Specialization and cost updated successfully!");
     } catch (error) {
       console.error("Error updating specialization and cost:", error);
       alert("Failed to update specialization and cost.");
     }
   };
-  
 
   console.log("Profile.js", id);
   useEffect(() => {
@@ -101,11 +103,11 @@ export const Profile = () => {
         padding="10px"
         sx={{
           display: "flex",
-          flexDirection: "row",
+          flexDirection: "column",
           gap: "2rem",
           padding: "1rem",
           borderRadius: "10px",
-          justifyContent: "center",
+          alignItems: "center", // ensures child components are centered
         }}
       >
         {currentUser.role === "member" && (
@@ -115,11 +117,22 @@ export const Profile = () => {
           </>
         )}
         {currentUser.role === "trainer" && (
-          <Box>
-            <SpecializationUpdater
-              trainerId={id}
-              onUpdate={saveSpecialization}
-            />
+          <Box
+            sx={{
+              width: "100%", // take the full width of the parent box
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center", // center align the inner content
+            }}
+          >
+            {/* Use an additional Box to control the width and centering of the content */}
+            <Box maxWidth="600px" width="100%">
+              <TrainerDetails trainerId={id} />
+              <SpecializationUpdater
+                trainerId={id}
+                onUpdate={saveSpecialization}
+              />
+            </Box>
             <Box
               sx={{
                 display: "flex",
@@ -127,6 +140,7 @@ export const Profile = () => {
                 gap: "2rem",
                 padding: "1rem",
                 justifyContent: "center",
+                flexWrap: "wrap", // ensures responsiveness
               }}
             >
               <TrainerScheduleSetter trainerId={id} onSave={saveSchedule} />

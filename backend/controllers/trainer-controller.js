@@ -316,7 +316,41 @@ const getApprovedClasses = async (req, res) => {
   }
 };
 
+const getTrainerDetails = async (req, res, next) => {
+  try {
+    const trainerId = parseInt(req.params.id);
+    const query = `
+      SELECT specialization, cost FROM Trainers
+      WHERE id = $1;
+    `;
+    const { rows } = await pool.query(query, [trainerId]);
 
+    // If no trainer found, send a 404 response
+    if (rows.length === 0) {
+      return res.status(404).send('Trainer not found.');
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error while retrieving trainer details.');
+  }
+};
+
+const getWorkingHours = async (req, res) => {
+  try {
+    const trainerId = parseInt(req.params.trainer_id);
+    const query = `
+      SELECT day, start_time, end_time FROM Schedule
+      WHERE trainer_id = $1;
+    `;
+    const { rows } = await pool.query(query, [trainerId]);
+    res.json(rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error while retrieving working hours.');
+  }
+};
 
 module.exports = {
   getTrainerSchedule,
@@ -328,4 +362,6 @@ module.exports = {
   updateOrInsertSchedule,
   addTrainerSchedule,
   updateTrainer,
+  getTrainerDetails,
+  getWorkingHours,
 };

@@ -20,8 +20,10 @@ const getAllValidTrainers = async (req, res, next) => {
   try {
     // Query to select trainers with both specialization and cost defined
     const queryText = `
-      SELECT * FROM Trainers
-      WHERE specialization IS NOT NULL AND cost IS NOT NULL;
+      SELECT t.id, u.name, t.specialization, t.cost
+      FROM Trainers t
+      INNER JOIN Users u ON t.id = u.id
+      WHERE t.specialization IS NOT NULL AND t.cost IS NOT NULL;
     `;
 
     // Execute query

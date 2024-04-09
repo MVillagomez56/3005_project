@@ -24,7 +24,7 @@ export const CreateClass = () => {
     try {
       const response = await fetch('http://localhost:5000/api/trainers/getValidTrainers'); // Replace with your backend API endpoint for fetching trainers
       const data = await response.json();
-      setTrainersList(data);
+      setTrainersList(data.data.trainers);
     } catch (error) {
       console.error('Error fetching trainers:', error);
     }
@@ -63,6 +63,8 @@ export const CreateClass = () => {
   const handleSearchAvailability = () => {
     // Trigger showing the availability component
     setShowAvailability(true);
+    console.log("trainer ID" + classDetails.trainerId);
+    console.log("room ID" + classDetails.roomId);
   };
 
   return (
@@ -75,7 +77,7 @@ export const CreateClass = () => {
           <FormControl fullWidth margin="normal">
             <InputLabel>Trainer</InputLabel>
             <Select name="trainerId" value={classDetails.trainerId} label="Trainer" onChange={handleChange} required>
-              {Array.isArray(trainersList) && trainersList.map((trainer) => (
+              {trainersList && trainersList.map((trainer) => (
                 <MenuItem key={trainer.id} value={trainer.id}>{trainer.name}</MenuItem>
               ))}
             </Select>

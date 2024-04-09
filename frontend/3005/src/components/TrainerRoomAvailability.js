@@ -12,33 +12,67 @@ import {
 import { dayOfWeek } from '../utils/time_converter';
 
 export const TrainerRoomAvailability = ({ roomId, trainerId }) => {
-  const [roomAvailability, setRoomAvailability] = useState([]);
-  const [trainerAvailability, setTrainerAvailability] = useState([]);
   const [combinedAvailability, setCombinedAvailability] = useState([]);
   const [selectedDay, setSelectedDay] = useState('');
+  const [trainerWorkingDays, setTrainerWorkingDays] = useState([]);
+
+const fetchTrainerWorkingDays = async () => {
+    if (!trainerId) return;
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/trainers/getTrainerSchedule/${trainerId}`);
+        const data = await response.json();
+
+        // Assuming `data` is the array of objects directly
+        if (data && data.length > 0) {
+            const workingDays = data.map(schedule => ({
+                dayNumber: schedule.day,
+                dayName: dayOfWeek[schedule.day], // Ensure dayOfWeek is correctly mapping day numbers to names
+            }));
+            setTrainerWorkingDays(workingDays);
+        } else {
+            setTrainerWorkingDays([]);
+        }
+    } catch (error) {
+        console.error('Error fetching trainer schedule:', error);
+        setTrainerWorkingDays([]);
+    }
+};
+
+  const fetchCombinedAvailability = async () => {
+    if (!roomId || !trainerId || !selectedDay) return;
+
+    try {
+      const queryParams = new URLSearchParams({ roomId, trainerId, day: selectedDay }).toString();
+      const response = await fetch(`http://localhost:5000/api/availability/roomTrainerAvailability?${queryParams}`);
+      const data = await response.json();
+
+      if (data && data.availableSlots) {
+        setCombinedAvailability(data.availableSlots);
+      } else {
+        setCombinedAvailability([]);
+      }
+    } catch (error) {
+      console.error('Error fetching combined availability:', error);
+      setCombinedAvailability([]);
+    }
+  };
+
+  const selectDay = (e) => {
+    const newSelectedDay = e.target.value;
+    setSelectedDay(newSelectedDay);
+  };
 
   useEffect(() => {
-    const fetchAvailabilities = async () => {
-      // Fetch Room Availability
-      const roomResponse = await fetch(`your_api_endpoint/rooms/${roomId}/availability`);
-      const roomData = await roomResponse.json();
-      setRoomAvailability(roomData);
+    fetchTrainerWorkingDays();
+    console.log(trainerWorkingDays);
+  }, [roomId, trainerId]); // Fetch working days when roomId or trainerId changes
 
-      // Fetch Trainer Availability
-      const trainerResponse = await fetch(`your_api_endpoint/trainers/${trainerId}/availability`);
-      const trainerData = await trainerResponse.json();
-      setTrainerAvailability(trainerData);
-
-      // Assuming your backend has an endpoint to get combined availability,
-      // otherwise, you'll have to do the combination logic on the client side
-      // using the provided `findOverlap` function logic.
-      const combinedResponse = await fetch(`your_api_endpoint/combinedAvailability?roomId=${roomId}&trainerId=${trainerId}`);
-      const combinedData = await combinedResponse.json();
-      setCombinedAvailability(combinedData);
-    };
-
-    fetchAvailabilities();
-  }, [roomId, trainerId]);
+  useEffect(() => {
+    if (selectedDay) {
+      fetchCombinedAvailability();
+    }
+  }, [selectedDay]); // Fetch availability when selectedDay changes
 
   return (
     <Box>
@@ -50,23 +84,22 @@ export const TrainerRoomAvailability = ({ roomId, trainerId }) => {
           id="day-select"
           value={selectedDay}
           label="Day"
-          onChange={(e) => setSelectedDay(e.target.value)}
+          onChange={selectDay}
         >
-          {Object.keys(dayOfWeek).map((day, index) => (
-            <MenuItem key={index} value={day}>
-              {dayOfWeek[day]}
+          {trainerWorkingDays.map(({ dayNumber, dayName }, index) => (
+            <MenuItem key={index} value={dayNumber}>
+              {dayName}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
       <List sx={{ mt: 2, maxHeight: '15rem', overflowY: 'auto' }}>
-        {combinedAvailability.length > 0 && selectedDay !== '' &&
-          combinedAvailability[parseInt(selectedDay)]?.timeSlots.map((slot, index) => (
+        {combinedAvailability.length > 0 &&
+          combinedAvailability.map((slot, index) => (
             <ListItemButton key={index}>
-              <ListItemText primary={`${slot.start} - ${slot.end}`} />
+              <ListItemText primary={`${slot.startTime} - ${slot.endTime}`} />
             </ListItemButton>
-          ))
-        }
+          ))}
       </List>
     </Box>
   );

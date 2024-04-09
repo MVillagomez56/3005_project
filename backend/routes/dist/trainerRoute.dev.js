@@ -11,6 +11,8 @@ router.get("/getTrainerSchedule/:id", trainerController.getTrainerSchedule);
 router.post("/updateTrainerSchedule/:id", trainerController.updateTrainerSchedule);
 router.get("/getTrainerCourses/:id", trainerController.getTrainerCourses);
 router.get("/availableTimeSlots/:id", trainerController.getTrainerAvailableTimeSlots);
+router.get('/:id', trainerController.getTrainerDetails);
+router.get('/:trainer_id/working-hours', trainerController.getWorkingHours);
 router.put("/updateTrainer/:id", trainerController.updateTrainer);
 router.post("/addTrainerSchedule/:id", trainerController.addTrainerSchedule);
 router.post('/schedule/:trainerId', trainerController.updateOrInsertSchedule);

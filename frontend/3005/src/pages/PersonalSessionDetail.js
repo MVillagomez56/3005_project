@@ -13,6 +13,7 @@ import {
   TextField,
   Box, // Import Box for layout and spacing
 } from "@mui/material";
+import { dayOfWeek } from "../utils/time_converter";
 
 function generateHourTimes() {
   const times = [];
@@ -40,6 +41,32 @@ export const PersonalSessionDetail = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [selectedDay, setSelectedDay] = useState("");
+  const [trainerWorkingDays, setTrainerWorkingDays] = useState([]);
+
+  const fetchTrainerWorkingDays = async () => {
+    if (!id) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/trainers/getTrainerSchedule/${id}`
+      );
+      const data = await response.json();
+
+      // Assuming `data` is the array of objects directly
+      if (data && data.length > 0) {
+        const workingDays = data.map((schedule) => ({
+          dayNumber: schedule.day,
+          dayName: dayOfWeek[schedule.day], // Ensure dayOfWeek is correctly mapping day numbers to names
+        }));
+        setTrainerWorkingDays(workingDays);
+      } else {
+        setTrainerWorkingDays([]);
+      }
+    } catch (error) {
+      console.error("Error fetching trainer schedule:", error);
+      setTrainerWorkingDays([]);
+    }
+  };
 
   // Fetch trainer details
   useEffect(() => {
@@ -58,6 +85,7 @@ export const PersonalSessionDetail = () => {
     };
 
     fetchTrainerDetails();
+    fetchTrainerWorkingDays();
   }, [id]);
 
   // Fetch rooms
@@ -78,8 +106,6 @@ export const PersonalSessionDetail = () => {
 
     fetchRooms();
   }, []);
-
-  
 
   const handleDayChange = (event) => {
     const day = event.target.value; // Assuming the day comes from an input or select field
@@ -102,8 +128,13 @@ export const PersonalSessionDetail = () => {
   };
 
   // Example function within your component for handling the form submission
-  const handleSubmit = async () => {
-    // Access startTime and endTime from classDetails state
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent form submission if JavaScript is enabled
+    const isAvailable = await checkSlotAvailability();
+    if (!isAvailable) {
+      alert("The selected slot is not available. Please choose another time.");
+      return; // Prevent submission if the slot is not available
+    }
 
     const trainerIdInt = parseInt(id, 10);
     const { startTime, endTime, roomId } = classDetails;
@@ -124,7 +155,7 @@ export const PersonalSessionDetail = () => {
       trainer_id: trainerIdInt,
       start_time: startTime,
       end_time: endTime,
-      day: classDetails.day,
+      day: selectedDay,
       cost,
       capacity: 1,
       type: "personal",
@@ -157,11 +188,47 @@ export const PersonalSessionDetail = () => {
     }
   };
 
+  const checkSlotAvailability = async () => {
+    const url = `http://localhost:5000/api/availability/checkAvailability`;
+    const params = {
+        roomId: selectedRoomId,
+        trainerId: id,
+        day: selectedDay,
+        startTime: classDetails.startTime,
+        endTime: classDetails.endTime,
+    };
+
+    console.log("Sending request with params:", params);
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(params),
+        });
+        const data = await response.json();
+        console.log("Received response:", data);
+
+        return data.isAvailable;
+    } catch (error) {
+        console.error("Error checking slot availability:", error);
+        return false;
+    }
+};
+
+
+  const selectDay = (e) => {
+    const newSelectedDay = e.target.value;
+    setSelectedDay(newSelectedDay);
+  };
+
   return (
     <Container maxWidth="sm" sx={{ marginTop: "2rem" }}>
       <Paper elevation={3} sx={{ padding: "2rem", textAlign: "center" }}>
         {error && <Typography color="error">{error}</Typography>}
-        
+
         {trainer ? (
           <>
             <Typography variant="h4" gutterBottom>
@@ -218,13 +285,13 @@ export const PersonalSessionDetail = () => {
               id="day-select"
               value={selectedDay}
               label="Day"
-              onChange={handleDayChange}
+              onChange={selectDay}
             >
-              {/* Assuming you have a predefined list of days */}
-              <MenuItem value={1}>Monday</MenuItem>
-              <MenuItem value={2}>Tuesday</MenuItem>
-              <MenuItem value={3}>Wednesday</MenuItem>
-              {/* Add more days as needed */}
+              {trainerWorkingDays.map(({ dayNumber, dayName }, index) => (
+                <MenuItem key={index} value={dayNumber}>
+                  {dayName}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           {/* Time selection fields */}

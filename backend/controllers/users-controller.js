@@ -803,6 +803,7 @@ const getTrainerSchedule = async (req, res) => {
 };
 
 const createClassSession = async (req, res) => {
+  // Including userId in the destructuring assignment
   const {
     name,
     description,
@@ -815,17 +816,19 @@ const createClassSession = async (req, res) => {
     type,
     room_id,
     approval_status,
+    userId, // Extract userId passed from frontend
   } = req.body;
 
   console.log("Received class session details:", req.body);
 
   try {
-    const query = `
+    // Inserting a new class session
+    const insertClassQuery = `
       INSERT INTO Classes (name, description, trainer_id, start_time, end_time, day, cost, capacity, type, room_id, approval_status)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-      RETURNING *;
+      RETURNING id; 
     `;
-    const { rows } = await pool.query(query, [
+    const classInsertionResult = await pool.query(insertClassQuery, [
       name,
       description,
       trainer_id,
@@ -838,17 +841,47 @@ const createClassSession = async (req, res) => {
       room_id,
       approval_status,
     ]);
+    const newClassId = classInsertionResult.rows[0].id; // Retrieve the id of the newly inserted class
 
-    res.status(201).json(rows[0]);
-  } catch (error) {
-    console.error("Error creating new class:", error);
-    if (error.code === "P0001") {
-      // Custom error code for your PL/pgSQL exceptions
-      return res.status(500).send(error.message);
+    // Check if userId is provided and insert a new record into Classes_Members
+    if (userId) {
+      const insertClassMemberQuery = `
+        INSERT INTO Classes_Members (class_id, member_id, isPaymentProcessed)
+        VALUES ($1, $2, $3)
+        RETURNING *;
+      `;
+      await pool.query(insertClassMemberQuery, [
+        newClassId,
+        userId,
+        false, // Assuming payment is not processed initially
+      ]);
+
+      // Inserting a new payment record
+      const currentDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD format
+      const insertPaymentQuery = `
+        INSERT INTO Payments (member_id, class_id, amount, date, service, completion_status)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING *;
+      `;
+      const paymentResult = await pool.query(insertPaymentQuery, [
+        userId,
+        newClassId,
+        cost,
+        currentDate,
+        'personal fitness class', // Assuming the service type is a hardcoded string
+        false, // Assuming the payment completion status is initially false
+      ]);
+      console.log("New payment record created:", paymentResult.rows[0]);
     }
-    res.status(500).send("Server error while creating a new class.");
+
+    res.status(201).json({ classSession: classInsertionResult.rows[0], message: 'Class session, member record, and payment created successfully' });
+  } catch (error) {
+    console.error("Error creating new class or adding member to class:", error);
+    res.status(500).send("Server error while creating a new class or adding member to class.");
   }
 };
+
+
 
 module.exports = {
   getUserById,

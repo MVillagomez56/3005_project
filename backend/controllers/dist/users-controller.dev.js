@@ -1543,47 +1543,70 @@ var getTrainerSchedule = function getTrainerSchedule(req, res) {
 };
 
 var createClassSession = function createClassSession(req, res) {
-  var _req$body8, name, description, trainer_id, start_time, end_time, day, cost, capacity, type, room_id, approval_status, query, _ref19, rows;
+  var _req$body8, name, description, trainer_id, start_time, end_time, day, cost, capacity, type, room_id, approval_status, userId, insertClassQuery, classInsertionResult, newClassId, insertClassMemberQuery, currentDate, insertPaymentQuery, paymentResult;
 
   return regeneratorRuntime.async(function createClassSession$(_context23) {
     while (1) {
       switch (_context23.prev = _context23.next) {
         case 0:
-          _req$body8 = req.body, name = _req$body8.name, description = _req$body8.description, trainer_id = _req$body8.trainer_id, start_time = _req$body8.start_time, end_time = _req$body8.end_time, day = _req$body8.day, cost = _req$body8.cost, capacity = _req$body8.capacity, type = _req$body8.type, room_id = _req$body8.room_id, approval_status = _req$body8.approval_status;
+          // Including userId in the destructuring assignment
+          _req$body8 = req.body, name = _req$body8.name, description = _req$body8.description, trainer_id = _req$body8.trainer_id, start_time = _req$body8.start_time, end_time = _req$body8.end_time, day = _req$body8.day, cost = _req$body8.cost, capacity = _req$body8.capacity, type = _req$body8.type, room_id = _req$body8.room_id, approval_status = _req$body8.approval_status, userId = _req$body8.userId;
           console.log("Received class session details:", req.body);
           _context23.prev = 2;
-          query = "\n      INSERT INTO Classes (name, description, trainer_id, start_time, end_time, day, cost, capacity, type, room_id, approval_status)\n      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\n      RETURNING *;\n    ";
+          // Inserting a new class session
+          insertClassQuery = "\n      INSERT INTO Classes (name, description, trainer_id, start_time, end_time, day, cost, capacity, type, room_id, approval_status)\n      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\n      RETURNING id; \n    ";
           _context23.next = 6;
-          return regeneratorRuntime.awrap(pool.query(query, [name, description, trainer_id, start_time, end_time, day, cost, capacity, type, room_id, approval_status]));
+          return regeneratorRuntime.awrap(pool.query(insertClassQuery, [name, description, trainer_id, start_time, end_time, day, cost, capacity, type, room_id, approval_status]));
 
         case 6:
-          _ref19 = _context23.sent;
-          rows = _ref19.rows;
-          res.status(201).json(rows[0]);
-          _context23.next = 17;
-          break;
+          classInsertionResult = _context23.sent;
+          newClassId = classInsertionResult.rows[0].id; // Retrieve the id of the newly inserted class
+          // Check if userId is provided and insert a new record into Classes_Members
 
-        case 11:
-          _context23.prev = 11;
-          _context23.t0 = _context23["catch"](2);
-          console.error("Error creating new class:", _context23.t0);
-
-          if (!(_context23.t0.code === "P0001")) {
-            _context23.next = 16;
+          if (!userId) {
+            _context23.next = 18;
             break;
           }
 
-          return _context23.abrupt("return", res.status(500).send(_context23.t0.message));
+          insertClassMemberQuery = "\n        INSERT INTO Classes_Members (class_id, member_id, isPaymentProcessed)\n        VALUES ($1, $2, $3)\n        RETURNING *;\n      ";
+          _context23.next = 12;
+          return regeneratorRuntime.awrap(pool.query(insertClassMemberQuery, [newClassId, userId, false // Assuming payment is not processed initially
+          ]));
+
+        case 12:
+          // Inserting a new payment record
+          currentDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD format
+
+          insertPaymentQuery = "\n        INSERT INTO Payments (member_id, class_id, amount, date, service, completion_status)\n        VALUES ($1, $2, $3, $4, $5, $6)\n        RETURNING *;\n      ";
+          _context23.next = 16;
+          return regeneratorRuntime.awrap(pool.query(insertPaymentQuery, [userId, newClassId, cost, currentDate, 'personal fitness class', // Assuming the service type is a hardcoded string
+          false // Assuming the payment completion status is initially false
+          ]));
 
         case 16:
-          res.status(500).send("Server error while creating a new class.");
+          paymentResult = _context23.sent;
+          console.log("New payment record created:", paymentResult.rows[0]);
 
-        case 17:
+        case 18:
+          res.status(201).json({
+            classSession: classInsertionResult.rows[0],
+            message: 'Class session, member record, and payment created successfully'
+          });
+          _context23.next = 25;
+          break;
+
+        case 21:
+          _context23.prev = 21;
+          _context23.t0 = _context23["catch"](2);
+          console.error("Error creating new class or adding member to class:", _context23.t0);
+          res.status(500).send("Server error while creating a new class or adding member to class.");
+
+        case 25:
         case "end":
           return _context23.stop();
       }
     }
-  }, null, null, [[2, 11]]);
+  }, null, null, [[2, 21]]);
 };
 
 module.exports = {

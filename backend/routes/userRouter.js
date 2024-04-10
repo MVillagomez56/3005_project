@@ -26,6 +26,7 @@ router.get('/schedule/:id', userController.getTrainerSchedule);
 
 router.get('/rooms', userController.getRooms);
 
+router.post('/classes', userController.createClassSession);
 
 // Post routers
 router.post("/register", userController.register);

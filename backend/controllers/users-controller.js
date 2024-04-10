@@ -4,16 +4,15 @@ const bcrypt = require("bcrypt");
 
 const pool = require("../db");
 
-const dayMappings = { 
-  "Monday": 1, 
-  "Tuesday": 2, 
-  "Wednesday": 3, 
-  "Thursday": 4, 
-  "Friday": 5, 
-  "Saturday": 6, 
-  "Sunday": 7 
+const dayMappings = {
+  Monday: 1,
+  Tuesday: 2,
+  Wednesday: 3,
+  Thursday: 4,
+  Friday: 5,
+  Saturday: 6,
+  Sunday: 7,
 };
-
 
 // Get
 const getUserById = async (req, res, next) => {
@@ -26,10 +25,9 @@ const getUserById = async (req, res, next) => {
   }
 
   try {
-    const { rows } = await pool.query(
-      "SELECT * FROM Users WHERE id = $1;",
-      [userId]
-    );
+    const { rows } = await pool.query("SELECT * FROM Users WHERE id = $1;", [
+      userId,
+    ]);
 
     // Check if a user was found
     if (rows.length === 0) {
@@ -234,7 +232,9 @@ const searchMember = async (req, res) => {
 
   try {
     if (!id && !name) {
-      return res.status(400).json({ error: "Please provide a valid ID or name" });
+      return res
+        .status(400)
+        .json({ error: "Please provide a valid ID or name" });
     }
 
     console.log("id", id);
@@ -257,7 +257,7 @@ const searchMember = async (req, res) => {
       values.push(`%${name}%`);
       valueIndex++;
     }
-  
+
     const { rows } = await pool.query(updateQuery, values);
 
     if (rows.length > 0) {
@@ -344,7 +344,7 @@ const getTrainerDetailById = async (req, res) => {
       id: trainer.id,
       name: trainer.name,
       specialization: trainer.specialization,
-      cost: trainer.cost
+      cost: trainer.cost,
     };
 
     res.json(formattedTrainer);
@@ -355,9 +355,6 @@ const getTrainerDetailById = async (req, res) => {
     });
   }
 };
-
-
-
 
 const registerCourse = async (req, res, next) => {};
 
@@ -458,7 +455,6 @@ const addPayment = async (req, res, next) => {
     // Destructure payment information from request body
     const { member_id, amount, payment_date, service } = req.body;
 
-    
     const amountNum = parseFloat(amount);
 
     // Basic validation
@@ -472,16 +468,15 @@ const addPayment = async (req, res, next) => {
     let serviceName;
 
     //if service is number, fetch relevant class
-    if (service!== "membership") {
-        const query= "SELECT * FROM classes WHERE id = $1";
-        const { rows } = await pool.query(query, [service]);
-        if (rows.length === 0) {
-            return res.status(404).json({ error: "Class not found." });
-        }
-        serviceName = rows[0].type + " fitness class";
-
+    if (service !== "membership") {
+      const query = "SELECT * FROM classes WHERE id = $1";
+      const { rows } = await pool.query(query, [service]);
+      if (rows.length === 0) {
+        return res.status(404).json({ error: "Class not found." });
+      }
+      serviceName = rows[0].type + " fitness class";
     } else {
-        serviceName = "membership";
+      serviceName = "membership";
     }
 
     const memberCheck = await pool.query(
@@ -576,13 +571,12 @@ const updateMember = async (req, res, next) => {
     // Extract member details from request body
     const { weight, height, muscle_mass, body_fat } = req.body;
 
-    console.log("req.body", req.body)
+    console.log("req.body", req.body);
 
-   //DEPENDING ON WHICH FIELDS ARE PASSED IN, UPDATE THE CORRESPONDING FIELDS
+    //DEPENDING ON WHICH FIELDS ARE PASSED IN, UPDATE THE CORRESPONDING FIELDS
     let updateQuery = `UPDATE Members SET `;
     let values = [];
     let valueIndex = 1;
-
 
     if (weight) {
       console.log("weight", weight);
@@ -606,7 +600,6 @@ const updateMember = async (req, res, next) => {
       valueIndex++;
     }
 
-
     // Remove the trailing comma and space
     updateQuery = updateQuery.slice(0, -2);
 
@@ -614,7 +607,6 @@ const updateMember = async (req, res, next) => {
     updateQuery += ` WHERE id = $${valueIndex} RETURNING *;`;
     values.push(member_id);
     console.log("updateQuery", updateQuery);
-
 
     // Update the member in the database
     const { rows } = await pool.query(updateQuery, values);
@@ -708,7 +700,7 @@ const updateUser = async (req, res, next) => {
 
 const registerPersonalTraining = async (req, res) => {
   const { userId, slots, duration } = req.body;
-  const trainerId = parseInt(req.params.id, 10); 
+  const trainerId = parseInt(req.params.id, 10);
 
   try {
     // Fetch the trainer's hourly rate and name from the Trainers table
@@ -721,18 +713,20 @@ const registerPersonalTraining = async (req, res) => {
     `;
     const trainerResult = await pool.query(trainerQuery, [trainerId]);
     if (trainerResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Trainer not found.' });
+      return res.status(404).json({ error: "Trainer not found." });
     }
     const trainer = trainerResult.rows[0];
     const totalCost = trainer.cost * parseInt(duration, 10); // Calculate total cost based on duration
 
     for (const slot of slots) {
-      const slotParts = slot.slotKey.split('-');
+      const slotParts = slot.slotKey.split("-");
       const dayOfWeek = slotParts[0];
       const day = dayMappings[dayOfWeek]; // Convert weekday name to int
 
       if (!day) {
-        throw new Error(`Invalid dayOfWeek '${dayOfWeek}' received in slotKey '${slot.slotKey}'`);
+        throw new Error(
+          `Invalid dayOfWeek '${dayOfWeek}' received in slotKey '${slot.slotKey}'`
+        );
       }
 
       const startTime = slot.startTime;
@@ -748,7 +742,15 @@ const registerPersonalTraining = async (req, res) => {
         VALUES ($1, $2, $3, $4, $5, $6, $7, 1, 'personal', 1, false)
         RETURNING id
       `;
-      const values = [name, description, trainerId, startTime, endTime, day, totalCost];
+      const values = [
+        name,
+        description,
+        trainerId,
+        startTime,
+        endTime,
+        day,
+        totalCost,
+      ];
 
       // Insert class and capture the returned class ID
       const classResult = await pool.query(queryText, values);
@@ -762,10 +764,12 @@ const registerPersonalTraining = async (req, res) => {
       await pool.query(insertClassMemberQuery, [classId, userId]);
     }
 
-    res.status(200).json({ message: 'Registration successful' });
+    res.status(200).json({ message: "Registration successful" });
   } catch (error) {
-    console.error('Registration failed:', error);
-    res.status(500).json({ error: 'Failed to process registration: ' + error.message });
+    console.error("Registration failed:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to process registration: " + error.message });
   }
 };
 
@@ -775,8 +779,8 @@ const getRooms = async (req, res) => {
     const roomsResult = await pool.query(roomsQuery);
     res.status(200).json(roomsResult.rows);
   } catch (error) {
-    console.error('Failed to fetch rooms:', error);
-    res.status(500).json({ error: 'Failed to fetch rooms' });
+    console.error("Failed to fetch rooms:", error);
+    res.status(500).json({ error: "Failed to fetch rooms" });
   }
 };
 
@@ -792,11 +796,59 @@ const getTrainerSchedule = async (req, res) => {
     res.status(200).json(scheduleResult.rows);
   } catch (error) {
     console.error(`Failed to fetch schedule for trainer ${trainerId}:`, error);
-    res.status(500).json({ error: `Failed to fetch schedule for trainer ${trainerId}` });
+    res
+      .status(500)
+      .json({ error: `Failed to fetch schedule for trainer ${trainerId}` });
   }
 };
 
+const createClassSession = async (req, res) => {
+  const {
+    name,
+    description,
+    trainer_id,
+    start_time,
+    end_time,
+    day,
+    cost,
+    capacity,
+    type,
+    room_id,
+    approval_status,
+  } = req.body;
 
+  console.log("Received class session details:", req.body);
+
+  try {
+    const query = `
+      INSERT INTO Classes (name, description, trainer_id, start_time, end_time, day, cost, capacity, type, room_id, approval_status)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      RETURNING *;
+    `;
+    const { rows } = await pool.query(query, [
+      name,
+      description,
+      trainer_id,
+      start_time,
+      end_time,
+      day,
+      cost,
+      capacity,
+      type,
+      room_id,
+      approval_status,
+    ]);
+
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    console.error("Error creating new class:", error);
+    if (error.code === "P0001") {
+      // Custom error code for your PL/pgSQL exceptions
+      return res.status(500).send(error.message);
+    }
+    res.status(500).send("Server error while creating a new class.");
+  }
+};
 
 module.exports = {
   getUserById,
@@ -819,4 +871,5 @@ module.exports = {
   registerPersonalTraining,
   getRooms,
   getTrainerSchedule,
+  createClassSession,
 };

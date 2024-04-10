@@ -16,7 +16,8 @@ router.get("/trainers", userController.getAllTrainersWithPF);
 router.get("/fitnessGoals/:member_id", userController.getFitnessGoals);
 router.get('/trainer/:id', userController.getTrainerDetailById);
 router.get('/schedule/:id', userController.getTrainerSchedule);
-router.get('/rooms', userController.getRooms); // Post routers
+router.get('/rooms', userController.getRooms);
+router.post('/classes', userController.createClassSession); // Post routers
 
 router.post("/register", userController.register);
 router.post("/login", userController.login);

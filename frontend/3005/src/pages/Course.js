@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Container, Typography } from '@mui/material';
+import { Grid, Container, Typography, Box } from '@mui/material';
 import { CourseDetail } from '../components/CourseDetail';
 // Remove the import for testingCourse since we'll fetch data from the backend
 
@@ -27,13 +27,17 @@ export const Course = () => {
       <Typography variant="h2" gutterBottom>
         Courses
       </Typography>
-      <Grid container spacing={4}>
+      <Box sx={{ marginBottom: 2,
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 2,
+      justifyContent: 'center',
+      width: '100%'
+      }}>
         {courses && courses.map(course => (
-          <Grid item key={course.id} xs={12} sm={6} md={4}>
             <CourseDetail course={course} />
-          </Grid>
         ))}
-      </Grid>
+      </Box>
     </Container>
   );
 };

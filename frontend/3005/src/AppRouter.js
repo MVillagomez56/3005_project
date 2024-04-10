@@ -25,6 +25,7 @@ import { Error } from "./pages/Error.js";
 import { AdminClassModification } from "./pages/AdminClassModification.js";
 import { CreateClass } from "./pages/CreateClass.js";
 import { TrainerRegistration } from "./pages/TrainerRegistration.js";
+import { Box } from "@mui/material";
 
 export const AppRouter = () => {
   const { logout } = useAuth();
@@ -33,95 +34,100 @@ export const AppRouter = () => {
     logout();
   }
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route
-          path="/profile/:id"
-          element={
-            <PrivateRoute>
-              <Profile />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/register/member" element={<MemberRegistration />} />
-        <Route path="/register/trainer" element={<TrainerRegistration />} />
-        <Route
-          path="/payment/:service/:amount"
-          element={
-            <PrivateRoute>
-              <Payment />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/register" element={<Register />} />
-        <Route
-          path="/register/complete"
-          element={
-            <PrivateRoute>
-              <RegisterComplete />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/checkout"
-          element={
-            <PrivateRoute>
-              <Checkout />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/courses" element={<Course />} />
-        <Route path="/courses/:courseid" element={<CourseDetail />} />
-        <Route
-          path="/courses/edit/:courseid"
-          element={
-            <PrivateRoute>
-              <ClassEdit />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/room" element={<Room />} />
-        <Route path="/room/:id" element={<RoomDetail />} />
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", width: "100%", maxWidth:'100vw' }}>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route
+            path="/profile/:id"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/register/member" element={<MemberRegistration />} />
+          <Route path="/register/trainer" element={<TrainerRegistration />} />
+          <Route
+            path="/payment/:service/:amount"
+            element={
+              <PrivateRoute>
+                <Payment />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/register/complete"
+            element={
+              <PrivateRoute>
+                <RegisterComplete />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/checkout"
+            element={
+              <PrivateRoute>
+                <Checkout />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/courses" element={<Course />} />
+          <Route path="/courses/:courseid" element={<CourseDetail />} />
+          <Route
+            path="/courses/edit/:courseid"
+            element={
+              <PrivateRoute>
+                <ClassEdit />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/room" element={<Room />} />
+          <Route path="/room/:id" element={<RoomDetail />} />
 
-        <Route
-          path="/billing"
-          element={
-            <PrivateRoute roleRequired="admin">
-              <Billing />
-            </PrivateRoute>
-          }
-        />
+          <Route
+            path="/billing"
+            element={
+              <PrivateRoute roleRequired="admin">
+                <Billing />
+              </PrivateRoute>
+            }
+          />
 
-        <Route
-          path="/billing"
-          element={
-            <PrivateRoute roleRequired="admin">
-              <Billing />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/createClass" element={
-          <PrivateRoute roleRequired="admin">
-            <CreateClass />
-          </PrivateRoute>
-        } />
-        <Route
-          path="/searchMember"
-          element={
-            <PrivateRoute roleRequired={"trainer"}>
-              <MemberSearch />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/trainers" element={<TrainersPage />} />
-        <Route path="/trainer/:id" element={<PersonalSessionDetail />} />
-        <Route path="members" element={<MemberSearch />} />
-        <Route path="/*" element={<Error />} />
-      </Routes>
-      <Footer />
-    </Router>
+          <Route
+            path="/billing"
+            element={
+              <PrivateRoute roleRequired="admin">
+                <Billing />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/createClass"
+            element={
+              <PrivateRoute roleRequired="admin">
+                <CreateClass />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/searchMember"
+            element={
+              <PrivateRoute roleRequired={"trainer"}>
+                <MemberSearch />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/trainers" element={<TrainersPage />} />
+          <Route path="/trainer/:id" element={<PersonalSessionDetail />} />
+          <Route path="members" element={<MemberSearch />} />
+          <Route path="/*" element={<Error />} />
+        </Routes>
+        <Footer />
+      </Router>
+    </Box>
   );
 };

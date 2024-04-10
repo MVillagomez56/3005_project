@@ -60,6 +60,7 @@ export const UpcomingClasses = ({ id }) => {
             end_time={upcomingClass.end_time}
             day={upcomingClass.day}
             approval_status={upcomingClass.payment_status}
+            type={upcomingClass.type}
           />
         ))}
       </Box>

@@ -10,11 +10,12 @@ import {
   CardMedia,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import image from "../assets/success_image.png";
+import personal from "../assets/success_image.png";
+import group from "../assets/group_class_image.jpg";
 import { convertTime, dayOfWeek } from "../utils/time_converter";
 
 
-const FeaturedClass = ({ title, description, courseID, start_time, end_time, day, approval_status }) => {
+const FeaturedClass = ({ title, description, courseID, start_time, end_time, day, approval_status, type }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -35,7 +36,7 @@ const FeaturedClass = ({ title, description, courseID, start_time, end_time, day
       >
         <CardMedia
           component="img"
-          image={image}
+          image={type === "personal" ? personal : group}
           alt={title}
           sx={{ height: "300px", objectFit: "cover" }} // Adjust image height and fit as needed
         />

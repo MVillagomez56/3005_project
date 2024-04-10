@@ -43,6 +43,7 @@ export const FeaturedClasses = () => {
               start_time={featuredClass.start_time}
               end_time={featuredClass.end_time}
               day={featuredClass.day}
+              type={featuredClass.type}
               approval_status={true}
             />
           </Grid>

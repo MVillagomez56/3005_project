@@ -5,14 +5,17 @@ import {
   CardContent,
   Button,
   Typography,
+  CardMedia,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import personal from "../assets/success_image.png";
+import group from "../assets/group_class_image.jpg";
 
 export const CourseDetail = ({ course }) => {
   const navigate = useNavigate();
   console.log(course);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const canEdit = () =>{
+  const canEdit = () => {
     if (
       (user.role === "trainer" || user.role === "admin") &&
       course.type === "group"
@@ -24,10 +27,16 @@ export const CourseDetail = ({ course }) => {
     } else {
       return false;
     }
-  }
+  };
   return (
-    <Card sx={{ maxWidth: 345, m: 2 }}>
+    <Card sx={{ width: 345 }}>
       <CardContent>
+        <CardMedia
+          component="img"
+          image={course.type === "personal" ? personal : group}
+          alt={course.name}
+          sx={{ height: "300px", objectFit: "cover" }} // Adjust image height and fit as needed
+        />
         <Typography gutterBottom variant="h5" component="div">
           {course.name}
         </Typography>

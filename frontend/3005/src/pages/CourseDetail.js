@@ -115,6 +115,20 @@ export const CourseDetail = () => {
     }
   };
 
+  const canEdit = () =>{
+    if (
+      (user.role === "trainer" || user.role === "admin") &&
+      course.type === "group"
+    ) {
+      return true;
+    }
+    if (user.role === "member" && course.type === "personal") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   // Check if course data is not yet fetched
   if (!course) {
     return <Typography>Loading...</Typography>;
@@ -175,7 +189,7 @@ export const CourseDetail = () => {
               Time: {convertTime(course.start_time)} -{" "}
               {convertTime(course.end_time)} on {dayOfWeek[course.day]}
             </Typography>
-            {user.role === "admin" && (
+            {canEdit() && (
               <Button
                 variant="contained"
                 color="primary"

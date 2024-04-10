@@ -78,7 +78,7 @@ export const AppRouter = () => {
         <Route
           path="/courses/edit/:courseid"
           element={
-            <PrivateRoute roleRequired="admin">
+            <PrivateRoute>
               <ClassEdit />
             </PrivateRoute>
           }

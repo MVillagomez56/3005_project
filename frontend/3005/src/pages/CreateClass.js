@@ -107,7 +107,7 @@ const handleSubmit = async (event) => {
     startTime: `${classDetails.startTime}:00`,
     endTime: `${classDetails.endTime}:00`,
     capacity: Number(classDetails.capacity),
-    classType: classDetails.type, // Ensure this matches your DB and API expectation
+    classType: "group", // Ensure this matches your DB and API expectation
     roomId: Number(classDetails.roomId),
   };
 
@@ -200,13 +200,6 @@ const handleSubmit = async (event) => {
           <TextField name="day" label="Day (1-7 for Mon-Sun)" type="number" value={classDetails.day} onChange={handleChange} margin="normal" required />
           <TextField name="cost" label="Cost" type="number" value={classDetails.cost} onChange={handleChange} margin="normal" required />
           <TextField name="capacity" label="Capacity" type="number" value={classDetails.capacity} onChange={handleChange} margin="normal" required />
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Type</InputLabel>
-            <Select name="type" value={classDetails.type} label="Type" onChange={handleChange} required>
-              <MenuItem value="personal">Personal</MenuItem>
-              <MenuItem value="group">Group</MenuItem>
-            </Select>
-          </FormControl>
 
           <Button type="submit" variant="contained" sx={{ mt: 3 }} onSubmit={handleSubmit}>Create</Button>
         </FormGroup>

@@ -3,10 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button, TextField, Grid, Container, Typography } from "@mui/material";
 import { ClassAvailability } from "../components/ClassAvailability";
 
-export const ClassEdit = () => {
+export const PersonalClassEdit = () => {
   const { courseid } = useParams();
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const navigate = useNavigate();
   const [classData, setClassData] = useState({
     name: "",
     description: "",
@@ -16,52 +14,6 @@ export const ClassEdit = () => {
     end_time: "",
     day: "",
   }); // Use state to store fetched classData
-
-  const canEdit = () => {
-    if (
-      (user.role === "trainer" || user.role === "admin") &&
-      classData.type === "group"
-    ) {
-      return true;
-    }
-    if (user.role === "member" && classData.type === "personal") {
-      return true;
-    } else {
-      return false;
-    }
-  };
-
-  const isRegistered = async () => {
-    if (user.role === "member") {
-      const response = await fetch(
-        `http://localhost:5000/api/classes/isRegistered/${user.id}/${courseid}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-        }
-      );
-      const data = await response.json();
-      console.log(data);
-      return data.registered;
-    }
-  };
-
-  useEffect(() => {
-    if (user.role !== "admin") {
-      //check if user is authorized to edit the class
-      const checkRegistered = async () => {
-        const _isRegistered = await isRegistered();
-        if (!_isRegistered) {
-          alert("You are not authorized to edit this class");
-          navigate("/");
-        }
-      };
-      checkRegistered();
-    }
-  }, [user.role, navigate]);
 
   const [response, setResponse] = useState(null);
 
@@ -186,8 +138,8 @@ export const ClassEdit = () => {
           <TextField
             fullWidth
             label="Cost"
+            disabled
             name="cost"
-            disabled={user.role !== "admin"}
             type="number"
             value={classData.cost}
             onChange={handleChange}
@@ -197,9 +149,9 @@ export const ClassEdit = () => {
           <TextField
             fullWidth
             label="Capacity"
+            disabled
             name="capacity"
             type="number"
-            disabled={user.role !== "admin" && classData.type !== "group"}
             value={classData.capacity}
             onChange={handleChange}
           />

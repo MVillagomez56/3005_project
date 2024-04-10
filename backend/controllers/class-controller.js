@@ -201,7 +201,7 @@ const addClass = async (req, res) => {
     // Inserting the new class into the database
     const insertQuery = `
       INSERT INTO Classes (name, description, trainer_id, start_time, end_time, day, cost, capacity, type, room_id, approval_status)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, false)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true)
       RETURNING *;
     `;
     const values = [name, description, trainerId, startTime, endTime, day, cost, capacity, classType, roomId];

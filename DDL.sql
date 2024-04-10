@@ -309,6 +309,26 @@ BEFORE UPDATE ON Payments
 FOR EACH ROW
 EXECUTE FUNCTION update_payment_status();
 
+-- only allow payment deletion if the payment is not processed
+CREATE OR REPLACE FUNCTION delete_payment()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD.completion_status = TRUE THEN
+        RAISE EXCEPTION 'Cannot delete a processed payment';
+    END IF;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER delete_payment
+BEFORE DELETE ON Payments
+FOR EACH ROW
+EXECUTE FUNCTION delete_payment();
+
+
+
+------------ CLASS MEMBER TRIGGERS ----------------------------
+
 -- if user deregisters before their payment is processed, delete the payment
 CREATE OR REPLACE FUNCTION delete_payment()
 RETURNS TRIGGER AS $$
@@ -325,4 +345,4 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER delete_payment
 AFTER DELETE ON Classes_Members
 FOR EACH ROW
-EXECUTE FUNCTION delete_payment();  
+EXECUTE FUNCTION delete_payment();   

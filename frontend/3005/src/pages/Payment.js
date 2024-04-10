@@ -13,6 +13,7 @@ export const  Payment = () => {
   const [hasPaymentMethod, setHasPaymentMethod] = React.useState(currentUser?.has_payment_method);
   const { service, amount } = useParams();
   const [serviceName, setServiceName] = React.useState("");
+  
 
   const naviagate = useNavigate();
   console.log(currentUser);

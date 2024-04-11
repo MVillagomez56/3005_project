@@ -36,9 +36,9 @@ CREATE TABLE Members (
 CREATE TABLE Schedule (
     trainer_id INTEGER,
     day INTEGER,
-    start_time TIME DEFAULT '09:00',
-    end_time TIME DEFAULT '17:00',
-    FOREIGN KEY(trainer_id) REFERENCES Trainers(id) ON DELETE CASCADE，
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    FOREIGN KEY(trainer_id) REFERENCES Trainers(id) ON DELETE CASCADE,
     UNIQUE(trainer_id, day)
 );
 

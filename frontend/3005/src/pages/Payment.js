@@ -22,6 +22,24 @@ export const  Payment = () => {
     naviagate("/");
   }
 
+  const fetchMemberPaymentInfo = async () => {
+    const response = await fetch(`http://localhost:5000/api/member/paymentInfo/${currentUser.id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+
+    if (response.status !== 200) {
+      setError("Failed to fetch member info");
+    } else {
+      const data = await response.json();
+      setHasPaymentMethod(!!data.ccv);
+    }
+  }
+
+
   //if service is number, fetch relevant class
   const fetchService = async () => {
     const response = await fetch(`http://localhost:5000/api/classes/getSpecificClass/${service}`, {
@@ -42,6 +60,7 @@ export const  Payment = () => {
 
   React.useEffect(() => {
     fetchService();
+    fetchMemberPaymentInfo();
   }, []);
 
 

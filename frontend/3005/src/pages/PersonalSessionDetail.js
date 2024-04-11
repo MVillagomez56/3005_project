@@ -13,6 +13,7 @@ import {
   TextField,
   Box, // Import Box for layout and spacing
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import { dayOfWeek } from "../utils/time_converter";
 
 function generateHourTimes() {
@@ -26,6 +27,7 @@ function generateHourTimes() {
 
 export const PersonalSessionDetail = () => {
   const { id } = useParams(); // Assuming this is the trainer ID
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [trainer, setTrainer] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [selectedRoomId, setSelectedRoomId] = useState("");
@@ -42,6 +44,7 @@ export const PersonalSessionDetail = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [selectedDay, setSelectedDay] = useState("");
   const [trainerWorkingDays, setTrainerWorkingDays] = useState([]);
+  const navigate = useNavigate();
 
   const fetchTrainerWorkingDays = async () => {
     if (!id) return;
@@ -179,8 +182,32 @@ export const PersonalSessionDetail = () => {
         throw new Error("Network response was not ok");
       }
 
+      //add the class and memebr to class_member table
+      const data = await response.json();
+      console.log("Class created:", data.classSession.id);
+
+      const response2 = await fetch(
+        "http://localhost:5000/api/classes/registerClass",
+        { 
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            class_id: data.classSession.id,
+            member_id: user.id,
+          }),
+        }
+      );
+
+      if (response2.status !== 201) {
+        throw new Error("Failed to register class");
+      }
+
       // Handle success here
       setSuccessMessage("Class successfully created");
+
+      navigate(`/payment/${data.classSession.id}/${sessionDetails.cost}`); // got to payment page
       console.log("Class successfully created");
     } catch (error) {
       console.error("Error creating class:", error);
@@ -191,33 +218,32 @@ export const PersonalSessionDetail = () => {
   const checkSlotAvailability = async () => {
     const url = `http://localhost:5000/api/availability/checkAvailability`;
     const params = {
-        roomId: selectedRoomId,
-        trainerId: id,
-        day: selectedDay,
-        startTime: classDetails.startTime,
-        endTime: classDetails.endTime,
+      roomId: selectedRoomId,
+      trainerId: id,
+      day: selectedDay,
+      startTime: classDetails.startTime,
+      endTime: classDetails.endTime,
     };
 
     console.log("Sending request with params:", params);
 
     try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(params),
-        });
-        const data = await response.json();
-        console.log("Received response:", data);
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(params),
+      });
+      const data = await response.json();
+      console.log("Received response:", data);
 
-        return data.isAvailable;
+      return data.isAvailable;
     } catch (error) {
-        console.error("Error checking slot availability:", error);
-        return false;
+      console.error("Error checking slot availability:", error);
+      return false;
     }
-};
-
+  };
 
   const selectDay = (e) => {
     const newSelectedDay = e.target.value;

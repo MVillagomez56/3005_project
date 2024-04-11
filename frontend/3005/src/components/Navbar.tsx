@@ -57,6 +57,13 @@ export const Navbar = () => {
               Courses
             </Button>
           )}
+          {
+            user.role==="member" && (
+              <Button color="inherit" onClick={() => navigate("/trainers")}>
+                Trainers
+              </Button>
+            )
+          }
           <Button color="inherit" onClick={() => navigate("/room")}>
             Room Booking
           </Button>

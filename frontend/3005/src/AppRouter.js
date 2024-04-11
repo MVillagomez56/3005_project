@@ -70,7 +70,7 @@ export const AppRouter = () => {
           <Route
             path="/checkout"
             element={
-              <PrivateRoute>
+              <PrivateRoute roleRequired={'member'}>
                 <Checkout />
               </PrivateRoute>
             }
@@ -97,14 +97,6 @@ export const AppRouter = () => {
             }
           />
 
-          <Route
-            path="/billing"
-            element={
-              <PrivateRoute roleRequired="admin">
-                <Billing />
-              </PrivateRoute>
-            }
-          />
           <Route
             path="/createClass"
             element={

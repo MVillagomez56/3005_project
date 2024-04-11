@@ -338,6 +338,8 @@ const updateClassById = async (req, res) => {
 const registerClass = async (req, res) => {
   const { class_id, member_id } = req.body;
 
+  console.log("class_id", class_id, "member_id", member_id);
+
   try {
     // Check if the class is full
     const classCapacity = await pool.query(
@@ -348,6 +350,8 @@ const registerClass = async (req, res) => {
       "SELECT COUNT(*) FROM Classes_Members WHERE class_id = $1",
       [class_id]
     );
+
+    console.log("classCapacity", classCapacity.rows[0]);
     if (registeredMembers.rows[0].count >= classCapacity.rows[0].capacity) {
       return res.status(400).json({ error: "Class is full." });
     }

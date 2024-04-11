@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@mui/system";
-import { Grid } from '@mui/material';
+import { Grid } from "@mui/material";
 import FeaturedClass from "./FeaturedClass";
 
 export const FeaturedClasses = () => {
@@ -32,29 +32,25 @@ export const FeaturedClasses = () => {
   }, []);
   console.log(featuredClasses);
   return (
-    <Grid container spacing={1} justifyContent="center"> {/* Adjusted spacing and added justifyContent */}
+    <Box sx={{ display: "flex", flexWrap: "wrap", flexDirection: "row" }}>
       {featuredClasses.length > 0 ? (
         featuredClasses.map((featuredClass) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={featuredClass.id} sx={{ display: 'flex', justifyContent: 'center' }}> {/* Added sx prop for centering items */}
-            <FeaturedClass
-              courseID={featuredClass.id}
-              title={featuredClass.name}
-              description={featuredClass.description}
-              start_time={featuredClass.start_time}
-              end_time={featuredClass.end_time}
-              day={featuredClass.day}
-              type={featuredClass.type}
-              approval_status={true}
-            />
-          </Grid>
+          <FeaturedClass
+            courseID={featuredClass.id}
+            title={featuredClass.name}
+            description={featuredClass.description}
+            start_time={featuredClass.start_time}
+            end_time={featuredClass.end_time}
+            day={featuredClass.day}
+            type={featuredClass.type}
+            approval_status={true}
+          />
         ))
       ) : (
-        <Grid item xs={12}>
+        <Box>
           <p>No featured classes available</p>
-        </Grid>
+        </Box>
       )}
-    </Grid>
+    </Box>
   );
-
-  
 };

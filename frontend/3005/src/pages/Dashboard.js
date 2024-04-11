@@ -51,14 +51,20 @@ export const Dashboard = () => {
         <Banner />
       </Box>
       <Hero />
-      <div style={{ margin: 60 }}>
+      <Box sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "1rem",
+        padding: "2rem",
+        borderRadius: 5,
+      
+      }}>
         <Typography variant="h4" fontWeight={"bold"}>
           Featured Classes
         </Typography>
-        <Grid container spacing={3}>
           <FeaturedClasses />
-        </Grid>
-      </div>
+      </Box>
       {user.role ==="trainer" && (
         <div>
           <Typography variant="h4" fontWeight={"bold"}>

@@ -6,7 +6,7 @@ import {
   CardContent,
   Button,
   Typography,
-  Grid,
+  Box,
   CardMedia,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -14,8 +14,16 @@ import personal from "../assets/success_image.png";
 import group from "../assets/group_class_image.jpg";
 import { convertTime, dayOfWeek } from "../utils/time_converter";
 
-
-const FeaturedClass = ({ title, description, courseID, start_time, end_time, day, approval_status, type }) => {
+const FeaturedClass = ({
+  title,
+  description,
+  courseID,
+  start_time,
+  end_time,
+  day,
+  approval_status,
+  type,
+}) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -23,7 +31,7 @@ const FeaturedClass = ({ title, description, courseID, start_time, end_time, day
   };
 
   return (
-    <Grid item xs={18} sm={20} md={20}>
+    <Box>
       <Card
         sx={{
           maxWidth: 345,
@@ -61,11 +69,12 @@ const FeaturedClass = ({ title, description, courseID, start_time, end_time, day
             {description}
           </Typography>
           <Typography
-          component={"div"}
-          variant="body2"
-          sx={{ textAlign: "center" }}
+            component={"div"}
+            variant="body2"
+            sx={{ textAlign: "center" }}
           >
-            {convertTime(start_time)} - {convertTime(end_time)} on {dayOfWeek[day]}
+            {convertTime(start_time)} - {convertTime(end_time)} on{" "}
+            {dayOfWeek[day]}
           </Typography>
         </CardContent>
         <CardActions sx={{ justifyContent: "center" }}>
@@ -74,7 +83,7 @@ const FeaturedClass = ({ title, description, courseID, start_time, end_time, day
           </Button>
         </CardActions>
       </Card>
-    </Grid>
+    </Box>
   );
 };
 

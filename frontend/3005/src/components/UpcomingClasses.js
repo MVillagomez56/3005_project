@@ -37,20 +37,28 @@ export const UpcomingClasses = ({ id }) => {
         gap: "10px",
         padding: "3rem",
         borderRadius: "10px",
-        maxWidth: "50%",
+        maxWidth: "100vw",
         backgroundColor: "white",
-        mx: "auto",
       }}
     >
       <Typography
         variant="h4"
         gutterBottom
-        component={"div"}
+        fontWeight={"bold"}
         textAlign={"center"}
       >
         Upcoming Classes
       </Typography>
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
+      <Box
+        sx={{
+          display: "flex",
+          maxWidth: "100vw", 
+          justifyContent: "center", 
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: "10px",
+        }}
+      >
         {upcomingClasses.map((upcomingClass) => (
           <FeaturedClass
             courseID={upcomingClass.id}

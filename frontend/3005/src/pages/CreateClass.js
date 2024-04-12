@@ -197,7 +197,7 @@ const handleSubmit = async (event) => {
           )}
           <TextField name="startTime" label="Start Time" type="time" value={classDetails.startTime} onChange={handleChange} margin="normal" InputLabelProps={{ shrink: true }} required />
           <TextField name="endTime" label="End Time" type="time" value={classDetails.endTime} onChange={handleChange} margin="normal" InputLabelProps={{ shrink: true }} required />
-          <TextField name="day" label="Day (1-7 for Mon-Sun)" type="number" value={classDetails.day} onChange={handleChange} margin="normal" required />
+          <TextField name="day" label="Day (1-5 for Mon-Fri)" type="number" value={classDetails.day} onChange={handleChange} margin="normal" required />
           <TextField name="cost" label="Cost" type="number" value={classDetails.cost} onChange={handleChange} margin="normal" required />
           <TextField name="capacity" label="Capacity" type="number" value={classDetails.capacity} onChange={handleChange} margin="normal" required />
 

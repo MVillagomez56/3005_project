@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Dashboard } from "./pages/Dashboard.js";
 import { Profile } from "./pages/Profile.js";
 import { Register } from "./pages/Register.js";
-import { Login } from "./pages/Login.tsx";
+import { Login } from "./pages/Login.js";
 import { Checkout } from "./pages/Checkout";
 import { CourseDetail } from "./pages/CourseDetail";
 import { RoomDetail } from "./pages/RoomDetail";
@@ -34,7 +34,7 @@ export const AppRouter = () => {
     logout();
   }
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", width: "100%", maxWidth:'100vw' }}>
+    <Box sx={{ display: "flex", flexDirection: "column", width: "100%", maxWidth:'100vw' }}>
       <Router>
         <Navbar />
         <Routes>

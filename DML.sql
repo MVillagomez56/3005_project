@@ -65,7 +65,7 @@ INSERT INTO Schedule (trainer_id, day, start_time, end_time) VALUES
 INSERT INTO Classes (name, description, trainer_id, start_time, end_time, day, cost, capacity, type, room_id, approval_status)
 VALUES 
 ('Morning Yoga', 'Start your day with energizing yoga', 1, '09:30', '10:30', 1, 50, 15, 'group', 1, true),
-('Evening Cardio Blast', 'High intensity cardio to end your day strong', 2, '13:00', '14:00', 4, 45, 20, 'group', 2, false),
+('Evening Cardio Blast', 'High intensity cardio to end your day strong', 2, '13:00', '14:00', 4, 45, 20, 'group', 2, true),
 ('Personal Yoga Session', 'Tailored yoga session for individual needs', 1, '11:00', '12:00', 2, 70, 1, 'personal', 1, true);
 
 

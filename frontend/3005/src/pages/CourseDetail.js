@@ -117,7 +117,7 @@ export const CourseDetail = () => {
 
   const canEdit = () =>{
     if (
-      (user.role === "trainer" || user.role === "admin") &&
+      (user.role === "admin") &&
       course.type === "group"
     ) {
       return true;

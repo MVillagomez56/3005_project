@@ -13,10 +13,13 @@ Ensure that your port, username, and password are correct in the file backend/db
 
 Then, run the following commands in the terminal:
 In the backend directory:
+```cd backend```
 ```npm install```
 ```node server.js```
 
 In the frontend directory:
+```cd frontend```
+```cd 3005```
 ```npm install```
 ```npm start```
 

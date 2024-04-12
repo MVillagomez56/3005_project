@@ -4,8 +4,8 @@ Muha Muha Gym
 
 ##Team Members
 Maria Villagomez
-Han Zhang
-Jialu Li
+Han Zhang 101263082
+Jialu Li 
 
 ## Start the project
 To get started, first set up a database with the schema provided in the file DDL.sql.
@@ -13,11 +13,45 @@ Ensure that your port, username, and password are correct in the file backend/db
 
 Then, run the following commands in the terminal:
 In the backend directory:
+```cd backend```
 ```npm install```
 ```node server.js```
 
 In the frontend directory:
+```cd frontend```
+```cd 3005```
 ```npm install```
 ```npm start```
 
 Navigate to http://localhost:3000/ to view the project.
+
+
+Features:
+
+User Registration: Sign up and create a personal account (in three types: 'admin', 'member', 'trainer').
+
+
+--Member Functions:
+
+Profile Management: Update personal information, set and modify fitness goals, and input health metrics.
+Dashboard Display: View exercise routines, fitness achievements, and health statistics.
+Schedule Management: Book, reschedule, or cancel personal training sessions and group fitness classes.
+
+
+--Trainer Functions:
+
+Dashboard Display: Trainer's working hours.
+Profile Page Schedule Management: Set and manage availability for training sessions.
+Profile Page Trainer Information Update: Update specialization and cost.
+Profile Page Trainer Working Hour Update.
+Profile Page Display: Personal information, approved class schedules.
+Member Profile Viewing: Access and search member profiles.
+
+
+--Administrative Functions:
+
+Room Booking Management: Manage the scheduling of room resources.
+Equipment Maintenance Monitoring: Keep track of the maintenance status of fitness equipment.
+Class Schedule Updating: Update and manage group fitness class schedules.
+Class Creation: Create future classes.
+Billing and Payment Processing: Oversee billing and process payments for services.

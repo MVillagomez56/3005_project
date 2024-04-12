@@ -23,7 +23,7 @@ export const Course = () => {
   }, []); // Empty dependency array means this effect runs once on mount
 
   return (
-    <Container maxWidth="lg">
+    <Container>
       <Typography variant="h2" gutterBottom>
         Courses
       </Typography>
@@ -38,6 +38,7 @@ export const Course = () => {
             <CourseDetail course={course} />
         ))}
       </Box>
+      {courses.length === 0 && <Typography variant="h5">No courses available</Typography>}
     </Container>
   );
 };

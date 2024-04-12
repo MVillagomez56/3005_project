@@ -21,6 +21,15 @@ export const CreateClass = () => {
     roomId: '',
     approvalStatus: false,
   });
+  const generateHourTimes = () => {
+  const times = [];
+  for (let hour = 0; hour < 24; hour++) {
+    const formattedHour = hour < 10 ? `0${hour}:00` : `${hour}:00`;
+    times.push(formattedHour);
+  }
+  return times;
+};
+
 
   const fetchTrainer = async () => {
     try {
@@ -195,8 +204,40 @@ const handleSubmit = async (event) => {
               // Additional props if needed
             />
           )}
-          <TextField name="startTime" label="Start Time" type="time" value={classDetails.startTime} onChange={handleChange} margin="normal" InputLabelProps={{ shrink: true }} required />
-          <TextField name="endTime" label="End Time" type="time" value={classDetails.endTime} onChange={handleChange} margin="normal" InputLabelProps={{ shrink: true }} required />
+          <FormControl fullWidth margin="normal">
+          <InputLabel id="start-time-select-label">Start Time</InputLabel>
+          <Select
+            labelId="start-time-select-label"
+            id="start-time-select"
+            name="startTime"
+            value={classDetails.startTime}
+            onChange={handleChange}
+            required
+          >
+            {generateHourTimes().map((time) => (
+              <MenuItem key={time} value={time}>
+                {time}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth margin="normal">
+          <InputLabel id="end-time-select-label">End Time</InputLabel>
+          <Select
+            labelId="end-time-select-label"
+            id="end-time-select"
+            name="endTime"
+            value={classDetails.endTime}
+            onChange={handleChange}
+            required
+          >
+            {generateHourTimes().map((time) => (
+              <MenuItem key={time} value={time}>
+                {time}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
           <TextField name="day" label="Day (1-5 for Mon-Fri)" type="number" value={classDetails.day} onChange={handleChange} margin="normal" required />
           <TextField name="cost" label="Cost" type="number" value={classDetails.cost} onChange={handleChange} margin="normal" required />
           <TextField name="capacity" label="Capacity" type="number" value={classDetails.capacity} onChange={handleChange} margin="normal" required />

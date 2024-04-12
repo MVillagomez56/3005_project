@@ -1,1 +1,23 @@
-COMP3005 PROJECT
+##COMP3005 PROJECT V2
+
+Muha Muha Gym
+
+##Team Members
+Maria Villagomez
+Han Zhang
+Jialu Li
+
+## Start the project
+To get started, first set up a database with the schema provided in the file DDL.sql.
+Ensure that your port, username, and password are correct in the file backend/db.js.
+
+Then, run the following commands in the terminal:
+In the backend directory:
+```npm install```
+```node server.js```
+
+In the frontend directory:
+```npm install```
+```npm start```
+
+Navigate to http://localhost:3000/ to view the project.

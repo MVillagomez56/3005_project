@@ -71,6 +71,9 @@ export const UpcomingClasses = ({ id }) => {
             type={upcomingClass.type}
           />
         ))}
+        {upcomingClasses.length === 0 && (
+          <Typography variant="h6">No upcoming classes</Typography>
+        )}
       </Box>
     </Box>
   );

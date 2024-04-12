@@ -45,11 +45,12 @@ export const TrainerRegistration = () => {
   };
 
   const handleSubmit = async () => {
+    console.log("Submitting form", scheduledHours);
     const _scheduledHours = scheduledHours.map((hour) => {
       if (hour?.available) {
         return {
-          start_time: hour.start_time.toISOString().substring(11, 19),
-          end_time: hour.end_time.toISOString().substring(11, 19),
+          start_time: hour.start_time.toDate().toTimeString().slice(0, 8),
+          end_time: hour.end_time.toDate().toTimeString().slice(0, 8)
         };
       }
       return null;
@@ -76,6 +77,8 @@ export const TrainerRegistration = () => {
       "user",
       JSON.stringify({ ...currentUser, specialization, cost })
     );
+
+    console.log(_scheduledHours)
 
     ////////
 

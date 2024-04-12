@@ -11,8 +11,11 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import Button from "@mui/material/Button";
+import { Switch } from "@mui/material";
 
-export const Navbar = () => {
+export const Navbar = (
+{  darkMode, setDarkMode
+}) => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const navigate = useNavigate();
   const { logout, currentUser, isLoggedIn } = useAuth();
@@ -37,7 +40,7 @@ export const Navbar = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{ backgroundColor: "pink" }}>
+      <AppBar position="static" >
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             <Button
@@ -64,9 +67,7 @@ export const Navbar = () => {
               </Button>
             )
           }
-          <Button color="inherit" onClick={() => navigate("/room")}>
-            Room Booking
-          </Button>
+  
           {user.role === "member" && isLoggedIn && (
             <Button color="inherit" onClick={() => navigate("/checkout")}>
               Check Out
@@ -142,6 +143,12 @@ export const Navbar = () => {
               </Button>
             </>
           )}
+          <Switch
+            checked={darkMode}
+            onChange={() => setDarkMode(!darkMode)}
+            name="checkedA"
+            inputProps={{ "aria-label": "secondary checkbox" }}
+          />
         </Toolbar>
       </AppBar>
     </Box>

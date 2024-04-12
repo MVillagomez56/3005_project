@@ -24,17 +24,51 @@ import { Error } from "./pages/Error.js";
 import { CreateClass } from "./pages/CreateClass.js";
 import { TrainerRegistration } from "./pages/TrainerRegistration.js";
 import { Box } from "@mui/material";
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+
+
+export const themeOptions = {
+  palette: {
+    mode: 'light',
+    primary: {
+      main: '#EE79AE',
+    },
+    secondary: {
+      main: '#7b1fa2',
+    },
+  },
+};
+
+const darkThemeOptions = {
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#EE79AE',
+    },
+    secondary: {
+      main: '#7b1fa2',
+    },
+  },
+};
+
+const lightTheme = createTheme(themeOptions);
+const darkTheme = createTheme(darkThemeOptions);
+
 
 export const AppRouter = () => {
+  const [darkMode, setDarkMode] = React.useState(false);
   const { logout } = useAuth();
   const user = JSON.parse(localStorage.getItem("user"));
   if (user && !user.id) {
     logout();
   }
   return (
+    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+      <CssBaseline/>
     <Box sx={{ display: "flex", flexDirection: "column", width: "100%", maxWidth:'100vw' }}>
       <Router>
-        <Navbar />
+        <Navbar  darkMode={darkMode} setDarkMode={setDarkMode}/>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route
@@ -83,8 +117,6 @@ export const AppRouter = () => {
               </PrivateRoute>
             }
           />
-          <Route path="/room" element={<Room />} />
-
           <Route
             path="/billing"
             element={
@@ -118,5 +150,6 @@ export const AppRouter = () => {
         <Footer />
       </Router>
     </Box>
+    </ThemeProvider>
   );
 };

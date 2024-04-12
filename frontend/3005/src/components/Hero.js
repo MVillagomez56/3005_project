@@ -9,7 +9,7 @@ export const Hero = () => {
       sx={{
         pt: 8,
         pb: 6,
-        backgroundColor: '#FFD1DC', // Feel free to change the color
+        bgcolor: 'primary.main',
         color: 'white',
       }}
     >

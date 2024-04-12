@@ -9,10 +9,10 @@ export const Footer = () => {
     <Box sx={{ bgcolor: 'pink', p: 4 }} component="footer"> {/* Updated padding and color */}
       <Container maxWidth="sm" sx={{ textAlign: 'center' }}>
         <Typography variant="h6" component="p">
-          Website Name
+          Muha Muha Gym
         </Typography>
-        <Typography variant="subtitle1" component="p">
-          Contact Email: 12456@gmail.com
+        <Typography variant="subtitle2" component="p">
+        © 2024 Muha Muha Gym. All rights reserved. No part of this website, including text, graphics, logos, images, and information, may be reproduced, distributed, or transmitted in any form or by any means, without the prior written permission of Muha Muha Gym.
         </Typography>
       </Container>
     </Box>

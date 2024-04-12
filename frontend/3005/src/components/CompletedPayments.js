@@ -5,7 +5,7 @@ const CompletedPayments = ({ payments }) => {
   return (
     <div style={{ margin: '20px' }}> {/* Container margin */}
       {payments.filter(payment => payment.completion_status === true).map(payment => (
-        <Card key={payment.id} sx={{ mb: 2, boxShadow: 3, borderRadius: 2, backgroundColor: '#f9f9f9' }}>
+        <Card key={payment.id} sx={{ mb: 2, boxShadow: 3, borderRadius: 2,  }}>
           <CardContent>
             <Typography variant="h6" color="primary" gutterBottom>
               Payment ID: {payment.id}

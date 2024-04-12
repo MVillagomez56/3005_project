@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography, Card } from "@mui/material";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import { InfoField } from "./InfoField";
 import { IconButton } from "@mui/material";
@@ -76,7 +76,7 @@ export const HealthStats = ({ id }) => {
     setEdit(false);
   };
   return (
-    <Box
+    <Card
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -84,7 +84,6 @@ export const HealthStats = ({ id }) => {
         padding: "3rem",
         borderRadius: "10px",
         maxWidth: "50%",
-        backgroundColor: "white",
       }}
     >
       <Typography variant="h4">
@@ -135,6 +134,6 @@ export const HealthStats = ({ id }) => {
           Save
         </Button>
       </Box>
-    </Box>
+    </Card>
   );
 };

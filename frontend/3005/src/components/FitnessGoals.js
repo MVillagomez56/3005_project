@@ -8,6 +8,7 @@ import {
   Checkbox,
   IconButton,
   Typography,
+  Card
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditRounded from "@mui/icons-material/EditRounded";
@@ -129,14 +130,13 @@ export const FitnessGoals = ({ currentUser }) => {
     setNewGoal("");
   };
   return (
-    <Box
+    <Card
       sx={{
         display: "flex",
         flexDirection: "column",
         gap: "10px",
         padding: "3rem",
         borderRadius: "10px",
-        backgroundColor: "white",
       }}
     >
       <Typography variant="h4">Fitness Goals!</Typography>
@@ -219,6 +219,6 @@ export const FitnessGoals = ({ currentUser }) => {
           </Button>
         </Box>
       }
-    </Box>
+    </Card>
   );
 };

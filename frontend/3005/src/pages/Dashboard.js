@@ -57,8 +57,7 @@ export const Dashboard = () => {
         alignItems: "center",
         gap: "1rem",
         padding: "2rem",
-        borderRadius: 5,
-      
+        borderRadius: 5,      
       }}>
         <Typography variant="h4" fontWeight={"bold"}>
           Featured Classes
@@ -126,7 +125,6 @@ export const Dashboard = () => {
                         flexDirection: "column",
                         border: "1px solid #ccc",
                         boxShadow: 1,
-                        backgroundColor: "white",
                         px: 2,
                         py: 1,
                         borderRadius: 2,

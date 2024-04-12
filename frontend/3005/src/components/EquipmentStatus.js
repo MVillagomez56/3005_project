@@ -1,5 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Button, TextField, MenuItem, Select, FormControl, InputLabel, Card, CardContent, Grid } from '@mui/material';
+import {
+  Container,
+  Typography,
+  Button,
+  TextField,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Card,
+  CardContent,
+  CardMedia,
+  Grid,
+} from '@mui/material';
+import equipmentImage from '../assets/equipment_image.jpg';
+
 
 export const EquipmentStatus = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -55,12 +70,23 @@ export const EquipmentStatus = () => {
         {equipment.map((eq) => (
           <Grid item xs={12} md={6} key={eq.id}>
             <Card>
+              <CardMedia
+                component="img"
+                height="140"
+                image={equipmentImage}
+                alt="Equipment image"
+              />
               <CardContent>
                 <Typography variant="h6">Name: {eq.name}</Typography>
                 <Typography>Description: {eq.description}</Typography>
                 <Typography>Status: {eq.status}</Typography>
                 {user.role === 'admin' && (
-                  <Button variant="contained" color="primary" onClick={() => handleEditClick(eq)}>
+                  <Button 
+                    variant="contained" 
+                    color="primary" 
+                    onClick={() => handleEditClick(eq)}
+                    style={{ backgroundColor: 'pink' }}
+                  >
                     Edit
                   </Button>
                 )}
@@ -93,7 +119,12 @@ export const EquipmentStatus = () => {
               <MenuItem value="maintenance">Maintenance</MenuItem>
             </Select>
           </FormControl>
-          <Button variant="contained" color="secondary" onClick={sendEquipmentModification} style={{ marginTop: '10px' }}>
+          <Button 
+            variant="contained" 
+            color="secondary" 
+            onClick={sendEquipmentModification} 
+            style={{ marginTop: '10px', backgroundColor: 'pink' }}
+          >
             Submit
           </Button>
         </Container>

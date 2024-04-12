@@ -10,8 +10,7 @@ import {
   CardMedia,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import personal from "../assets/success_image.png";
-import group from "../assets/group_class_image.jpg";
+import featuredClass from '../assets/featured_class.jpg';
 import { convertTime, dayOfWeek } from "../utils/time_converter";
 
 const FeaturedClass = ({
@@ -44,7 +43,7 @@ const FeaturedClass = ({
       >
         <CardMedia
           component="img"
-          image={type === "personal" ? personal : group}
+          image={featuredClass}
           alt={title}
           sx={{ height: "300px", objectFit: "cover" }} // Adjust image height and fit as needed
         />

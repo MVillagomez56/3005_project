@@ -6,7 +6,6 @@ import { Register } from "./pages/Register.js";
 import { Login } from "./pages/Login.tsx";
 import { Checkout } from "./pages/Checkout";
 import { CourseDetail } from "./pages/CourseDetail";
-import { RoomDetail } from "./pages/RoomDetail";
 import { ClassEdit } from "./pages/ClassEdit";
 import { PrivateRoute } from "./PrivateRoute";
 import { Navbar } from "./components/Navbar.tsx";
@@ -22,7 +21,6 @@ import { RegisterComplete } from "./pages/RegisterComplete.js";
 import { useAuth } from "./store/AuthContext";
 import { PersonalSessionDetail } from "./pages/PersonalSessionDetail.js";
 import { Error } from "./pages/Error.js";
-import { AdminClassModification } from "./pages/AdminClassModification.js";
 import { CreateClass } from "./pages/CreateClass.js";
 import { TrainerRegistration } from "./pages/TrainerRegistration.js";
 import { Box } from "@mui/material";
@@ -86,7 +84,6 @@ export const AppRouter = () => {
             }
           />
           <Route path="/room" element={<Room />} />
-          <Route path="/room/:id" element={<RoomDetail />} />
 
           <Route
             path="/billing"

@@ -343,6 +343,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER delete_payment
-AFTER DELETE ON Classes_Members
+BEFORE DELETE ON Classes_Members
 FOR EACH ROW
 EXECUTE FUNCTION delete_payment();   

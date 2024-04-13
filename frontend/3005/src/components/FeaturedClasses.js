@@ -32,7 +32,7 @@ export const FeaturedClasses = () => {
   }, []);
   console.log(featuredClasses);
   return (
-    <Box sx={{ display: "flex", flexWrap: "wrap", flexDirection: "row" }}>
+    <Box sx={{ display: "flex", flexWrap: "wrap", flexDirection: "row", gap:'0.5rem' }}>
       {featuredClasses.length > 0 ? (
         featuredClasses.map((featuredClass) => (
           <FeaturedClass

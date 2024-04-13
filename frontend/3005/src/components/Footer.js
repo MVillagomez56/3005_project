@@ -6,7 +6,9 @@ import Container from '@mui/material/Container';
 
 export const Footer = () => {
   return (
-    <Box sx={{ bgcolor: 'pink', p: 4 }} component="footer"> {/* Updated padding and color */}
+    <Box sx={{ 
+      
+     }} component="footer"> {/* Updated padding and color */}
       <Container maxWidth="sm" sx={{ textAlign: 'center' }}>
         <Typography variant="h6" component="p">
           Muha Muha Gym

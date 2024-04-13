@@ -29,7 +29,7 @@ export const MemberRegistration = () => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ height:numWeight, weight:numHeight }),
+        body: JSON.stringify({ height:numHeight, weight:numWeight }),
       }
     );
 
@@ -86,12 +86,12 @@ export const MemberRegistration = () => {
         <TextField
           required
           id="outlined"
-          label="Height (m)"
+          label="Height (cm)"
           value={height}
           onChange={(e) => setHeight(e.target.value)}
         />
 
-        <Typography>{`Your BMI is ${weight / (height * height)}.`} </Typography>
+        <Typography>{`Your BMI is ${weight / (height/100 * height/100)}.`} </Typography>
 
         <Typography>What are your fitness goals?</Typography>
 

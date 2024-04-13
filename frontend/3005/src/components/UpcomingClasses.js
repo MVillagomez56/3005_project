@@ -38,7 +38,6 @@ export const UpcomingClasses = ({ id }) => {
         padding: "3rem",
         borderRadius: "10px",
         maxWidth: "100vw",
-        backgroundColor: "white",
       }}
     >
       <Typography

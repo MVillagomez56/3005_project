@@ -8,7 +8,7 @@ Han Zhang 101263082
 Jialu Li 
 
 ## Start the project
-To get started, first set up a database with the schema provided in the file DDL.sql and the seed data in the DML.sql fil.e
+To get started, first set up a database with the schema provided in the file DDL.sql and the seed data in the DML.sql file in PGAdmin's query tool.
 Ensure that your port, username, and password are correct in the file backend/db.js.
 
 Then, run the following commands in the terminal:
